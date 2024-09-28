@@ -4,6 +4,14 @@ class Vector3 {
         this.y = y;
         this.z = z;
     }
+
+    add(other){
+        return new Vector3(this.x + other.x, this.y + other.y, this.z + other.z);
+    }
+
+    multiply(scalar){
+        return new Vector3(this.x * scalar, this.y * scalar, this.z * scalar)
+    }
 }
 
 class Vector4 {
@@ -55,6 +63,21 @@ class Matrix4x4{
         return matrix;
     }
 
+    static RotationX(radians){
+
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
+
+        // console.log(cos)
+        // console.log(sin)
+
+        const matrix = this.Identity();
+        matrix.setY(new Vector4(0, cos, sin, 0))
+        matrix.setZ(new Vector4(0, -sin, cos, 0))
+
+        return matrix;
+    }
+
     static RotationY(radians){
 
         const cos = Math.cos(radians);
@@ -66,6 +89,21 @@ class Matrix4x4{
         const matrix = this.Identity();
         matrix.setX(new Vector4(cos, 0, -sin, 0))
         matrix.setZ(new Vector4(sin, 0, cos, 0))
+
+        return matrix;
+    }
+
+    static RotationZ(radians){
+
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
+
+        // console.log(cos)
+        // console.log(sin)
+
+        const matrix = this.Identity();
+        matrix.setX(new Vector4(cos, sin, 0, 0))
+        matrix.setY(new Vector4(-sin, cos, 0, 0))
 
         return matrix;
     }
@@ -293,10 +331,6 @@ async function Init() {
         mouseChangeX += event.movementX;
         mouseChangeY += event.movementY;
     })
-    //
-    // document.querySelector(".mybody").onmousemove = (event) => {
-    //
-    // }
 
     requestAnimationFrame(Frame)
 
@@ -304,30 +338,26 @@ async function Init() {
         frameCount++;
 
         const velocity = 0.5;
-        const rotationVelocity = 0.05;
 
         if(wDown){
-            camera.position.z -= velocity;
+            const transformation = Matrix4x4.RotationY(camera.rotation.y).multiplyVector(new Vector4(0, 0, 1, 0))
+            camera.position = camera.position.add(new Vector3(transformation.x, transformation.y, transformation.z).multiply(-velocity));
         }
         if(sDown){
-            camera.position.z += velocity;
+            const transformation = Matrix4x4.RotationY(camera.rotation.y).multiplyVector(new Vector4(0, 0, 1, 0))
+            camera.position = camera.position.add(new Vector3(transformation.x, transformation.y, transformation.z).multiply(velocity));
         }
 
         camera.rotation.y += -mouseChangeX * 0.001;
         // camera.rotation.x += -mouseChangeY * 0.001;
 
-        // if(leftDown){
-        //     camera.rotation.y -= rotationVelocity;
-        // }
-        // if(rightDown){
-        //     camera.rotation.y += rotationVelocity;
-        // }
-
         if(aDown){
-            camera.position.x -= velocity;
+            const transformation = Matrix4x4.RotationY(camera.rotation.y).multiplyVector(new Vector4(1, 0, 0, 0))
+            camera.position = camera.position.add(new Vector3(transformation.x, transformation.y, transformation.z).multiply(-velocity));
         }
         if(dDown){
-            camera.position.x += velocity;
+            const transformation = Matrix4x4.RotationY(camera.rotation.y).multiplyVector(new Vector4(1, 0, 0, 0))
+            camera.position = camera.position.add(new Vector3(transformation.x, transformation.y, transformation.z).multiply(velocity));
         }
 
         if(shiftDown){
@@ -511,25 +541,14 @@ function EndFrame(camera) {
 
     const projectionMatrix = CreateCameraProjectionMatrix(60 * (Math.PI / 180), gameInfo.screenDimensions.width / gameInfo.screenDimensions.height, 0.00001, 1000);
     // const projectionMatrix = CreateOrthographicCameraMatrix(10, 10, 0.1, 20);
-    let cameraModelMatrix = Matrix4x4.Translation(camera.position).multiply(Matrix4x4.RotationY(camera.rotation.y));
+    let rotation = Matrix4x4.RotationX(camera.rotation.x).multiply(Matrix4x4.RotationY(camera.rotation.y)).multiply(Matrix4x4.RotationZ(camera.rotation.z))
+
+    let cameraModelMatrix = Matrix4x4.Translation(camera.position).multiply(rotation);
     let viewMatrix = cameraModelMatrix.invert()
-
-    const mvpMatrix = projectionMatrix.multiply(viewMatrix);
-
-    // console.log("--------------------")
-    // const debugPos = new Vector4(1, 0, 1, 1);
-    // console.log("View: ", viewMatrix.multiplyVector(debugPos))
-    // console.log("Projection", projectionMatrix.multiplyVector(debugPos))
-    // console.log("View + Projection: ", mvpMatrix.multiplyVector(debugPos))
-    // console.log("View + Projection + perspectiveDivision: ", mvpMatrix.multiplyVector(debugPos).perspectiveDivision())
 
     //https://jsantell.com/model-view-projection/
     //https://jsantell.com/3d-projection/
-    //console.log(projectionMatrix)
 
-    //model - view - projection
-    // const mvpData = mvpMatrix.toFloat32Array();
-    // const uniformData = new Float32Array([... viewMatrix.toArray(), ... projectionMatrix.toArray() ]);
     const viewMatrixData = new Float32Array(viewMatrix.toArray());
     const projectionMatrixData = new Float32Array(projectionMatrix.toArray());
 
