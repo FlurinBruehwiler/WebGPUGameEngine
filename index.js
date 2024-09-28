@@ -254,6 +254,10 @@ let res = left.multiply(right)
 console.log(res)
 
 async function Init() {
+    document.addEventListener("click", function () {
+        document.body.requestPointerLock();
+    });
+
     const canvas = document.querySelector("#gpuCanvas")
     canvas.width = canvas.parentElement.clientWidth;
     canvas.height = canvas.parentElement.clientHeight;
@@ -274,6 +278,8 @@ async function Init() {
     let shiftDown = false;
     let leftDown = false;
     let rightDown = false;
+    let mouseChangeX = 0;
+    let mouseChangeY = 0;
 
     document.onkeydown = (event) => {
         HandleKeyEvent(event.code, true)
@@ -282,6 +288,15 @@ async function Init() {
     document.onkeyup = (event) => {
         HandleKeyEvent(event.code, false)
     }
+
+    document.querySelector(".mybody").addEventListener("mousemove", (event) => {
+        mouseChangeX += event.movementX;
+        mouseChangeY += event.movementY;
+    })
+    //
+    // document.querySelector(".mybody").onmousemove = (event) => {
+    //
+    // }
 
     requestAnimationFrame(Frame)
 
@@ -298,12 +313,15 @@ async function Init() {
             camera.position.z += velocity;
         }
 
-        if(leftDown){
-            camera.rotation.y -= rotationVelocity;
-        }
-        if(rightDown){
-            camera.rotation.y += rotationVelocity;
-        }
+        camera.rotation.y += -mouseChangeX * 0.001;
+        // camera.rotation.x += -mouseChangeY * 0.001;
+
+        // if(leftDown){
+        //     camera.rotation.y -= rotationVelocity;
+        // }
+        // if(rightDown){
+        //     camera.rotation.y += rotationVelocity;
+        // }
 
         if(aDown){
             camera.position.x -= velocity;
@@ -330,6 +348,9 @@ async function Init() {
         // );
 
         EndFrame(camera);
+
+        mouseChangeY = 0;
+        mouseChangeX = 0;
 
         requestAnimationFrame(Frame);
     }
@@ -495,12 +516,12 @@ function EndFrame(camera) {
 
     const mvpMatrix = projectionMatrix.multiply(viewMatrix);
 
-    console.log("--------------------")
-    const debugPos = new Vector4(1, 0, 1, 1);
-    console.log("View: ", viewMatrix.multiplyVector(debugPos))
-    console.log("Projection", projectionMatrix.multiplyVector(debugPos))
-    console.log("View + Projection: ", mvpMatrix.multiplyVector(debugPos))
-    console.log("View + Projection + perspectiveDivision: ", mvpMatrix.multiplyVector(debugPos).perspectiveDivision())
+    // console.log("--------------------")
+    // const debugPos = new Vector4(1, 0, 1, 1);
+    // console.log("View: ", viewMatrix.multiplyVector(debugPos))
+    // console.log("Projection", projectionMatrix.multiplyVector(debugPos))
+    // console.log("View + Projection: ", mvpMatrix.multiplyVector(debugPos))
+    // console.log("View + Projection + perspectiveDivision: ", mvpMatrix.multiplyVector(debugPos).perspectiveDivision())
 
     //https://jsantell.com/model-view-projection/
     //https://jsantell.com/3d-projection/
