@@ -5,7 +5,11 @@ struct VertexOut {
 
 @binding(0)
 @group(0)
-var<uniform> mvp : mat4x4<f32>;
+var<uniform> viewMatrix : mat4x4<f32>;
+
+@binding(1)
+@group(0)
+var<uniform> projectionMatrix : mat4x4<f32>;
 
 @vertex
 fn vertex_main(@location(0) position: vec4f, @location(1) color: vec4f) -> VertexOut
@@ -14,7 +18,7 @@ fn vertex_main(@location(0) position: vec4f, @location(1) color: vec4f) -> Verte
 
   //model view projection
 
-  output.position = mvp * position;
+  output.position = projectionMatrix * viewMatrix * position;
   output.color = color;
   return output;
 }
