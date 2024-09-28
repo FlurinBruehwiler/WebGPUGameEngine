@@ -68,9 +68,6 @@ class Matrix4x4{
         const cos = Math.cos(radians);
         const sin = Math.sin(radians);
 
-        // console.log(cos)
-        // console.log(sin)
-
         const matrix = this.Identity();
         matrix.setY(new Vector4(0, cos, sin, 0))
         matrix.setZ(new Vector4(0, -sin, cos, 0))
@@ -82,9 +79,6 @@ class Matrix4x4{
 
         const cos = Math.cos(radians);
         const sin = Math.sin(radians);
-
-        // console.log(cos)
-        // console.log(sin)
 
         const matrix = this.Identity();
         matrix.setX(new Vector4(cos, 0, -sin, 0))
@@ -98,9 +92,6 @@ class Matrix4x4{
         const cos = Math.cos(radians);
         const sin = Math.sin(radians);
 
-        // console.log(cos)
-        // console.log(sin)
-
         const matrix = this.Identity();
         matrix.setX(new Vector4(cos, sin, 0, 0))
         matrix.setY(new Vector4(-sin, cos, 0, 0))
@@ -109,23 +100,12 @@ class Matrix4x4{
     }
 
     multiply(other){
-
-        //console.log(this.row1())
-       // console.log(other.column1())
-
         return new Matrix4x4(
             DotProduct(this.row1(), other.column1()), DotProduct(this.row1(), other.column2()), DotProduct(this.row1(), other.column3()), DotProduct(this.row1(), other.column4()),
             DotProduct(this.row2(), other.column1()), DotProduct(this.row2(), other.column2()), DotProduct(this.row2(), other.column3()), DotProduct(this.row2(), other.column4()),
             DotProduct(this.row3(), other.column1()), DotProduct(this.row3(), other.column2()), DotProduct(this.row3(), other.column3()), DotProduct(this.row3(), other.column4()),
             DotProduct(this.row4(), other.column1()), DotProduct(this.row4(), other.column2()), DotProduct(this.row4(), other.column3()), DotProduct(this.row4(), other.column4())
         );
-
-        // return new Matrix4x4(
-        //     DotProduct(this.row1(), other.column1()), DotProduct(this.row2(), other.column1()), DotProduct(this.row3(), other.column1()), DotProduct(this.row4(), other.column1()),
-        //     DotProduct(this.row1(), other.column2()), DotProduct(this.row2(), other.column2()), DotProduct(this.row3(), other.column2()), DotProduct(this.row4(), other.column2()),
-        //     DotProduct(this.row1(), other.column3()), DotProduct(this.row2(), other.column3()), DotProduct(this.row3(), other.column3()), DotProduct(this.row4(), other.column3()),
-        //     DotProduct(this.row1(), other.column4()), DotProduct(this.row2(), other.column4()), DotProduct(this.row3(), other.column4()), DotProduct(this.row4(), other.column4())
-        // );
     }
 
     //http://matrixmultiplication.xyz/
@@ -279,18 +259,6 @@ const gameInfo = {
 
 await Init();
 
-let left = new Matrix4x4(1, 2, 3, 4,
-                                    5, 6, 7, 8,
-                                9, 10, 11, 12,
-                                13, 14, 15, 16);
-
-let right = new Matrix4x4(17, 18, 19, 20,
-                                21, 22, 23, 24,
-                            25, 26, 27, 28,
-                            29, 30, 31, 32)
-let res = left.multiply(right)
-console.log(res)
-
 async function Init() {
     document.addEventListener("click", function () {
         document.body.requestPointerLock();
@@ -304,8 +272,8 @@ async function Init() {
 
     let frameCount = 0;
     let camera = {
-        position: new Vector3(10, 2, -3),
-        rotation: new Vector3(0, 0, 0)
+        position: new Vector3(10, 0, 0),
+        rotation: new Vector3(0, Math.PI / 2, 0)
     }
 
     let wDown = false;
@@ -370,12 +338,6 @@ async function Init() {
         StartFrame();
 
         DrawCube()
-        // DrawRectangle(
-        //     {x: 0, y: 0, z: 0},
-        //     {x: 0, y: 1, z: 0},
-        //     {x: 1, y: 1, z: 0},
-        //     {x: 1, y: 0, z: 0},
-        // );
 
         EndFrame(camera);
 
@@ -410,7 +372,6 @@ async function Init() {
         if(keyCode === "ArrowRight"){
             rightDown = isDown;
         }
-        // console.log(keyCode)
     }
 }
 
@@ -435,23 +396,25 @@ async function InitRenderer(canvas) {
         code: shaders
     })
 
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+
     gameInfo.context = canvas.getContext("webgpu")
     gameInfo.context.configure({
         device: gameInfo.device,
-        format: navigator.gpu.getPreferredCanvasFormat(),
-        alphaMode: "premultiplied"
+        format: presentationFormat,
+        alphaMode: "premultiplied",
     })
 
     const vertexBuffers = [
         {
             attributes: [
                 {
-                    shaderLocation: 0,
+                    shaderLocation: 0, //position
                     offset: 0,
                     format: "float32x4"
                 },
                 {
-                    shaderLocation: 1,
+                    shaderLocation: 1, //color
                     offset: 16,
                     format: "float32x4"
                 }
@@ -472,7 +435,7 @@ async function InitRenderer(canvas) {
             entryPoint: "fragment_main",
             targets: [
                 {
-                    format: navigator.gpu.getPreferredCanvasFormat()
+                    format: presentationFormat
                 }
             ]
         },
@@ -491,17 +454,51 @@ function DrawRectangle(v1, v2, v3, v4) {
 }
 
 function DrawCube(position) {
+    const bottomBackLeft = new Vector3(0, 0, 0)
+    const bottomBackRight = new Vector3(1, 0, 0)
+    const bottomFrontLeft = new Vector3(0, 0, 1)
+    const bottomFrontRight = new Vector3(1, 0, 1)
+
+    const topBackLeft = new Vector3(0, 1, 0)
+    const topBackRight = new Vector3(1, 1, 0)
+    const topFrontLeft = new Vector3(0, 1, 1)
+    const topFrontRight = new Vector3(1, 1, 1)
+
     DrawRectangle(
-        {x: 0, y: 0, z: 0},
-        {x: 0, y: 1, z: 0},
-        {x: 1, y: 1, z: 0},
-        {x: 1, y: 0, z: 0},
+        bottomBackLeft,
+        bottomBackRight,
+        bottomFrontRight,
+        bottomFrontLeft,
     );
     DrawRectangle(
-        {x: 0, y: 0, z: 1},
-        {x: 0, y: 1, z: 1},
-        {x: 1, y: 1, z: 1},
-        {x: 1, y: 0, z: 1},
+        bottomBackLeft,
+        bottomBackRight,
+        topBackRight,
+        topBackLeft,
+    );
+    DrawRectangle(
+        topFrontLeft,
+        topFrontRight,
+        topBackRight,
+        topBackLeft,
+    );
+    DrawRectangle(
+        topFrontLeft,
+        topFrontRight,
+        bottomFrontRight,
+        bottomFrontLeft,
+    );
+    DrawRectangle(
+        topBackRight,
+        topFrontRight,
+        bottomFrontRight,
+        bottomBackRight,
+    );
+    DrawRectangle(
+        topBackLeft,
+        topFrontLeft,
+        bottomFrontLeft,
+        bottomBackLeft,
     );
 }
 
@@ -529,7 +526,7 @@ function EndFrame(camera) {
     const vertices = new Float32Array(gameInfo.vertices.flatMap(v =>
                                                     [
                                                         v.x, v.y, v.z, 1,
-                                                        1, 0, 1, 0
+                                                        1, 0.6, 1, 0
                                                     ]))
 
     const vertexBuffer = gameInfo.device.createBuffer({
@@ -540,7 +537,6 @@ function EndFrame(camera) {
     gameInfo.device.queue.writeBuffer(vertexBuffer, 0, vertices, 0, vertices.length);
 
     const projectionMatrix = CreateCameraProjectionMatrix(60 * (Math.PI / 180), gameInfo.screenDimensions.width / gameInfo.screenDimensions.height, 0.00001, 1000);
-    // const projectionMatrix = CreateOrthographicCameraMatrix(10, 10, 0.1, 20);
     let rotation = Matrix4x4.RotationX(camera.rotation.x).multiply(Matrix4x4.RotationY(camera.rotation.y)).multiply(Matrix4x4.RotationZ(camera.rotation.z))
 
     let cameraModelMatrix = Matrix4x4.Translation(camera.position).multiply(rotation);
@@ -585,18 +581,6 @@ function EndFrame(camera) {
     gameInfo.device.queue.submit([commandBuffer]);
 
     vertexBuffer.destroy(); //do I need this?
-}
-
-function CreateOrthographicCameraMatrix(width, height, nearDistance, farDistance) {
-    const range = 1 / (nearDistance - farDistance);
-
-    const matrix = new Matrix4x4();
-    matrix.setX(new Vector4(2 / width, 0, 0, 0));
-    matrix.setY(new Vector4(0, 2 / height, 0, 0));
-    matrix.setZ(new Vector4(0, 0, range, 0));
-    matrix.setW(new Vector4(0, 0, range * nearDistance, 1))
-
-    return matrix;
 }
 
 function CreateCameraProjectionMatrix(fov, aspectRatio, nearDistance, farDistance) {
