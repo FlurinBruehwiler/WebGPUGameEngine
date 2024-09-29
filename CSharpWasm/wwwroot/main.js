@@ -1,6 +1,3 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
 import { dotnet } from './_framework/dotnet.js'
 
 const { setModuleImports, runMain } = await dotnet.create();
@@ -20,8 +17,11 @@ setModuleImports('main.js', {
         createView: (texture) => texture.createView()
     },
     GPUQueue: {
-        writeBuffer: (queue, buffer, bufferOffset, data, dataOffset, size) => queue.writeBuffer(buffer, bufferOffset, data, dataOffset, size),
-        submit: (queue, commandBuffers) => queue.submit(commandBuffers)
+        writeBuffer: (queue, buffer, bufferOffset, data, dataOffset, size) => queue.writeBuffer(buffer, bufferOffset, new Float32Array(data), dataOffset, size),
+        submit: (queue, commandBuffers) => {
+            console.log("submit")
+            return queue.submit(commandBuffers);
+        }
     },
     GPUDevice: {
         createCommandEncoder: (device) => device.createCommandEncoder(),
@@ -57,9 +57,13 @@ setModuleImports('main.js', {
 });
 
 function JsonToObjectWithReferences(json, references) {
+    console.log(json)
+
     const obj = JSON.parse(json);
 
     ReplaceReferences(obj, references)
+
+    console.log(obj)
 
     return obj
 }
@@ -67,15 +71,20 @@ function JsonToObjectWithReferences(json, references) {
 function ReplaceReferences(obj, references) {
     Object.keys(obj).forEach(propertyName => {
         const prefix = "JSObject_Reference_";
-        if(propertyName.startsWith(prefix)){
-            const num = propertyName.substring(0, prefix.length)
+        if(typeof obj[propertyName] === 'string' && obj[propertyName].startsWith(prefix)){
+            const num = obj[propertyName].substring(prefix.length);
             obj[propertyName] = references[Number(num)]
         }
         else if(typeof obj[propertyName] === 'object'){
-            ReplaceReferences(obj, references)
+            ReplaceReferences(obj[propertyName], references)
         }
     })
 }
+
+const canvas = document.querySelector("#gpuCanvas")
+
+canvas.width = canvas.parentElement.clientWidth;
+canvas.height = canvas.parentElement.clientHeight;
 
 await runMain();
 

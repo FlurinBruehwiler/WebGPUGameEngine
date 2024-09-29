@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace WasmTestCSharp.WebGPU;
 
@@ -8,16 +7,9 @@ public class GPU
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/GPU/getPreferredCanvasFormat
     /// </summary>
-    public static TextureFormat GetPreferredCanvasFormat()
+    public static string GetPreferredCanvasFormat()
     {
-        var strValue = Interop.GPU_GetPreferredCanvasFormat();
-
-        if (Enum.TryParse<TextureFormat>(strValue, out var textureFormat))
-        {
-            return textureFormat;
-        }
-
-        throw new Exception($"Invalid texture format: {strValue}");
+        return Interop.GPU_GetPreferredCanvasFormat();
     }
 
     public static async Task<GPUAdapter> RequestAdapter()

@@ -106,6 +106,8 @@ public class BindGroupEntry
 public class EntryResource
 {
     public required GPUBuffer Buffer { get; init; }
+    public int Offset { get; set; }
+    public int Size { get; set; }
 }
 
 public class ShaderModuleDescriptor
@@ -121,24 +123,9 @@ public class RenderPipelineDescriptor
     public required string Layout { get; set; }
 }
 
-public enum TextureFormat
-{
-    Rgba8unorm,
-    Bgra8unorm
-}
-
-public enum Topology
-{
-    TriangleList,
-    LineList,
-    LineStrip,
-    PointList,
-    TriangleStrip
-}
-
 public class PrimitiveDecsriptor
 {
-    public Topology Topology { get; set; }
+    public string Topology { get; set; }
 }
 
 public class FragmentDescriptor
@@ -150,7 +137,7 @@ public class FragmentDescriptor
 
 public class FragmentTarget
 {
-    public TextureFormat Format { get; set; }
+    public string Format { get; set; }
 }
 
 public class VertexDescriptor
@@ -163,14 +150,8 @@ public class VertexDescriptor
 public class VertexBufferDescriptor
 {
     public int ArrayStride { get; set; }
-    public StepMode StepMode { get; set; }
+    public string StepMode { get; set; }
     public VertexAttribute[] Attributes { get; set; }
-}
-
-public enum StepMode
-{
-    Vertex,
-    Instance,
 }
 
 public class VertexAttribute
@@ -190,8 +171,17 @@ public class CreateBufferDescriptor
 
 }
 
+[Flags]
 public enum GPUBufferUsage
 {
-    VERTEX,
-    COPY_DST
+    COPY_SRC = 4,
+    COPY_DST = 8,
+    INDEX = 16,
+    INDIRECT = 256,
+    MAP_READ = 1,
+    MAP_WRITE = 2,
+    QUERY_RESOLVE = 512,
+    STORAGE = 128,
+    UNIFORM = 64,
+    VERTEX = 32,
 }

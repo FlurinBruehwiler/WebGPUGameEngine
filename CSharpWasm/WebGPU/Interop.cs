@@ -38,7 +38,7 @@ public partial class Interop
 
     //GPUQueue
     [JSImport("GPUQueue.writeBuffer", "main.js")]
-    public static partial void GPUQueue_WriteBuffer(JSObject gpuQueue, JSObject buffer, int bufferOffset, float[] data, int dataOffset, int size);
+    public static partial void GPUQueue_WriteBuffer(JSObject gpuQueue, JSObject buffer, int bufferOffset, double[] data, int dataOffset, int size);
 
     [JSImport("GPUQueue.submit", "main.js")]
     public static partial void GPUQueue_Submit(JSObject gpuQueue, JSObject[] commandBuffers);
@@ -94,7 +94,7 @@ public partial class Interop
     public static partial JSObject Canvas_GetContext(JSObject canvas, string contextId);
 
     //Document
-    [JSImport("Document.querSelector", "main.js")]
+    [JSImport("Document.querySelector", "main.js")]
     public static partial JSObject Document_QuerySelector(string selector);
 }
 
@@ -105,8 +105,9 @@ public static class InteropHelper
         var referenceManager = new ReferenceManager();
         var options = new JsonSerializerOptions
         {
-            Converters = { new InteropObjectConverter(referenceManager) },
-            TypeInfoResolver = InteropSerializerContext.Default
+            Converters = { new InteropObjectConverterFactory(referenceManager) },
+            TypeInfoResolver = InteropSerializerContext.Default,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
         var json = JsonSerializer.Serialize(complexObject, options);
@@ -116,6 +117,11 @@ public static class InteropHelper
 }
 
 [JsonSerializable(typeof(CreateBufferDescriptor))]
+[JsonSerializable(typeof(RenderPipelineDescriptor))]
+[JsonSerializable(typeof(RenderPassDescriptor))]
+[JsonSerializable(typeof(BindGroupDescriptor))]
+[JsonSerializable(typeof(ShaderModuleDescriptor))]
+[JsonSerializable(typeof(ContextConfig))]
 public partial class InteropSerializerContext : JsonSerializerContext;
 
 public class ReferenceManager
@@ -136,6 +142,19 @@ public class ReferenceManager
     public JSObject[] GetReferences()
     {
         return _objects.ToArray();
+    }
+}
+
+public class InteropObjectConverterFactory(ReferenceManager referenceManager) : JsonConverterFactory
+{
+    public override bool CanConvert(Type typeToConvert)
+    {
+        return typeToConvert.IsAssignableTo(typeof(IInteropObject));
+    }
+
+    public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+    {
+        return new InteropObjectConverter(referenceManager);
     }
 }
 

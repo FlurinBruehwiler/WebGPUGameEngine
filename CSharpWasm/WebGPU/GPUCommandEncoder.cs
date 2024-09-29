@@ -37,25 +37,13 @@ public class GPUCommandEncoder : IInteropObject
 
 public class RenderPassDescriptor
 {
-    public required ColorAttachement[] ColorAttachements { get; init; }
+    public required ColorAttachment[] ColorAttachments { get; init; }
 }
 
-public class ColorAttachement
+public class ColorAttachment
 {
     public Color ClearColor { get; init; }
-    public required LoadOp LoadOp { get; init; }
-    public required StoreOp StoreOp { get; init; }
+    public required string LoadOp { get; init; }
+    public required string StoreOp { get; init; }
     public required GPUTextureView View { get; init; }
-}
-
-public enum LoadOp
-{
-    Clear,
-    Load
-}
-
-public enum StoreOp
-{
-    Discard,
-    Store
 }

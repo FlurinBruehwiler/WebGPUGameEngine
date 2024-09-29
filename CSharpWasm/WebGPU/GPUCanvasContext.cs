@@ -31,12 +31,6 @@ public class GPUCanvasContext : IInteropObject
 public class ContextConfig
 {
     public GPUDevice Device { get; set; }
-    public TextureFormat Format { get; set; }
-    public AlphaMode AlphaMode { get; set; }
-}
-
-public enum AlphaMode
-{
-    Opaque,
-    Premultiplied
+    public string Format { get; set; }
+    public string AlphaMode { get; set; }
 }

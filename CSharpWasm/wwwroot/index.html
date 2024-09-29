@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html style="height: 100%" lang="en">
 
 <head>
   <title>WasmTestCSharp</title>
@@ -8,15 +8,8 @@
   <script type='module' src="./main.js"></script>
 </head>
 
-<body>
-  <h1>Stopwatch</h1>
-  <p>
-    Time elapsed in .NET is <span id="time"><i>loading...</i></span>
-  </p>
-  <p>
-    <button id="pause">Pause</button>ff
-    <button id="reset">Reset</button>
-  </p>
+<body style="height: 100%; margin: 0; overflow: hidden">
+  <canvas id="gpuCanvas"></canvas>
 </body>
 
 </html>

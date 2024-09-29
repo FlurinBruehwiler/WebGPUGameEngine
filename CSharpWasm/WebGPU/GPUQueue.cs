@@ -13,7 +13,7 @@ public class GPUQueue : IInteropObject
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/GPUQueue/writeBuffer
     /// </summary>
-    public void WriteBuffer(GPUBuffer buffer, int bufferOffset, float[] data, int dataOffset, int size)
+    public void WriteBuffer(GPUBuffer buffer, int bufferOffset, double[] data, int dataOffset, int size)
     {
         Interop.GPUQueue_WriteBuffer(JsObject, buffer.JsObject, bufferOffset, data, dataOffset, size);
     }
