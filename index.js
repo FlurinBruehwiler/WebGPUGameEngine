@@ -254,19 +254,18 @@ const gameInfo = {
     renderPipeline: undefined,
     device: undefined,
     context: undefined,
-    screenDimensions: {width: 0, height: 0}
+    screenDimensions: {width: 0, height: 0},
+    canvas: undefined,
 }
 
 await Init();
 
 async function Init() {
-    document.addEventListener("click", function () {
-        document.body.requestPointerLock();
-    });
-
     const canvas = document.querySelector("#gpuCanvas")
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
+
+    canvas.addEventListener("click", function () {
+        canvas.requestPointerLock();
+    });
 
     await InitRenderer(canvas)
 
@@ -295,7 +294,7 @@ async function Init() {
         HandleKeyEvent(event.code, false)
     }
 
-    document.querySelector(".mybody").addEventListener("mousemove", (event) => {
+    canvas.addEventListener("mousemove", (event) => {
         mouseChangeX += event.movementX;
         mouseChangeY += event.movementY;
     })
@@ -303,6 +302,9 @@ async function Init() {
     requestAnimationFrame(Frame)
 
     function Frame(){
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+
         frameCount++;
 
         const velocity = 0.5;
@@ -318,6 +320,7 @@ async function Init() {
 
         camera.rotation.y += -mouseChangeX * 0.001;
         // camera.rotation.x += -mouseChangeY * 0.001;
+        // camera.rotation.z += -mouseChangeY * 0.001;
 
         if(aDown){
             const transformation = Matrix4x4.RotationY(camera.rotation.y).multiplyVector(new Vector4(1, 0, 0, 0))
@@ -388,6 +391,7 @@ async function InitRenderer(canvas) {
     gameInfo.device = await adapter.requestDevice();
     gameInfo.screenDimensions.width = canvas.width;
     gameInfo.screenDimensions.height = canvas.height;
+    gameInfo.canvas = canvas;
 
     const shaderDownloadResponse = await fetch("shader.wgsl");
     const shaders = await shaderDownloadResponse.text();
@@ -397,6 +401,8 @@ async function InitRenderer(canvas) {
     })
 
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+
+    console.log(presentationFormat)
 
     gameInfo.context = canvas.getContext("webgpu")
     gameInfo.context.configure({
@@ -508,6 +514,9 @@ function DrawTriangle(v1, v2, v3) {
 
 function EndFrame(camera) {
 
+    gameInfo.screenDimensions.width = gameInfo.canvas.width;
+    gameInfo.screenDimensions.height = gameInfo.canvas.height;
+
     const commandEncoder = gameInfo.device.createCommandEncoder();
     const clearColor = { r: 0.0, g: 0.5, b: 1.0, a: 1.0 };
 
@@ -526,7 +535,7 @@ function EndFrame(camera) {
     const vertices = new Float32Array(gameInfo.vertices.flatMap(v =>
                                                     [
                                                         v.x, v.y, v.z, 1,
-                                                        1, 0.6, 1, 0
+                                                        1, 0.6, 1, 1
                                                     ]))
 
     const vertexBuffer = gameInfo.device.createBuffer({
@@ -537,7 +546,7 @@ function EndFrame(camera) {
     gameInfo.device.queue.writeBuffer(vertexBuffer, 0, vertices, 0, vertices.length);
 
     const projectionMatrix = CreateCameraProjectionMatrix(60 * (Math.PI / 180), gameInfo.screenDimensions.width / gameInfo.screenDimensions.height, 0.00001, 1000);
-    let rotation = Matrix4x4.RotationX(camera.rotation.x).multiply(Matrix4x4.RotationY(camera.rotation.y)).multiply(Matrix4x4.RotationZ(camera.rotation.z))
+    let rotation = Matrix4x4.RotationZ(camera.rotation.z).multiply(Matrix4x4.RotationY(camera.rotation.y)).multiply(Matrix4x4.RotationX(camera.rotation.x))
 
     let cameraModelMatrix = Matrix4x4.Translation(camera.position).multiply(rotation);
     let viewMatrix = cameraModelMatrix.invert()
