@@ -41,24 +41,15 @@ setModuleImports('main.js', {
     GPURenderPipeline: {
         getBindGroupLayout: (renderPipeline, index) => renderPipeline.getBindGroupLayout(index)
     },
-    GPU: {
-        getPreferredCanvasFormat: () => navigator.gpu.getPreferredCanvasFormat(),
-        requestAdapter: async () => await navigator.gpu.requestAdapter()
-    },
     GPUAdapter: {
         requestDevice: async (gpuAdapter) => await gpuAdapter.requestDevice()
     },
     Canvas: {
         getContext: (canvas, contextId) => canvas.getContext(contextId)
     },
-    Document: {
-        querySelector: (selector) => document.querySelector(selector)
-    }
 });
 
 function JsonToObjectWithReferences(json, references) {
-    console.log(json)
-
     const obj = JSON.parse(json);
 
     ReplaceReferences(obj, references)

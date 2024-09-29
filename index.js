@@ -269,37 +269,47 @@ async function Init() {
 
     await InitRenderer(canvas)
 
-    let frameCount = 0;
+    // let frameCount = 0;
     let camera = {
         position: new Vector3(10, 0, 0),
         rotation: new Vector3(0, Math.PI / 2, 0)
     }
+    // }
+    //
+    // let wDown = false;
+    // let aDown = false;
+    // let sDown = false;
+    // let dDown = false;
+    // let spaceDown = false;
+    // let shiftDown = false;
+    // let leftDown = false;
+    // let rightDown = false;
+    // let mouseChangeX = 0;
+    // let mouseChangeY = 0;
+    //
+    // document.onkeydown = (event) => {
+    //     HandleKeyEvent(event.code, true)
+    // }
+    //
+    // document.onkeyup = (event) => {
+    //     HandleKeyEvent(event.code, false)
+    // }
+    //
+    // canvas.addEventListener("mousemove", (event) => {
+    //     mouseChangeX += event.movementX;
+    //     mouseChangeY += event.movementY;
+    // })
 
-    let wDown = false;
-    let aDown = false;
-    let sDown = false;
-    let dDown = false;
-    let spaceDown = false;
-    let shiftDown = false;
-    let leftDown = false;
-    let rightDown = false;
-    let mouseChangeX = 0;
-    let mouseChangeY = 0;
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
 
-    document.onkeydown = (event) => {
-        HandleKeyEvent(event.code, true)
-    }
+    StartFrame();
 
-    document.onkeyup = (event) => {
-        HandleKeyEvent(event.code, false)
-    }
+    DrawCube()
 
-    canvas.addEventListener("mousemove", (event) => {
-        mouseChangeX += event.movementX;
-        mouseChangeY += event.movementY;
-    })
+    EndFrame(camera);
 
-    requestAnimationFrame(Frame)
+    //requestAnimationFrame(Frame)
 
     function Frame(){
         canvas.width = canvas.parentElement.clientWidth;

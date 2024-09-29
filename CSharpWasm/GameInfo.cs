@@ -18,5 +18,8 @@ public class GameInfo
     {
         ScreenWidth = Canvas.JsObject.GetPropertyAsInt32("width");
         ScreenHeight = Canvas.JsObject.GetPropertyAsInt32("height");
+
+        Interop.Console_Log(ScreenWidth.ToString());
+        Interop.Console_Log(ScreenHeight.ToString());
     }
 }

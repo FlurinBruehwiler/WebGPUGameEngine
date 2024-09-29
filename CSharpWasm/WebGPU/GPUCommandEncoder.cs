@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Runtime.InteropServices.JavaScript;
+﻿using System.Runtime.InteropServices.JavaScript;
 
 namespace WasmTestCSharp.WebGPU;
 
@@ -42,8 +41,16 @@ public class RenderPassDescriptor
 
 public class ColorAttachment
 {
-    public Color ClearColor { get; init; }
+    public required ClearColor ClearValue { get; init; }
     public required string LoadOp { get; init; }
     public required string StoreOp { get; init; }
     public required GPUTextureView View { get; init; }
+}
+
+public class ClearColor
+{
+    public float R { get; set; }
+    public float G { get; set; }
+    public float B { get; set; }
+    public float A { get; set; }
 }

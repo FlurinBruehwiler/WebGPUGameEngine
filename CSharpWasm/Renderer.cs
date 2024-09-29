@@ -9,17 +9,17 @@ namespace WasmTestCSharp;
 
 public static class Renderer
 {
-    public static void DrawCube()
+    public static void DrawCube(Vector3 location)
     {
-        var bottomBackLeft = new Vector3(0, 0, 0);
-        var bottomBackRight = new Vector3(1, 0, 0);
-        var bottomFrontLeft = new Vector3(0, 0, 1);
-        var bottomFrontRight = new Vector3(1, 0, 1);
+        var bottomBackLeft = new Vector3(0, 0, 0) + location;
+        var bottomBackRight = new Vector3(1, 0, 0) + location;
+        var bottomFrontLeft = new Vector3(0, 0, 1) + location;
+        var bottomFrontRight = new Vector3(1, 0, 1) + location;
 
-        var topBackLeft = new Vector3(0, 1, 0);
-        var topBackRight = new Vector3(1, 1, 0);
-        var topFrontLeft = new Vector3(0, 1, 1);
-        var topFrontRight = new Vector3(1, 1, 1);
+        var topBackLeft = new Vector3(0, 1, 0) + location;
+        var topBackRight = new Vector3(1, 1, 0) + location;
+        var topFrontLeft = new Vector3(0, 1, 1) + location;
+        var topFrontRight = new Vector3(1, 1, 1) + location;
 
         DrawRectangle(
             bottomBackLeft,
@@ -91,7 +91,7 @@ public static class Renderer
             [
                 new ColorAttachment
                 {
-                    ClearColor = Color.CornflowerBlue,
+                    ClearValue = Color.CornflowerBlue.ToColor(),
                     LoadOp = "clear",
                     StoreOp = "store",
                     View = gameInfo.Context.GetCurrentTexture().CreateView()
@@ -107,21 +107,22 @@ public static class Renderer
 
         var vertexBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
-            Size = vertices.Length * 4,
-            Usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST //todo
+            Size = vertices.Length * sizeof(float),
+            Usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
         });
 
         gameInfo.Device.Queue.WriteBuffer(vertexBuffer, 0, vertices, 0, vertices.Length);
 
-        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(60 * (MathF.PI / 180), (float)gameInfo.ScreenWidth / gameInfo.ScreenHeight,
-            0.1f,
-            10_000);
+        var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(60 * (MathF.PI / 180),
+                                                                    (float)gameInfo.ScreenWidth / gameInfo.ScreenHeight,
+                                                                    0.01f,
+                                                                    10_000);
 
         Matrix4x4.Invert(camera.GetMatrix(), out var viewMatrix);
 
         var uniformBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
-            Size = 256 + 16 * 4,
+            Size = 256 + 16 * sizeof(float),
             Usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
         });
 
@@ -135,20 +136,22 @@ public static class Renderer
             [
                 new BindGroupEntry
                 {
-                    Binding = 0, Resource = new EntryResource
+                    Binding = 0,
+                    Resource = new EntryResource
                     {
                         Buffer = uniformBuffer,
                         Offset = 0,
-                        Size = 16 * 4
+                        Size = 16 * sizeof(float)
                     }
                 },
                 new BindGroupEntry
                 {
-                    Binding = 1, Resource = new EntryResource
+                    Binding = 1,
+                    Resource = new EntryResource
                     {
                         Buffer = uniformBuffer,
                         Offset = 256,
-                        Size = 16 * 4
+                        Size = 16 * sizeof(float)
                     }
                 }
             ]
@@ -196,5 +199,16 @@ public static class Extensions
             matrix.M13, matrix.M23, matrix.M33, matrix.M43,
             matrix.M14, matrix.M24, matrix.M34, matrix.M44,
         ];
+    }
+
+    public static ClearColor ToColor(this Color color)
+    {
+        return new ClearColor
+        {
+            R = (float)color.R / 255,
+            G = (float)color.G / 255,
+            B = (float)color.B / 255,
+            A = (float)color.A / 255
+        };
     }
 }

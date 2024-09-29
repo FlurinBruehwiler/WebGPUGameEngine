@@ -79,10 +79,10 @@ public partial class Interop
     public static partial JSObject GPURenderPipeline_GetBindGroupLayout(JSObject gpuRenderPipeline, int index);
 
     //GPU
-    [JSImport("GPU.getPreferredCanvasFormat", "main.js")]
+    [JSImport("globalThis.navigator.gpu.getPreferredCanvasFormat")]
     public static partial string GPU_GetPreferredCanvasFormat();
 
-    [JSImport("GPU.requestAdapter", "main.js")]
+    [JSImport("globalThis.navigator.gpu.requestAdapter")]
     public static partial Task<JSObject> GPU_RequestAdapter();
 
     //GPUAdapter
@@ -94,8 +94,11 @@ public partial class Interop
     public static partial JSObject Canvas_GetContext(JSObject canvas, string contextId);
 
     //Document
-    [JSImport("Document.querySelector", "main.js")]
+    [JSImport("globalThis.document.querySelector")]
     public static partial JSObject Document_QuerySelector(string selector);
+
+    [JSImport("globalThis.console.log")]
+    public static partial JSObject Console_Log(string content);
 }
 
 public static class InteropHelper

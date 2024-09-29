@@ -15,12 +15,15 @@ public static class Program
 
         var camera = new Camera
         {
-            Position = new Vector3(10, 0, 0),
-            Rotation = new Vector3(0, MathF.PI / 2, 0)
+            Position = new Vector3(0, 0, 0),
+            Rotation = new Vector3(0, 0, 0)
         };
 
         Renderer.StartFrame();
-        Renderer.DrawCube();
+        Renderer.DrawCube(new Vector3(10, 0, 0));
+        Renderer.DrawCube(new Vector3(0, 0, 10));
+        Renderer.DrawCube(new Vector3(-10, 0, 0));
+        Renderer.DrawCube(new Vector3(0, 0, -10));
         Renderer.EndFrame(camera);
     }
 
@@ -30,15 +33,6 @@ public static class Program
         var adapter = await GPU.RequestAdapter();
         var device = await adapter.RequestDevice();
 
-        var presentationFormat = GPU.GetPreferredCanvasFormat();
-        var context = canvas.GetContext();
-        context.Configure(new ContextConfig
-        {
-            Device = device,
-            Format = presentationFormat,
-            AlphaMode = "premultiplied"
-        });
-
         var shaderModule = device.CreateShaderModule(new ShaderModuleDescriptor
         {
             Code = """
@@ -46,15 +40,15 @@ public static class Program
                      @builtin(position) position : vec4f,
                      @location(0) color : vec4f
                    }
-                   
+
                    @binding(0)
                    @group(0)
                    var<uniform> viewMatrix : mat4x4<f32>;
-                   
+
                    @binding(1)
                    @group(0)
                    var<uniform> projectionMatrix : mat4x4<f32>;
-                   
+
                    @vertex
                    fn vertex_main(@location(0) position: vec4f, @location(1) color: vec4f) -> VertexOut
                    {
@@ -66,13 +60,22 @@ public static class Program
                      output.color = color;
                      return output;
                    }
-                   
+
                    @fragment
                    fn fragment_main(fragData: VertexOut) -> @location(0) vec4f
                    {
                      return fragData.color;
                    }
                    """
+        });
+
+        var presentationFormat = GPU.GetPreferredCanvasFormat();
+        var context = canvas.GetContext();
+        context.Configure(new ContextConfig
+        {
+            Device = device,
+            Format = presentationFormat,
+            AlphaMode = "premultiplied"
         });
 
         var vertexBuffer = new VertexBufferDescriptor
