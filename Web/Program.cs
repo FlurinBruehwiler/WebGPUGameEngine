@@ -75,7 +75,6 @@ public static class Program
 
     private static void HandleKeyEvent(string code, bool isDown)
     {
-        Console.WriteLine(code);
         GameInfo.Input.InformKeyChanged(code, isDown);
     }
 

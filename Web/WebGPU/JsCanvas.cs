@@ -20,7 +20,6 @@ public class JsCanvas : IInteropObject
     {
         Interop.Canvas_AddEventListener(JsObject, type, s =>
         {
-            Console.WriteLine(s);
             var @event = (T)JsonSerializer.Deserialize(s, typeof(T), InteropSerializerContext.Default)!;
             callback(@event);
         });
