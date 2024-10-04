@@ -23,7 +23,7 @@ jobs:
           dotnet workload install wasm-tools
           dotnet workload install wasm-experimental
       - name: Publish Server
-        run: dotnet publish ./Web/WasmTestCSharp.csproj -o publish
+        run: dotnet publish ./Web/Web.csproj -o publish
       - name: Upload artifact to pages
         uses: actions/upload-pages-artifact@v3
         with:

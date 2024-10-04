@@ -9,7 +9,7 @@ public class ResourceManager
     public static async Task<Model> LoadModel(string name)
     {
         var obj = await HttpClient.GetStringAsync("https://localhost:7030/" + name);
-        // var obj = File.ReadAllText(@"C:\Programming\Github\webgputest\Game\Resources\teapot.obj");
+        // var obj = File.ReadAllText(@"C:\Programming\Github\webgputest\GameEngine\Resources\teapot.obj");
 
         return Parse(obj);
     }
