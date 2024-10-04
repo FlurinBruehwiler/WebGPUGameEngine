@@ -1,0 +1,22 @@
+name: dotnet publish page
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.0.x
+      - name: Publish Server
+        run: dotnet publish ./Web/WasmTestCsharp.csproj -o publish
+      - name: Upload artifact to pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: pages-release
+          path: publish/

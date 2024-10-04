@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{EB008DF7-481D-4F44-9E91-894B6C94E464}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		.github\workflows\publish_page.yml = .github\workflows\publish_page.yml
 	EndProjectSection
 EndProject
 Global
