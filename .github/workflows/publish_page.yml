@@ -14,7 +14,7 @@ jobs:
         with:
           dotnet-version: 9.0.x
       - name: Publish Server
-        run: dotnet publish ./Web/WasmTestCsharp.csproj -o publish
+        run: dotnet publish ./Web/WasmTestCSharp.csproj -o publish
       - name: Upload artifact to pages
         uses: actions/upload-pages-artifact@v3
         with:
