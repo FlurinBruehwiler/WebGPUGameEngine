@@ -13,6 +13,10 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 9.0.x
+      - name: Install workload
+        run: |
+          dotnet workload install wasm-tools
+          dotnet workload install wasm-experimental
       - name: Publish Server
         run: dotnet publish ./Web/WasmTestCSharp.csproj -o publish
       - name: Upload artifact to pages
@@ -20,3 +24,5 @@ jobs:
         with:
           name: pages-release
           path: publish/
+      - name: deploy page
+        uses: actions/deploy-pages@v4
