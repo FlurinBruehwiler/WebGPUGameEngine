@@ -118,7 +118,9 @@ public static class Renderer
                                                                     0.01f,
                                                                     10_000);
 
-        Matrix4x4.Invert(camera.GetMatrix(), out var viewMatrix);
+        var cameraModelMatrix = camera.GetMatrix();
+
+        Matrix4x4.Invert(cameraModelMatrix, out var viewMatrix);
 
         var uniformBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
@@ -182,10 +184,10 @@ public class Camera
     {
         var cameraRotationMatrix =
             Matrix4x4.Multiply(
-                Matrix4x4.Multiply(Matrix4x4.CreateRotationZ(Rotation.Z),
-                    Matrix4x4.CreateRotationY(Rotation.Y)), Matrix4x4.CreateRotationX(Rotation.X));
+                Matrix4x4.CreateRotationX(Rotation.X),
+                Matrix4x4.Multiply(Matrix4x4.CreateRotationY(Rotation.Y), Matrix4x4.CreateRotationZ(Rotation.Z)));
 
-        return Matrix4x4.Multiply(Matrix4x4.CreateTranslation(Position), cameraRotationMatrix);
+        return Matrix4x4.Multiply(cameraRotationMatrix, Matrix4x4.CreateTranslation(Position));
     }
 }
 
@@ -193,11 +195,12 @@ public static class Extensions
 {
     public static double[] ToColumnMajorArray(this Matrix4x4 matrix)
     {
-        return [
-            matrix.M11, matrix.M21, matrix.M31, matrix.M41,
-            matrix.M12, matrix.M22, matrix.M32, matrix.M42,
-            matrix.M13, matrix.M23, matrix.M33, matrix.M43,
-            matrix.M14, matrix.M24, matrix.M34, matrix.M44,
+        return
+        [
+            matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+            matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+            matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+            matrix.M41, matrix.M42, matrix.M43, matrix.M44
         ];
     }
 

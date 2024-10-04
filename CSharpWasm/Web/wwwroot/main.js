@@ -78,4 +78,3 @@ canvas.width = canvas.parentElement.clientWidth;
 canvas.height = canvas.parentElement.clientHeight;
 
 await runMain();
-

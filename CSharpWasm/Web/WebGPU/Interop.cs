@@ -87,7 +87,7 @@ public partial class Interop
 
     //GPUAdapter
     [JSImport("GPUAdapter.requestDevice", "main.js")]
-    public static partial Task<JSObject> GPUAdapter_requestDevice(JSObject gpuAdapter);
+    public static partial Task<JSObject> GPUAdapter_RequestDevice(JSObject gpuAdapter);
 
     //Canvas
     [JSImport("Canvas.getContext", "main.js")]
@@ -96,9 +96,6 @@ public partial class Interop
     //Document
     [JSImport("globalThis.document.querySelector")]
     public static partial JSObject Document_QuerySelector(string selector);
-
-    [JSImport("globalThis.console.log")]
-    public static partial JSObject Console_Log(string content);
 }
 
 public static class InteropHelper

@@ -11,7 +11,7 @@ public class GPUAdapter : IInteropObject
     {
         return new GPUDevice
         {
-            JsObject = await Interop.GPUAdapter_requestDevice(JsObject)
+            JsObject = await Interop.GPUAdapter_RequestDevice(JsObject)
         };
     }
 }

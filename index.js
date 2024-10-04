@@ -249,6 +249,15 @@ class Matrix4x4{
     }
 }
 
+function LoggedInvocation(func, thisArg, ...args) {
+    console.log('----------------------')
+    console.log(func.name + ':')
+    args.forEach((x) => {
+        console.log(x)
+    })
+    return func.bind(thisArg)(...args);
+}
+
 const gameInfo = {
     vertices : [],
     renderPipeline: undefined,
@@ -258,7 +267,10 @@ const gameInfo = {
     canvas: undefined,
 }
 
-await Init();
+let mat = Matrix4x4.RotationX(1)
+console.log(mat.toArray())
+
+//await Init();
 
 async function Init() {
     const canvas = document.querySelector("#gpuCanvas")
@@ -398,7 +410,7 @@ function StartFrame() {
 
 async function InitRenderer(canvas) {
     const adapter = await navigator.gpu.requestAdapter();
-    gameInfo.device = await adapter.requestDevice();
+    gameInfo.device = await LoggedInvocation(adapter.requestDevice, adapter);
     gameInfo.screenDimensions.width = canvas.width;
     gameInfo.screenDimensions.height = canvas.height;
     gameInfo.canvas = canvas;
@@ -406,16 +418,14 @@ async function InitRenderer(canvas) {
     const shaderDownloadResponse = await fetch("shader.wgsl");
     const shaders = await shaderDownloadResponse.text();
 
-    const shaderModule = gameInfo.device.createShaderModule({
+    const shaderModule = LoggedInvocation(gameInfo.device.createShaderModule, gameInfo.device,{
         code: shaders
     })
 
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
-    console.log(presentationFormat)
-
-    gameInfo.context = canvas.getContext("webgpu")
-    gameInfo.context.configure({
+    gameInfo.context = LoggedInvocation(canvas.getContext, canvas, "webgpu")
+    LoggedInvocation(gameInfo.context.configure, gameInfo.context, {
         device: gameInfo.device,
         format: presentationFormat,
         alphaMode: "premultiplied",
@@ -461,7 +471,7 @@ async function InitRenderer(canvas) {
         layout: "auto"
     }
 
-    gameInfo.renderPipeline = gameInfo.device.createRenderPipeline(pipelineDescriptor);
+    gameInfo.renderPipeline = LoggedInvocation(gameInfo.device.createRenderPipeline, gameInfo.device, pipelineDescriptor);
 }
 
 function DrawRectangle(v1, v2, v3, v4) {
@@ -527,16 +537,17 @@ function EndFrame(camera) {
     gameInfo.screenDimensions.width = gameInfo.canvas.width;
     gameInfo.screenDimensions.height = gameInfo.canvas.height;
 
-    const commandEncoder = gameInfo.device.createCommandEncoder();
+    const commandEncoder = LoggedInvocation(gameInfo.device.createCommandEncoder, gameInfo.device);
     const clearColor = { r: 0.0, g: 0.5, b: 1.0, a: 1.0 };
 
+    const texture = LoggedInvocation(gameInfo.context.getCurrentTexture, gameInfo.context);
     const renderPassDescriptor = {
         colorAttachments: [
             {
                 clearValue: clearColor,
                 loadOp: "clear",
                 storeOp: "store",
-                view: gameInfo.context.getCurrentTexture().createView()
+                view: LoggedInvocation(texture.createView, texture)
             }
         ]
     }
@@ -548,58 +559,70 @@ function EndFrame(camera) {
                                                         1, 0.6, 1, 1
                                                     ]))
 
-    const vertexBuffer = gameInfo.device.createBuffer({
+    const vertexBuffer = LoggedInvocation(gameInfo.device.createBuffer, gameInfo.device, {
         size: vertices.byteLength,
         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
     });
 
-    gameInfo.device.queue.writeBuffer(vertexBuffer, 0, vertices, 0, vertices.length);
+    LoggedInvocation(gameInfo.device.queue.writeBuffer, gameInfo.device.queue, vertexBuffer, 0, vertices, 0, vertices.length);
 
-    const projectionMatrix = CreateCameraProjectionMatrix(60 * (Math.PI / 180), gameInfo.screenDimensions.width / gameInfo.screenDimensions.height, 0.00001, 1000);
+    const projectionMatrix = CreateCameraProjectionMatrix(60 * (Math.PI / 180), 1, 0.01, 10000);
     let rotation = Matrix4x4.RotationZ(camera.rotation.z).multiply(Matrix4x4.RotationY(camera.rotation.y)).multiply(Matrix4x4.RotationX(camera.rotation.x))
 
+    console.log(camera.rotation)
+
+    console.log(Matrix4x4.RotationX(camera.rotation.x).toArray())
+    console.log(Matrix4x4.RotationY(camera.rotation.y).toArray())
+    console.log(Matrix4x4.RotationZ(camera.rotation.z).toArray())
+    console.log(rotation.toArray())
+
     let cameraModelMatrix = Matrix4x4.Translation(camera.position).multiply(rotation);
+
+    console.log(cameraModelMatrix.toArray())
+
     let viewMatrix = cameraModelMatrix.invert()
 
     //https://jsantell.com/model-view-projection/
     //https://jsantell.com/3d-projection/
 
+    console.log('viewMatrix', viewMatrix.toArray())
+
     const viewMatrixData = new Float32Array(viewMatrix.toArray());
     const projectionMatrixData = new Float32Array(projectionMatrix.toArray());
 
-    const viewMatrixBuffer = gameInfo.device.createBuffer({
-        size: 16*4, //4x4 matrix
+    const viewMatrixBuffer = LoggedInvocation(gameInfo.device.createBuffer, gameInfo.device, {
+        size: 256 + 16*4, //4x4 matrix
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
     });
 
-    const projectionMatrixBufferBuffer = gameInfo.device.createBuffer({
-        size: 16*4, //4x4 matrix
-        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-    });
+    // const projectionMatrixBufferBuffer = gameInfo.device.createBuffer({
+    //     size: 16*4, //4x4 matrix
+    //     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    // });
 
-    gameInfo.device.queue.writeBuffer(viewMatrixBuffer, 0, viewMatrixData, 0, viewMatrixData.length);
-    gameInfo.device.queue.writeBuffer(projectionMatrixBufferBuffer, 0, projectionMatrixData, 0, projectionMatrixData.length);
+    LoggedInvocation(gameInfo.device.queue.writeBuffer, gameInfo.device.queue, viewMatrixBuffer, 0, viewMatrixData, 0, viewMatrixData.length);
+    LoggedInvocation(gameInfo.device.queue.writeBuffer, gameInfo.device.queue, viewMatrixBuffer, 256, projectionMatrixData, 0, projectionMatrixData.length);
 
-    const bindGroup = gameInfo.device.createBindGroup({
-        layout: gameInfo.renderPipeline.getBindGroupLayout(0),
+    const bindGroup = LoggedInvocation(gameInfo.device.createBindGroup, gameInfo.device, {
+        layout: LoggedInvocation(gameInfo.renderPipeline.getBindGroupLayout, gameInfo.renderPipeline, 0),
         entries: [
-            { binding: 0, resource: { buffer: viewMatrixBuffer } }, //these buffers could be combined into a single buffer. Then we could specify an offset and size https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createBindGroup#gpubufferbinding_objects
-            { binding: 1, resource: { buffer: projectionMatrixBufferBuffer } },
+            { binding: 0, resource: { buffer: viewMatrixBuffer, offset: 0, size: viewMatrixData.byteLength } }, //these buffers could be combined into a single buffer. Then we could specify an offset and size https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createBindGroup#gpubufferbinding_objects
+            { binding: 1, resource: { buffer: viewMatrixBuffer, offset: 256, size: projectionMatrixData.byteLength } },
         ]
     })
 
-    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+    const passEncoder = LoggedInvocation(commandEncoder.beginRenderPass, commandEncoder, renderPassDescriptor);
 
-    passEncoder.setPipeline(gameInfo.renderPipeline);
-    passEncoder.setVertexBuffer(0, vertexBuffer)
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.draw(gameInfo.vertices.length) //vertex count
+    LoggedInvocation(passEncoder.setPipeline, passEncoder, gameInfo.renderPipeline);
+    LoggedInvocation(passEncoder.setVertexBuffer, passEncoder, 0, vertexBuffer)
+    LoggedInvocation(passEncoder.setBindGroup, passEncoder, 0, bindGroup);
+    LoggedInvocation(passEncoder.draw, passEncoder, gameInfo.vertices.length) //vertex count
 
-    passEncoder.end();
-    const commandBuffer = commandEncoder.finish();
-    gameInfo.device.queue.submit([commandBuffer]);
+    LoggedInvocation(passEncoder.end, passEncoder);
+    const commandBuffer = LoggedInvocation(commandEncoder.finish, commandEncoder);
+    LoggedInvocation(gameInfo.device.queue.submit,gameInfo.device.queue,[commandBuffer]);
 
-    vertexBuffer.destroy(); //do I need this?
+    LoggedInvocation(vertexBuffer.destroy, vertexBuffer); //do I need this?
 }
 
 function CreateCameraProjectionMatrix(fov, aspectRatio, nearDistance, farDistance) {

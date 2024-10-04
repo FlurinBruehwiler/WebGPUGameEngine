@@ -15,8 +15,8 @@ public static class Program
 
         var camera = new Camera
         {
-            Position = new Vector3(0, 0, 0),
-            Rotation = new Vector3(0, 0, 0)
+            Position = new Vector3(10, 0, 0),
+            Rotation = new Vector3(0, MathF.PI / 2, 0)
         };
 
         Renderer.StartFrame();
