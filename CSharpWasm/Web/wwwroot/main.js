@@ -18,10 +18,7 @@ setModuleImports('main.js', {
     },
     GPUQueue: {
         writeBuffer: (queue, buffer, bufferOffset, data, dataOffset, size) => queue.writeBuffer(buffer, bufferOffset, new Float32Array(data), dataOffset, size),
-        submit: (queue, commandBuffers) => {
-            console.log("submit")
-            return queue.submit(commandBuffers);
-        }
+        submit: (queue, commandBuffers) => queue.submit(commandBuffers)
     },
     GPUDevice: {
         createCommandEncoder: (device) => device.createCommandEncoder(),
@@ -45,16 +42,22 @@ setModuleImports('main.js', {
         requestDevice: async (gpuAdapter) => await gpuAdapter.requestDevice()
     },
     Canvas: {
-        getContext: (canvas, contextId) => canvas.getContext(contextId)
+        getContext: (canvas, contextId) => canvas.getContext(contextId),
+        addEventListener: (canvas, type, callback) => canvas.addEventListener(type, (e) => {
+            callback(JSON.stringify({ movementX: e.movementX, movementY: e.movementY }));
+        })
     },
+    Document: {
+        addEventListener: (type, callback) => document.addEventListener(type, (e) => {
+            callback(JSON.stringify({ code: e.code }));
+        })
+    }
 });
 
 function JsonToObjectWithReferences(json, references) {
     const obj = JSON.parse(json);
 
     ReplaceReferences(obj, references)
-
-    console.log(obj)
 
     return obj
 }
@@ -76,5 +79,9 @@ const canvas = document.querySelector("#gpuCanvas")
 
 canvas.width = canvas.parentElement.clientWidth;
 canvas.height = canvas.parentElement.clientHeight;
+
+canvas.addEventListener("click", function () {
+    canvas.requestPointerLock();
+});
 
 await runMain();

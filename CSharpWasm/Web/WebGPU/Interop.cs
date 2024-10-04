@@ -93,9 +93,20 @@ public partial class Interop
     [JSImport("Canvas.getContext", "main.js")]
     public static partial JSObject Canvas_GetContext(JSObject canvas, string contextId);
 
+    [JSImport("Canvas.addEventListener", "main.js")]
+    public static partial void Canvas_AddEventListener(JSObject canvas, string type, [JSMarshalAs<JSType.Function<JSType.String>>] Action<string> callback);
+
     //Document
     [JSImport("globalThis.document.querySelector")]
     public static partial JSObject Document_QuerySelector(string selector);
+
+    [JSImport("Document.addEventListener", "main.js")]
+    public static partial void Document_AddEventListener(string type, [JSMarshalAs<JSType.Function<JSType.String>>] Action<string> callback);
+
+    //Window
+    [JSImport("globalThis.window.requestAnimationFrame")]
+    public static partial void Window_RequestAnimationFrame([JSMarshalAs<JSType.Function>] Action callback);
+
 }
 
 public static class InteropHelper
@@ -122,6 +133,9 @@ public static class InteropHelper
 [JsonSerializable(typeof(BindGroupDescriptor))]
 [JsonSerializable(typeof(ShaderModuleDescriptor))]
 [JsonSerializable(typeof(ContextConfig))]
+[JsonSerializable(typeof(KeyboardEvent))]
+[JsonSerializable(typeof(MouseEvent))]
+[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
 public partial class InteropSerializerContext : JsonSerializerContext;
 
 public class ReferenceManager

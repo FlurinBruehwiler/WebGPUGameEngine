@@ -267,10 +267,7 @@ const gameInfo = {
     canvas: undefined,
 }
 
-let mat = Matrix4x4.RotationX(1)
-console.log(mat.toArray())
-
-//await Init();
+await Init();
 
 async function Init() {
     const canvas = document.querySelector("#gpuCanvas")
@@ -281,47 +278,37 @@ async function Init() {
 
     await InitRenderer(canvas)
 
-    // let frameCount = 0;
+    let frameCount = 0;
     let camera = {
         position: new Vector3(10, 0, 0),
         rotation: new Vector3(0, Math.PI / 2, 0)
     }
-    // }
-    //
-    // let wDown = false;
-    // let aDown = false;
-    // let sDown = false;
-    // let dDown = false;
-    // let spaceDown = false;
-    // let shiftDown = false;
-    // let leftDown = false;
-    // let rightDown = false;
-    // let mouseChangeX = 0;
-    // let mouseChangeY = 0;
-    //
-    // document.onkeydown = (event) => {
-    //     HandleKeyEvent(event.code, true)
-    // }
-    //
-    // document.onkeyup = (event) => {
-    //     HandleKeyEvent(event.code, false)
-    // }
-    //
-    // canvas.addEventListener("mousemove", (event) => {
-    //     mouseChangeX += event.movementX;
-    //     mouseChangeY += event.movementY;
-    // })
 
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
+    let wDown = false;
+    let aDown = false;
+    let sDown = false;
+    let dDown = false;
+    let spaceDown = false;
+    let shiftDown = false;
+    let leftDown = false;
+    let rightDown = false;
+    let mouseChangeX = 0;
+    let mouseChangeY = 0;
 
-    StartFrame();
+    document.addEventListener("keydown", (event) => {
+        HandleKeyEvent(event.code, true)
+    })
 
-    DrawCube()
+    document.addEventListener("keyup", (event) => {
+        HandleKeyEvent(event.code, false)
+    })
 
-    EndFrame(camera);
+    canvas.addEventListener("mousemove", (event) => {
+        mouseChangeX += event.movementX;
+        mouseChangeY += event.movementY;
+    })
 
-    //requestAnimationFrame(Frame)
+    requestAnimationFrame(Frame)
 
     function Frame(){
         canvas.width = canvas.parentElement.clientWidth;
@@ -566,7 +553,7 @@ function EndFrame(camera) {
 
     LoggedInvocation(gameInfo.device.queue.writeBuffer, gameInfo.device.queue, vertexBuffer, 0, vertices, 0, vertices.length);
 
-    const projectionMatrix = CreateCameraProjectionMatrix(60 * (Math.PI / 180), 1, 0.01, 10000);
+    const projectionMatrix = CreateCameraProjectionMatrix(60 * (Math.PI / 180), gameInfo.screenDimensions.width / gameInfo.screenDimensions.height, 0.01, 10000);
     let rotation = Matrix4x4.RotationZ(camera.rotation.z).multiply(Matrix4x4.RotationY(camera.rotation.y)).multiply(Matrix4x4.RotationX(camera.rotation.x))
 
     console.log(camera.rotation)
