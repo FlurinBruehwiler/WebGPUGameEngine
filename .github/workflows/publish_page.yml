@@ -7,6 +7,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - uses: actions/checkout@v4
       - name: Setup dotnet
@@ -25,4 +33,5 @@ jobs:
           name: pages-release
           path: publish/
       - name: deploy page
+        id: deployment
         uses: actions/deploy-pages@v4
