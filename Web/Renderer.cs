@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using WasmTestCSharp.WebGPU;
+using Game;
+using Game.WebGPU;
 
 namespace WasmTestCSharp;
 
@@ -67,14 +68,47 @@ public static class Renderer
 
     public static void DrawTriangle(Vector3 v1, Vector3 v2, Vector3 v3)
     {
-        Program.GameInfo.Vertices.Add(v1);
-        Program.GameInfo.Vertices.Add(v2);
-        Program.GameInfo.Vertices.Add(v3);
+        Program.GameInfo.ImmediateVertices.Add(v1);
+        Program.GameInfo.ImmediateVertices.Add(v2);
+        Program.GameInfo.ImmediateVertices.Add(v3);
     }
 
     public static void StartFrame()
     {
-        Program.GameInfo.Vertices = [];
+    }
+
+    public static void UploadModel(Model model)
+    {
+        var gameInfo = Program.GameInfo;
+
+        var vertices = model.Vertices.SelectMany(v => new List<double>
+        {
+            v.X, v.Y, v.Z, 1,
+            1, 0.6f,1, 1
+        }).ToArray();
+
+        var vertexBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
+        {
+            Size = vertices.Length * sizeof(float),
+            Usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
+        });
+
+        gameInfo.Device.Queue.WriteBuffer(vertexBuffer, 0, vertices, 0, vertices.Length);
+
+        model.GpuBuffer = vertexBuffer;
+    }
+
+    public static Model CreateImmediateModel()
+    {
+        var immediateModel = new Model
+        {
+            Vertices = Program.GameInfo.ImmediateVertices.ToArray()
+        };
+
+        UploadModel(immediateModel);
+
+        Program.GameInfo.ImmediateVertices = [];
+        return immediateModel;
     }
 
     public static void EndFrame(Camera camera)
@@ -82,6 +116,8 @@ public static class Renderer
         var gameInfo = Program.GameInfo;
 
         gameInfo.UpdateScreenDimensions();
+
+        using var immediateModel = CreateImmediateModel();
 
         var commandEncoder = gameInfo.Device.CreateCommandEncoder();
 
@@ -99,37 +135,27 @@ public static class Renderer
             ]
         };
 
-        var vertices = gameInfo.Vertices.SelectMany(v => new List<double>
-        {
-            v.X, v.Y, v.Z, 1,
-            1, 0.6f,1, 1
-        }).ToArray();
-
-        var vertexBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
-        {
-            Size = vertices.Length * sizeof(float),
-            Usage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
-        });
-
-        gameInfo.Device.Queue.WriteBuffer(vertexBuffer, 0, vertices, 0, vertices.Length);
 
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(60 * (MathF.PI / 180),
                                                                     (float)gameInfo.ScreenWidth / gameInfo.ScreenHeight,
                                                                     0.01f,
                                                                     10_000);
 
-        var cameraModelMatrix = camera.GetMatrix();
+        var cameraModelMatrix = camera.Transform.ToMatrix();
 
         Matrix4x4.Invert(cameraModelMatrix, out var viewMatrix);
 
         var uniformBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
-            Size = 256 + 16 * sizeof(float),
+            Size = 256 + 256 + 16 * sizeof(float),
             Usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
         });
 
-        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 0, viewMatrix.ToColumnMajorArray(), 0, 16);
-        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 256, projectionMatrix.ToColumnMajorArray(), 0, 16);
+        var modelMatrix = Transform.Default().ToMatrix();
+
+        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 0, modelMatrix.ToColumnMajorArray(), 0, 16);
+        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 256, viewMatrix.ToColumnMajorArray(), 0, 16);
+        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 512, projectionMatrix.ToColumnMajorArray(), 0, 16);
 
         var bindGroup = gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
         {
@@ -155,6 +181,16 @@ public static class Renderer
                         Offset = 256,
                         Size = 16 * sizeof(float)
                     }
+                },
+                new BindGroupEntry
+                {
+                    Binding = 2,
+                    Resource = new EntryResource
+                    {
+                        Buffer = uniformBuffer,
+                        Offset = 512,
+                        Size = 16 * sizeof(float)
+                    }
                 }
             ]
         });
@@ -162,33 +198,34 @@ public static class Renderer
         var passEncoder = commandEncoder.BeginRenderPass(renderPassDescriptor);
 
         passEncoder.SetPipeline(gameInfo.RenderPipeline);
-        passEncoder.SetVertexBuffer(0, vertexBuffer);
         passEncoder.SetBindGroup(0, bindGroup);
-        passEncoder.Draw(gameInfo.Vertices.Count);
+
+        foreach (var entity in gameInfo.Entities)
+        {
+            var model = entity.Model;
+            if (model.GpuBuffer != null)
+            {
+                passEncoder.SetVertexBuffer(0, model.GpuBuffer);
+                passEncoder.Draw(model.Vertices.Length);
+            }
+        }
+
+        if (immediateModel.GpuBuffer != null)
+        {
+            passEncoder.SetVertexBuffer(0, immediateModel.GpuBuffer);
+            passEncoder.Draw(immediateModel.Vertices.Length);
+        }
 
         passEncoder.End();
 
         var commandBuffer = commandEncoder.Finish();
         gameInfo.Device.Queue.Submit([commandBuffer]);
-
-        vertexBuffer.Destory();
     }
 }
 
 public class Camera
 {
-    public Vector3 Position;
-    public Vector3 Rotation;
-
-    public Matrix4x4 GetMatrix()
-    {
-        var cameraRotationMatrix =
-            Matrix4x4.Multiply(
-                Matrix4x4.CreateRotationX(Rotation.X),
-                Matrix4x4.Multiply(Matrix4x4.CreateRotationY(Rotation.Y), Matrix4x4.CreateRotationZ(Rotation.Z)));
-
-        return Matrix4x4.Multiply(cameraRotationMatrix, Matrix4x4.CreateTranslation(Position));
-    }
+    public required Transform Transform;
 }
 
 public static class Extensions

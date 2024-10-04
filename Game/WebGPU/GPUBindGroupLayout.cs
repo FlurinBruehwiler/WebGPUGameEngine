@@ -1,8 +1,8 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Game.WebGPU;
 
-public class GPUShaderModule : IInteropObject
+public class GPUBindGroupLayout : IInteropObject
 {
     public required JSObject JsObject { get; init; }
 }

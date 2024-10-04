@@ -1,7 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using System.Numerics;
-using System.Text.Json;
+
+using Game;
 
 Console.WriteLine("Hello, World!");
 
+var model = await ResourceManager.LoadModel("teapot.obj");

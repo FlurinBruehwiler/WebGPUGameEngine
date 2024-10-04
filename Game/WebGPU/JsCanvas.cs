@@ -1,8 +1,7 @@
-﻿using System;
-using System.Runtime.InteropServices.JavaScript;
+﻿using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Game.WebGPU;
 
 public class JsCanvas : IInteropObject
 {

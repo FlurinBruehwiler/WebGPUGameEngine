@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace WasmTestCSharp.WebGPU;
+﻿namespace Game.WebGPU;
 
 public static class JsWindow
 {

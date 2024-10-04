@@ -5,5 +5,12 @@
     <Nullable>enable</Nullable>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>
+    <RootNamespace>WasmTestCSharp</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Game\Game.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\teapot.obj" />
+  </ItemGroup>
 </Project>

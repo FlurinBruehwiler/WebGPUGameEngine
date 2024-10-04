@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WasmTestCSharp", "Web\WasmTestCSharp.csproj", "{FEB3A4F4-2DB0-4742-8F14-B8A88AAB7BA0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{FEB3A4F4-2DB0-4742-8F14-B8A88AAB7BA0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Desktop", "Desktop\Desktop.csproj", "{9DD46CA4-6863-41DA-983D-F00F64566841}"
 EndProject
@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		.gitignore = .gitignore
 		.github\workflows\publish_page.yml = .github\workflows\publish_page.yml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{C417BCBC-E724-462B-96F5-9DB35515032D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +32,9 @@ Global
 		{9DD46CA4-6863-41DA-983D-F00F64566841}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DD46CA4-6863-41DA-983D-F00F64566841}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DD46CA4-6863-41DA-983D-F00F64566841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C417BCBC-E724-462B-96F5-9DB35515032D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C417BCBC-E724-462B-96F5-9DB35515032D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C417BCBC-E724-462B-96F5-9DB35515032D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C417BCBC-E724-462B-96F5-9DB35515032D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

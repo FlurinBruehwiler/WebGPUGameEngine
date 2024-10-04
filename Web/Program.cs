@@ -1,8 +1,8 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using WasmTestCSharp.WebGPU;
-using Document = System.Reflection.Metadata.Document;
+using Game;
+using Game.WebGPU;
 
 namespace WasmTestCSharp;
 
@@ -16,9 +16,21 @@ public static class Program
 
         GameInfo.Camera = new Camera
         {
-            Position = new Vector3(10, 0, 0),
-            Rotation = new Vector3(0, MathF.PI / 2, 0)
+            Transform = new Transform
+            {
+                Position = new Vector3(10, 0, 0),
+                Scale = Vector3.One,
+                Rotation = new Vector3(0, MathF.PI / 2, 0),
+            }
         };
+
+        var model = await ResourceManager.LoadModel("teapot.obj");
+        Renderer.UploadModel(model);
+        GameInfo.Entities.Add(new Entity
+        {
+            Transform = Transform.Default(scale: 1000),
+            Model = model,
+        });
 
         JsWindow.RequestAnimationFrame(Frame);
     }
@@ -29,35 +41,35 @@ public static class Program
 
         if (GameInfo.Input.IsKeyDown("KeyW"))
         {
-            var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Rotation.Y));
-            GameInfo.Camera.Position += transformation.AsVector3() * -velocity;
+            var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
+            GameInfo.Camera.Transform.Position += transformation.AsVector3() * -velocity;
         }
         if (GameInfo.Input.IsKeyDown("KeyS"))
         {
-            var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Rotation.Y));
-            GameInfo.Camera.Position += transformation.AsVector3() * velocity;
+            var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
+            GameInfo.Camera.Transform.Position += transformation.AsVector3() * velocity;
         }
 
-        GameInfo.Camera.Rotation.Y += -GameInfo.Input.MouseChangeX * 0.001f;
+        GameInfo.Camera.Transform.Rotation.Y += -GameInfo.Input.MouseChangeX * 0.001f;
 
         if (GameInfo.Input.IsKeyDown("KeyA"))
         {
-            var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Rotation.Y));
-            GameInfo.Camera.Position += transformation.AsVector3() * -velocity;
+            var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
+            GameInfo.Camera.Transform.Position += transformation.AsVector3() * -velocity;
         }
         if (GameInfo.Input.IsKeyDown("KeyD"))
         {
-            var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Rotation.Y));
-            GameInfo.Camera.Position += transformation.AsVector3() * velocity;
+            var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
+            GameInfo.Camera.Transform.Position += transformation.AsVector3() * velocity;
         }
 
         if (GameInfo.Input.IsKeyDown("ShiftLeft"))
         {
-            GameInfo.Camera.Position.Y -= velocity;
+            GameInfo.Camera.Transform.Position.Y -= velocity;
         }
         if (GameInfo.Input.IsKeyDown("Space"))
         {
-            GameInfo.Camera.Position.Y += velocity;
+            GameInfo.Camera.Transform.Position.Y += velocity;
         }
 
         Renderer.StartFrame();
@@ -104,9 +116,13 @@ public static class Program
 
                    @binding(0)
                    @group(0)
+                   var<uniform> modelMatrix : mat4x4<f32>;
+                   
+                   @binding(1)
+                   @group(0)
                    var<uniform> viewMatrix : mat4x4<f32>;
 
-                   @binding(1)
+                   @binding(2)
                    @group(0)
                    var<uniform> projectionMatrix : mat4x4<f32>;
 
@@ -117,7 +133,7 @@ public static class Program
                    
                      //model view projection
                    
-                     output.position = projectionMatrix * viewMatrix * position;
+                     output.position = projectionMatrix * viewMatrix * modelMatrix * position;
                      output.color = color;
                      return output;
                    }

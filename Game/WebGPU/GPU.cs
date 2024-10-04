@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace WasmTestCSharp.WebGPU;
+﻿namespace Game.WebGPU;
 
 public class GPU
 {

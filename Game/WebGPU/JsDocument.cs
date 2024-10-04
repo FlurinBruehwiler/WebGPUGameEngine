@@ -1,7 +1,6 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Game.WebGPU;
 
 public static class JsDocument
 {

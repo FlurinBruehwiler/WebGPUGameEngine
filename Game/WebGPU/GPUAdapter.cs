@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
-using System.Threading.Tasks;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Game.WebGPU;
 
 public class GPUAdapter : IInteropObject
 {
