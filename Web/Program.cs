@@ -35,7 +35,7 @@ public static class Program
                     {
                         Scale = RandomVector(1, 3),
                         Rotation = RandomVector(0, MathF.PI * 2),
-                        Position = RandomVector(0, 50)
+                        Position = RandomVector(-25, 25)
                     },
                     Model = model,
                 });
