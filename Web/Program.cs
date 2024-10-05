@@ -10,27 +10,46 @@ public static class Program
 {
     public static async Task Main()
     {
-        Game.GameInfo = await InitializeGame();
-
-        Game.GameInfo.Camera = new Camera
+        try
         {
-            Transform = new Transform
+            Game.GameInfo = await InitializeGame();
+
+            Game.GameInfo.Camera = new Camera
             {
-                Position = new Vector3(10, 0, 0),
-                Scale = Vector3.One,
-                Rotation = new Vector3(0, MathF.PI / 2, 0),
-            }
-        };
+                Transform = new Transform
+                {
+                    Position = new Vector3(10, 0, 0),
+                    Scale = Vector3.One,
+                    Rotation = new Vector3(0, MathF.PI / 2, 0),
+                }
+            };
 
-        var model = await ResourceManager.LoadModel("teapot.obj");
-        Renderer.UploadModel(model);
-        Game.GameInfo.Entities.Add(new Entity
+            var model = await ResourceManager.LoadModel("teapot.obj");
+            Renderer.UploadModel(model);
+            Game.GameInfo.Entities.Add(new Entity
+            {
+                Transform = Transform.Default(),
+                Model = model,
+            });
+
+            JsWindow.RequestAnimationFrame(FrameCatch);
+        }
+        catch (Exception e)
         {
-            Transform = Transform.Default(),
-            Model = model,
-        });
+            Console.WriteLine(e);
+        }
+    }
 
-        JsWindow.RequestAnimationFrame(Frame);
+    private static void FrameCatch()
+    {
+        try
+        {
+            Frame();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
     private static void Frame()
@@ -80,7 +99,7 @@ public static class Program
         Game.GameInfo.Input.NextFrame();
 
         //request next frame
-        JsWindow.RequestAnimationFrame(Frame);
+        JsWindow.RequestAnimationFrame(FrameCatch);
     }
 
     private static void HandleKeyEvent(string code, bool isDown)
