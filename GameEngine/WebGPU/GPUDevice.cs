@@ -113,6 +113,24 @@ public class GPUDevice : IInteropObject
             JsObject = Interop.GPUDevice_CreateTexture(JsObject, json, references)
         };
     }
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createPipelineLayout
+    /// </summary>
+    public GPUPipelineLayout CreatePipelineLayout(PipelineLayoutDescriptor descriptor)
+    {
+        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+
+        return new GPUPipelineLayout
+        {
+            JsObject = Interop.GPUDevice_CreatePipelineLayout(JsObject, json, references)
+        };
+    }
+}
+
+public class PipelineLayoutDescriptor
+{
+    public required GPUBindGroupLayout[] BindGroupLayouts { get; init; }
 }
 
 public class BindGroupLayoutDescriptor
@@ -183,7 +201,7 @@ public class RenderPipelineDescriptor
     public required VertexDescriptor Vertex { get; set; }
     public required FragmentDescriptor Fragment { get; set; }
     public required PrimitiveDecsriptor Primitive { get; set; }
-    public required string Layout { get; set; }
+    public required GPUPipelineLayout Layout { get; set; }
     public required DepthStencil DepthStencil { get; set; }
 }
 

@@ -6,7 +6,7 @@ setModuleImports('main.js', {
     GPURenderPassEncoder : {
         end: (renderPassEncoder) => renderPassEncoder.end(),
         draw: (renderPassEncoder, vertexCount) => renderPassEncoder.draw(vertexCount),
-        setBindGroup: (renderPassEncoder, slot, bindingGroup) => renderPassEncoder.setBindGroup(slot, bindingGroup),
+        setBindGroup: (renderPassEncoder, slot, bindingGroup, dynamicOffsets) => renderPassEncoder.setBindGroup(slot, bindingGroup, new Uint32Array(dynamicOffsets)),
         setVertexBuffer: (renderPassEncoder, slot, buffer) => renderPassEncoder.setVertexBuffer(slot, buffer),
         setPipeline: (renderPassEncoder, renderPipeline) => renderPassEncoder.setPipeline(renderPipeline)
     },
@@ -27,7 +27,8 @@ setModuleImports('main.js', {
         createBindGroup: (device, json, references) => device.createBindGroup(JsonToObjectWithReferences(json, references)),
         createBindGroupLayout: (device, json, references) => device.createBindGroupLayout(JsonToObjectWithReferences(json, references)),
         createShaderModule: (device, json, references) => device.createShaderModule(JsonToObjectWithReferences(json, references)),
-        createTexture: (device, json, references) => device.createTexture(JsonToObjectWithReferences(json, references))
+        createTexture: (device, json, references) => device.createTexture(JsonToObjectWithReferences(json, references)),
+        createPipelineLayout: (device, json, references) => device.createPipelineLayout(JsonToObjectWithReferences(json, references))
     },
     GPUCommandEncoder: {
         beginRenderPass: (commandEncoder, json, references) => commandEncoder.beginRenderPass(JsonToObjectWithReferences(json, references)),

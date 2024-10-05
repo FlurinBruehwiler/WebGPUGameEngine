@@ -17,6 +17,16 @@ public struct Transform
         };
     }
 
+    public static Transform Create(Vector3 position, Vector3 rotation, float scale = 1)
+    {
+        return new Transform
+        {
+            Scale = new Vector3(scale),
+            Position = position,
+            Rotation = rotation
+        };
+    }
+
     public Matrix4x4 ToMatrix()
     {
         var scaleMatrix = Matrix4x4.CreateScale(Scale.X, Scale.Y, Scale.Z);

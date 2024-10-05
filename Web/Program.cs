@@ -158,6 +158,21 @@ public static class Program
             StepMode = "vertex"
         };
 
+        var bindGroupLayout = device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
+        {
+            Entries = [
+                new LayoutEntry
+                {
+                    Binding = 0,
+                    Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    Buffer = new BufferBindingLayout
+                    {
+                        HasDynamicOffset = true
+                    }
+                }
+            ]
+        });
+
         var pipelineDescriptor = new RenderPipelineDescriptor
         {
             Vertex = new VertexDescriptor
@@ -179,7 +194,10 @@ public static class Program
             {
                 Topology = "triangle-list"
             },
-            Layout = "auto",
+            Layout = device.CreatePipelineLayout(new PipelineLayoutDescriptor
+            {
+                BindGroupLayouts = [bindGroupLayout]
+            }),
             DepthStencil = new DepthStencil
             {
                 Format = "depth24plus",

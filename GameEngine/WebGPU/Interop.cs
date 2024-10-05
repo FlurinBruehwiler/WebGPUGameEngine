@@ -14,7 +14,7 @@ public partial class Interop
     public static partial void GPURenderPassEncoder_Draw(JSObject renderPassEncoder, int vertexCount);
 
     [JSImport("GPURenderPassEncoder.setBindGroup", "main.js")]
-    public static partial void GPURenderPassEncoder_SetBindGroup(JSObject renderPassEncoder, int slot, JSObject bindGroup);
+    public static partial void GPURenderPassEncoder_SetBindGroup(JSObject renderPassEncoder, int slot, JSObject bindGroup, int[] dynamicOffsets);
 
     [JSImport("GPURenderPassEncoder.setVertexBuffer", "main.js")]
     public static partial void GPURenderPassEncoder_SetVertexBuffer(JSObject renderPassEncoder, int slot, JSObject buffer);
@@ -62,6 +62,9 @@ public partial class Interop
 
     [JSImport("GPUDevice.createTexture", "main.js")]
     public static partial JSObject GPUDevice_CreateTexture(JSObject gpuDevice, string json, JSObject[] references);
+
+    [JSImport("GPUDevice.createPipelineLayout", "main.js")]
+    public static partial JSObject GPUDevice_CreatePipelineLayout(JSObject gpuDevice, string json, JSObject[] references);
 
 
     //GPUCommandEncoder
@@ -141,6 +144,7 @@ public static class InteropHelper
 [JsonSerializable(typeof(MouseEvent))]
 [JsonSerializable(typeof(TextureDescriptor))]
 [JsonSerializable(typeof(BindGroupLayoutDescriptor))]
+[JsonSerializable(typeof(PipelineLayoutDescriptor))]
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true, IncludeFields = true)]
 public partial class InteropSerializerContext : JsonSerializerContext;
 

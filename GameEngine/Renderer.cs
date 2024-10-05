@@ -168,43 +168,35 @@ public static class Renderer
 
         Matrix4x4.Invert(cameraModelMatrix, out var viewMatrix);
 
+        const int uniformStride = 256;
+
+        var uniformBufferSize = (gameInfo.Entities.Count + 1) * uniformStride; //only works as long as each uniform is smaller than 256 bytes
         var uniformBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
-            Size = 256 + 256 + 16 * sizeof(float),
+            Size = uniformBufferSize,
             Usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
         });
 
-        var modelMatrix = Transform.Default(10).ToMatrix();
-
-        var uniforms = new Uniforms
+        for (var i = 0; i < gameInfo.Entities.Count; i++)
         {
-            ModelMatrix = modelMatrix,
-            ProjectionMatrix = projectionMatrix,
-            ViewMatrix = viewMatrix
-        };
+            var entity = gameInfo.Entities[i];
+            var modelMatrix = entity.Transform.ToMatrix();
 
-        var uniformData = uniforms.ToArray();
-        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 0, uniformData, 0, uniformData.Length);
+            var uniforms = new Uniforms
+            {
+                ModelMatrix = modelMatrix,
+                ProjectionMatrix = projectionMatrix,
+                ViewMatrix = viewMatrix
+            };
 
-        var bindGroupLayout = gameInfo.Device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
-        {
-            Entries = [
-                new LayoutEntry
-                {
-                    Binding = 0,
-                    Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                    Buffer = new BufferBindingLayout
-                    {
-                        HasDynamicOffset = false
-                    }
-                }
-            ]
-        });
+            var uniformData = uniforms.ToArray();
+            gameInfo.Device.Queue.WriteBuffer(uniformBuffer, i * uniformStride, uniformData, 0, uniformData.Length);
+        }
 
         var bindGroup = gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
         {
-            Layout = bindGroupLayout,
-            // Layout = gameInfo.RenderPipeline.GetBindGroupLayout(0),
+            // Layout = bindGroupLayout,
+            Layout = gameInfo.RenderPipeline.GetBindGroupLayout(0),
             Entries =
             [
                 new BindGroupEntry
@@ -214,7 +206,7 @@ public static class Renderer
                     {
                         Buffer = uniformBuffer,
                         Offset = 0,
-                        Size = uniformData.Length * sizeof(float)
+                        Size = uniformBufferSize
                     }
                 }
             ]
@@ -223,23 +215,24 @@ public static class Renderer
         var passEncoder = commandEncoder.BeginRenderPass(renderPassDescriptor);
 
         passEncoder.SetPipeline(gameInfo.RenderPipeline);
-        passEncoder.SetBindGroup(0, bindGroup);
 
-        foreach (var entity in gameInfo.Entities)
+        for (var i = 0; i < gameInfo.Entities.Count; i++)
         {
-            var model = entity.Model;
+            var model = gameInfo.Entities[i].Model;
+
             if (model.GpuBuffer != null)
             {
+                passEncoder.SetBindGroup(0, bindGroup, [i * uniformStride]);
                 passEncoder.SetVertexBuffer(0, model.GpuBuffer);
                 passEncoder.Draw(model.Vertices.Length);
             }
         }
 
-        if (immediateModel.GpuBuffer != null)
-        {
-            passEncoder.SetVertexBuffer(0, immediateModel.GpuBuffer);
-            passEncoder.Draw(immediateModel.Vertices.Length);
-        }
+        // if (immediateModel.GpuBuffer != null)
+        // {
+        //     passEncoder.SetVertexBuffer(0, immediateModel.GpuBuffer);
+        //     passEncoder.Draw(immediateModel.Vertices.Length);
+        // }
 
         passEncoder.End();
 
