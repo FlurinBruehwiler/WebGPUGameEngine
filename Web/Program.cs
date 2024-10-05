@@ -26,11 +26,20 @@ public static class Program
 
             var model = await ResourceManager.LoadModel("teapot.obj");
             Renderer.UploadModel(model);
-            Game.GameInfo.Entities.Add(new Entity
+
+            for (int i = 0; i < 10; i++)
             {
-                Transform = Transform.Default(),
-                Model = model,
-            });
+                Game.GameInfo.Entities.Add(new Entity
+                {
+                    Transform = new Transform
+                    {
+                        Scale = RandomVector(1, 3),
+                        Rotation = RandomVector(0, MathF.PI * 2),
+                        Position = RandomVector(0, 50)
+                    },
+                    Model = model,
+                });
+            }
 
             JsWindow.RequestAnimationFrame(FrameCatch);
         }
@@ -38,6 +47,14 @@ public static class Program
         {
             Console.WriteLine(e);
         }
+    }
+
+    private static Vector3 RandomVector(float from, float to)
+    {
+        var x = from + to * Random.Shared.NextSingle();
+        var y = from + to * Random.Shared.NextSingle();
+        var z = from + to * Random.Shared.NextSingle();
+        return new Vector3(x, y, z);
     }
 
     private static void FrameCatch()

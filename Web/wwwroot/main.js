@@ -6,7 +6,7 @@ setModuleImports('main.js', {
     GPURenderPassEncoder : {
         end: (renderPassEncoder) => renderPassEncoder.end(),
         draw: (renderPassEncoder, vertexCount) => renderPassEncoder.draw(vertexCount),
-        setBindGroup: (renderPassEncoder, slot, bindingGroup, dynamicOffsets) => renderPassEncoder.setBindGroup(slot, bindingGroup, new Uint32Array(dynamicOffsets)),
+        setBindGroup: (renderPassEncoder, index, bindingGroup, dynamicOffsets, dynamicOffsetsStart, dynamicOffsetsLength) => renderPassEncoder.setBindGroup(index, bindingGroup, new Uint32Array(dynamicOffsets), dynamicOffsetsStart, dynamicOffsetsLength),
         setVertexBuffer: (renderPassEncoder, slot, buffer) => renderPassEncoder.setVertexBuffer(slot, buffer),
         setPipeline: (renderPassEncoder, renderPipeline) => renderPassEncoder.setPipeline(renderPipeline)
     },

@@ -14,7 +14,7 @@ public partial class Interop
     public static partial void GPURenderPassEncoder_Draw(JSObject renderPassEncoder, int vertexCount);
 
     [JSImport("GPURenderPassEncoder.setBindGroup", "main.js")]
-    public static partial void GPURenderPassEncoder_SetBindGroup(JSObject renderPassEncoder, int slot, JSObject bindGroup, int[] dynamicOffsets);
+    public static partial void GPURenderPassEncoder_SetBindGroup(JSObject renderPassEncoder, int slot, JSObject bindGroup, int[] dynamicOffsets, int dynamicOffsetsStart, int dynamicOffsetsLength);
 
     [JSImport("GPURenderPassEncoder.setVertexBuffer", "main.js")]
     public static partial void GPURenderPassEncoder_SetVertexBuffer(JSObject renderPassEncoder, int slot, JSObject buffer);

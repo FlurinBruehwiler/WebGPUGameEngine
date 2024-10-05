@@ -170,8 +170,8 @@ public static class Renderer
 
         const int uniformStride = 256;
 
-        var uniformBufferSize = (gameInfo.Entities.Count + 1) * uniformStride; //only works as long as each uniform is smaller than 256 bytes
-        var uniformBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
+        var uniformBufferSize = gameInfo.Entities.Count * uniformStride; //only works as long as each uniform is smaller than 256 bytes
+        using var uniformBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
             Size = uniformBufferSize,
             Usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
@@ -206,7 +206,7 @@ public static class Renderer
                     {
                         Buffer = uniformBuffer,
                         Offset = 0,
-                        Size = uniformBufferSize
+                        Size = uniformStride
                     }
                 }
             ]
@@ -222,7 +222,7 @@ public static class Renderer
 
             if (model.GpuBuffer != null)
             {
-                passEncoder.SetBindGroup(0, bindGroup, [i * uniformStride]);
+                passEncoder.SetBindGroup(0, bindGroup, [i * uniformStride], 0, 1);
                 passEncoder.SetVertexBuffer(0, model.GpuBuffer);
                 passEncoder.Draw(model.Vertices.Length);
             }

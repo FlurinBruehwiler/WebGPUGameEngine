@@ -25,9 +25,9 @@ public class GPURenderPassEncoder : IInteropObject
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setBindGroup
     /// </summary>
-    public void SetBindGroup(int slot, GPUBindGroup bindGroup, int[] dynamicOffsets)
+    public void SetBindGroup(int index, GPUBindGroup bindGroup, int[] dynamicOffsets, int dynamicOffsetsStart, int dynamicOffsetsLength)
     {
-        Interop.GPURenderPassEncoder_SetBindGroup(JsObject, slot, bindGroup.JsObject, dynamicOffsets);
+        Interop.GPURenderPassEncoder_SetBindGroup(JsObject, index, bindGroup.JsObject, dynamicOffsets, dynamicOffsetsStart, dynamicOffsetsLength);
     }
 
     public void Draw(int vertexCount)
