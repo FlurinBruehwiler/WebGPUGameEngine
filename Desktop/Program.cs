@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 
-using Game;
+using GameEngine;
 
 Console.WriteLine("Hello, World!");
 

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 
-namespace Game.WebGPU;
+namespace GameEngine.WebGPU;
 
 public interface IInteropObject
 {

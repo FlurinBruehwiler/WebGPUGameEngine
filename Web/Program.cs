@@ -1,20 +1,18 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using Game;
-using Game.WebGPU;
+using GameEngine;
+using GameEngine.WebGPU;
 
 namespace WasmTestCSharp;
 
 public static class Program
 {
-    public static GameInfo GameInfo = null!;
-
     public static async Task Main()
     {
-        GameInfo = await InitializeGame();
+        Game.GameInfo = await InitializeGame();
 
-        GameInfo.Camera = new Camera
+        Game.GameInfo.Camera = new Camera
         {
             Transform = new Transform
             {
@@ -26,9 +24,9 @@ public static class Program
 
         var model = await ResourceManager.LoadModel("teapot.obj");
         Renderer.UploadModel(model);
-        GameInfo.Entities.Add(new Entity
+        Game.GameInfo.Entities.Add(new Entity
         {
-            Transform = Transform.Default(scale: 1000),
+            Transform = Transform.Default(),
             Model = model,
         });
 
@@ -39,47 +37,47 @@ public static class Program
     {
         const float velocity = 0.5f;
 
-        if (GameInfo.Input.IsKeyDown("KeyW"))
+        if (Game.GameInfo.Input.IsKeyDown("KeyW"))
         {
-            var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
-            GameInfo.Camera.Transform.Position += transformation.AsVector3() * -velocity;
+            var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(Game.GameInfo.Camera.Transform.Rotation.Y));
+            Game.GameInfo.Camera.Transform.Position += transformation.AsVector3() * -velocity;
         }
-        if (GameInfo.Input.IsKeyDown("KeyS"))
+        if (Game.GameInfo.Input.IsKeyDown("KeyS"))
         {
-            var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
-            GameInfo.Camera.Transform.Position += transformation.AsVector3() * velocity;
-        }
-
-        GameInfo.Camera.Transform.Rotation.Y += -GameInfo.Input.MouseChangeX * 0.001f;
-
-        if (GameInfo.Input.IsKeyDown("KeyA"))
-        {
-            var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
-            GameInfo.Camera.Transform.Position += transformation.AsVector3() * -velocity;
-        }
-        if (GameInfo.Input.IsKeyDown("KeyD"))
-        {
-            var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
-            GameInfo.Camera.Transform.Position += transformation.AsVector3() * velocity;
+            var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(Game.GameInfo.Camera.Transform.Rotation.Y));
+            Game.GameInfo.Camera.Transform.Position += transformation.AsVector3() * velocity;
         }
 
-        if (GameInfo.Input.IsKeyDown("ShiftLeft"))
+        Game.GameInfo.Camera.Transform.Rotation.Y += -Game.GameInfo.Input.MouseChangeX * 0.001f;
+
+        if (Game.GameInfo.Input.IsKeyDown("KeyA"))
         {
-            GameInfo.Camera.Transform.Position.Y -= velocity;
+            var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(Game.GameInfo.Camera.Transform.Rotation.Y));
+            Game.GameInfo.Camera.Transform.Position += transformation.AsVector3() * -velocity;
         }
-        if (GameInfo.Input.IsKeyDown("Space"))
+        if (Game.GameInfo.Input.IsKeyDown("KeyD"))
         {
-            GameInfo.Camera.Transform.Position.Y += velocity;
+            var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(Game.GameInfo.Camera.Transform.Rotation.Y));
+            Game.GameInfo.Camera.Transform.Position += transformation.AsVector3() * velocity;
+        }
+
+        if (Game.GameInfo.Input.IsKeyDown("ShiftLeft"))
+        {
+            Game.GameInfo.Camera.Transform.Position.Y -= velocity;
+        }
+        if (Game.GameInfo.Input.IsKeyDown("Space"))
+        {
+            Game.GameInfo.Camera.Transform.Position.Y += velocity;
         }
 
         Renderer.StartFrame();
             Renderer.DrawCube(new Vector3(10, 0, 0));
-            Renderer.DrawCube(new Vector3(0, 0, 10));
-            Renderer.DrawCube(new Vector3(-10, 0, 0));
-            Renderer.DrawCube(new Vector3(0, 0, -10));
-        Renderer.EndFrame(GameInfo.Camera);
+            // Renderer.DrawCube(new Vector3(0, 0, 10));
+            // Renderer.DrawCube(new Vector3(-10, 0, 0));
+            // Renderer.DrawCube(new Vector3(0, 0, -10));
+        Renderer.EndFrame(Game.GameInfo.Camera);
 
-        GameInfo.Input.NextFrame();
+        Game.GameInfo.Input.NextFrame();
 
         //request next frame
         JsWindow.RequestAnimationFrame(Frame);
@@ -87,7 +85,7 @@ public static class Program
 
     private static void HandleKeyEvent(string code, bool isDown)
     {
-        GameInfo.Input.InformKeyChanged(code, isDown);
+        Game.GameInfo.Input.InformKeyChanged(code, isDown);
     }
 
     private static async Task<GameInfo> InitializeGame()
@@ -99,8 +97,8 @@ public static class Program
 
         canvas.AddEventListener<MouseEvent>("mousemove", e =>
         {
-            GameInfo.Input.MouseChangeX += e.MovementX;
-            GameInfo.Input.MouseChangeY += e.MovementY;
+            Game.GameInfo.Input.MouseChangeX += e.MovementX;
+            Game.GameInfo.Input.MouseChangeY += e.MovementY;
         });
 
         var adapter = await GPU.RequestAdapter();
@@ -197,7 +195,13 @@ public static class Program
             {
                 Topology = "triangle-list"
             },
-            Layout = "auto"
+            Layout = "auto",
+            DepthStencil = new DepthStencil
+            {
+                Format = "depth24plus",
+                DepthCompare = "less",
+                DepthWriteEnabled = true
+            }
         };
 
         var renderPipeline = device.CreateRenderPipeline(pipelineDescriptor);

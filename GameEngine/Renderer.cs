@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using System.Numerics;
-using Game;
-using Game.WebGPU;
+using GameEngine.WebGPU;
 
-namespace WasmTestCSharp;
+namespace GameEngine;
 
 public static class Renderer
 {
@@ -68,9 +64,9 @@ public static class Renderer
 
     public static void DrawTriangle(Vector3 v1, Vector3 v2, Vector3 v3)
     {
-        Program.GameInfo.ImmediateVertices.Add(v1);
-        Program.GameInfo.ImmediateVertices.Add(v2);
-        Program.GameInfo.ImmediateVertices.Add(v3);
+        Game.GameInfo.ImmediateVertices.Add(v1);
+        Game.GameInfo.ImmediateVertices.Add(v2);
+        Game.GameInfo.ImmediateVertices.Add(v3);
     }
 
     public static void StartFrame()
@@ -79,13 +75,22 @@ public static class Renderer
 
     public static void UploadModel(Model model)
     {
-        var gameInfo = Program.GameInfo;
+        var gameInfo = Game.GameInfo;
 
-        var vertices = model.Vertices.SelectMany(v => new List<double>
+        var vertices = new double[model.Vertices.Length * 8];
+
+        for (var i = 0; i < model.Vertices.Length; i++)
         {
-            v.X, v.Y, v.Z, 1,
-            1, 0.6f,1, 1
-        }).ToArray();
+            var vertex = model.Vertices[i];
+            vertices[i * 8] = vertex.X;
+            vertices[i * 8 + 1] = vertex.Y;
+            vertices[i * 8 + 2] = vertex.Z;
+            vertices[i * 8 + 3] = 1;
+            vertices[i * 8 + 4] = i % 3 == 0 ? 1 : 0;
+            vertices[i * 8 + 5] = i % 3 == 1 ? 1 : 0;
+            vertices[i * 8 + 6] = i % 3 == 2 ? 1 : 0;
+            vertices[i * 8 + 7] = 1;
+        }
 
         var vertexBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
@@ -98,28 +103,40 @@ public static class Renderer
         model.GpuBuffer = vertexBuffer;
     }
 
-    public static Model CreateImmediateModel()
+    private static Model CreateImmediateModel()
     {
         var immediateModel = new Model
         {
-            Vertices = Program.GameInfo.ImmediateVertices.ToArray()
+            Vertices = Game.GameInfo.ImmediateVertices.ToArray()
         };
 
         UploadModel(immediateModel);
 
-        Program.GameInfo.ImmediateVertices = [];
+        Game.GameInfo.ImmediateVertices = [];
         return immediateModel;
     }
 
     public static void EndFrame(Camera camera)
     {
-        var gameInfo = Program.GameInfo;
+        var gameInfo = Game.GameInfo;
 
         gameInfo.UpdateScreenDimensions();
 
         using var immediateModel = CreateImmediateModel();
 
         var commandEncoder = gameInfo.Device.CreateCommandEncoder();
+
+        var depthTexture = gameInfo.Device.CreateTexture(new TextureDescriptor
+        {
+            Format = "depth24plus",
+            Usage = GPUTextureUsage.RENDER_ATTACHMENT,
+            Size = new SizeObject
+            {
+                Width = gameInfo.ScreenWidth,
+                Height = gameInfo.ScreenHeight,
+                DepthOrArrayLayers = 1
+            }
+        });
 
         var renderPassDescriptor = new RenderPassDescriptor
         {
@@ -132,9 +149,15 @@ public static class Renderer
                     StoreOp = "store",
                     View = gameInfo.Context.GetCurrentTexture().CreateView()
                 }
-            ]
+            ],
+            DepthStencilAttachment = new DepthStencilAttachment
+            {
+                View = depthTexture.CreateView(),
+                DepthClearValue = 1.0f,
+                DepthLoadOp = "clear",
+                DepthStoreOp = "store"
+            }
         };
-
 
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(60 * (MathF.PI / 180),
                                                                     (float)gameInfo.ScreenWidth / gameInfo.ScreenHeight,
@@ -151,7 +174,7 @@ public static class Renderer
             Usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
         });
 
-        var modelMatrix = Transform.Default().ToMatrix();
+        var modelMatrix = Transform.Default(10).ToMatrix();
 
         gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 0, modelMatrix.ToColumnMajorArray(), 0, 16);
         gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 256, viewMatrix.ToColumnMajorArray(), 0, 16);

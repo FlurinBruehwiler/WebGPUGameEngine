@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Game.WebGPU;
+namespace GameEngine.WebGPU;
 
 public static class JsDocument
 {

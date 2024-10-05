@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 
-namespace Game.WebGPU;
+namespace GameEngine.WebGPU;
 
 public class JsCanvas : IInteropObject
 {

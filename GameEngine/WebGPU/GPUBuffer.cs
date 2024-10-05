@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 
-namespace Game.WebGPU;
+namespace GameEngine.WebGPU;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/GPUBuffer

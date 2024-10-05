@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Game.WebGPU;
+namespace GameEngine.WebGPU;
 
 public partial class Interop
 {
@@ -56,6 +56,10 @@ public partial class Interop
 
     [JSImport("GPUDevice.createShaderModule", "main.js")]
     public static partial JSObject GPUDevice_CreateShaderModule(JSObject gpuDevice, string json, JSObject[] references);
+
+    [JSImport("GPUDevice.createTexture", "main.js")]
+    public static partial JSObject GPUDevice_CreateTexture(JSObject gpuDevice, string json, JSObject[] references);
+
 
     //GPUCommandEncoder
     [JSImport("GPUCommandEncoder.beginRenderPass", "main.js")]
@@ -132,6 +136,7 @@ public static class InteropHelper
 [JsonSerializable(typeof(ContextConfig))]
 [JsonSerializable(typeof(KeyboardEvent))]
 [JsonSerializable(typeof(MouseEvent))]
+[JsonSerializable(typeof(TextureDescriptor))]
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
 public partial class InteropSerializerContext : JsonSerializerContext;
 

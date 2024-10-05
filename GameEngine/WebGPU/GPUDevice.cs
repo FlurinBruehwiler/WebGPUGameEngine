@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 
-namespace Game.WebGPU;
+namespace GameEngine.WebGPU;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice
@@ -88,6 +88,33 @@ public class GPUDevice : IInteropObject
             JsObject = Interop.GPUDevice_CreateShaderModule(JsObject, json, references)
         };
     }
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createTexture
+    /// </summary>
+    public GPUTexture CreateTexture(TextureDescriptor descriptor)
+    {
+        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+
+        return new GPUTexture
+        {
+            JsObject = Interop.GPUDevice_CreateTexture(JsObject, json, references)
+        };
+    }
+}
+
+public class TextureDescriptor
+{
+    public required string Format { get; set; }
+    public required SizeObject Size { get; set; }
+    public required GPUTextureUsage Usage { get; set; }
+}
+
+public class SizeObject
+{
+    public required int Width { get; set; }
+    public required int Height { get; set; }
+    public required int DepthOrArrayLayers { get; set; }
 }
 
 public class BindGroupDescriptor
@@ -120,6 +147,14 @@ public class RenderPipelineDescriptor
     public required FragmentDescriptor Fragment { get; set; }
     public required PrimitiveDecsriptor Primitive { get; set; }
     public required string Layout { get; set; }
+    public required DepthStencil DepthStencil { get; set; }
+}
+
+public class DepthStencil
+{
+    public required string DepthCompare { get; set; }
+    public required bool DepthWriteEnabled { get; set; }
+    public required string Format { get; set; }
 }
 
 public class PrimitiveDecsriptor
@@ -183,4 +218,14 @@ public enum GPUBufferUsage
     STORAGE = 128,
     UNIFORM = 64,
     VERTEX = 32,
+}
+
+[Flags]
+public enum GPUTextureUsage
+{
+    COPY_SRC = 1,
+    COPY_DST = 2,
+    RENDER_ATTACHMENT = 16,
+    STORE_BINDING = 8,
+    TEXTURE_BINDING = 4
 }

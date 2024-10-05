@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Game;
+namespace GameEngine;
 
 public class ResourceManager
 {
@@ -91,12 +91,14 @@ public class ResourceManager
         return float.Parse(span);
     }
 
-    private static int ParseInt(ReadOnlySpan<char> span)
+    private static int ParseInt(ref ReadOnlySpan<char> span)
     {
         var idx = span.IndexOf(' ');
         if (idx != -1)
         {
-            return int.Parse(span.Slice(0, idx + 1));
+            var i = int.Parse(span.Slice(0, idx + 1));
+            span = span.Slice(idx + 1);
+            return i;
         }
 
         return int.Parse(span);
@@ -104,9 +106,9 @@ public class ResourceManager
 
     private static Face ParseFace(ReadOnlySpan<char> span)
     {
-        var v1 = ParseInt(span);
-        var v2 = ParseInt(span);
-        var v3 = ParseInt(span);
+        var v1 = ParseInt(ref span);
+        var v2 = ParseInt(ref span);
+        var v3 = ParseInt(ref span);
 
         return new Face
         {

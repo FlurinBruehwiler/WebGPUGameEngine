@@ -1,4 +1,4 @@
-﻿namespace Game.WebGPU;
+﻿namespace GameEngine.WebGPU;
 
 public static class JsWindow
 {

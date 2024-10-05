@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using Game;
-using Game.WebGPU;
+﻿using System.Numerics;
+using GameEngine.WebGPU;
 
-namespace WasmTestCSharp;
+namespace GameEngine;
 
 public struct Transform
 {

@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
-using Game.WebGPU;
+using GameEngine.WebGPU;
 
-namespace Game;
+namespace GameEngine;
 
 public class Model : IDisposable
 {

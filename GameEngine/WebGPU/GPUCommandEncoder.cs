@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 
-namespace Game.WebGPU;
+namespace GameEngine.WebGPU;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/GPUCommandEncoder
@@ -37,6 +37,15 @@ public class GPUCommandEncoder : IInteropObject
 public class RenderPassDescriptor
 {
     public required ColorAttachment[] ColorAttachments { get; init; }
+    public required DepthStencilAttachment DepthStencilAttachment { get; init; }
+}
+
+public class DepthStencilAttachment
+{
+    public required GPUTextureView View { get; init; }
+    public required string DepthStoreOp { get; init; }
+    public required string DepthLoadOp { get; init; }
+    public required float DepthClearValue { get; init; }
 }
 
 public class ColorAttachment
