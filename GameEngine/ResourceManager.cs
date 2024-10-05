@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Globalization;
+using System.Numerics;
 
 namespace GameEngine;
 
@@ -30,11 +31,11 @@ public class ResourceManager
 
         while (true)
         {
-            var lineEnd = span.IndexOf('\r');
+            var lineEnd = span.IndexOfAny('\n', '\r');
 
             if (lineEnd == 0)
             {
-                span = span.Slice(2); //skip empty line
+                EatNewLine(ref span);
                 continue;
             }
 
@@ -43,7 +44,9 @@ public class ResourceManager
             if (lineEnd != -1)
             {
                 line = span.Slice(0, lineEnd);
-                span = span.Slice(lineEnd + 2);
+                span = span.Slice(lineEnd);
+                EatNewLine(ref span);
+
                 ProcessLine(line, vertices, faces);
             }
             else
@@ -65,14 +68,35 @@ public class ResourceManager
         }
     }
 
+    private static void EatNewLine(ref ReadOnlySpan<char> span)
+    {
+        while (span.Length > 0 && ( span[0] == '\r' || span[0] != '\n' || span[0] != '\n'))
+        {
+            span = span.Slice(1);
+        }
+    }
+
+    private static void EatWhitespace(ref ReadOnlySpan<char> span)
+    {
+        while (span.Length > 0 && span[0] == ' ')
+        {
+            span = span.Slice(1);
+        }
+    }
+
     private static void ProcessLine(ReadOnlySpan<char> line, List<Vector3> vertices, List<Face> faces)
     {
         if (line[0] == 'v')
         {
-            vertices.Add(ParseVector3(line.Slice(2)));
-        }else if (line[0] == 'f')
+            line = line.Slice(1);
+            EatWhitespace(ref line);
+            vertices.Add(ParseVector3(line));
+        }
+        else if (line[0] == 'f')
         {
-            faces.Add(ParseFace(line.Slice(2)));
+            line = line.Slice(1);
+            EatWhitespace(ref line);
+            faces.Add(ParseFace(line));
         }
     }
 
@@ -90,7 +114,7 @@ public class ResourceManager
         var idx = span.IndexOf(' ');
         if (idx != -1)
         {
-            var f = float.Parse(span.Slice(0, idx + 1));
+            var f = float.Parse(span.Slice(0, idx));
             span = span.Slice(idx + 1);
             return f;
         }
@@ -103,7 +127,7 @@ public class ResourceManager
         var idx = span.IndexOf(' ');
         if (idx != -1)
         {
-            var i = int.Parse(span.Slice(0, idx + 1));
+            var i = int.Parse(span.Slice(0, idx));
             span = span.Slice(idx + 1);
             return i;
         }

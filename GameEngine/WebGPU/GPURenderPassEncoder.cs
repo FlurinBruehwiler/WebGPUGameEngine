@@ -22,6 +22,9 @@ public class GPURenderPassEncoder : IInteropObject
         Interop.GPURenderPassEncoder_SetVertexBuffer(JsObject, slot, buffer.JsObject);
     }
 
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPassEncoder/setBindGroup
+    /// </summary>
     public void SetBindGroup(int slot, GPUBindGroup bindGroup)
     {
         Interop.GPURenderPassEncoder_SetBindGroup(JsObject, slot, bindGroup.JsObject);
