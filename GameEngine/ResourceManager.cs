@@ -8,7 +8,14 @@ public class ResourceManager
 
     public static async Task<Model> LoadModel(string name)
     {
-        var obj = await HttpClient.GetStringAsync("https://localhost:7030/" + name);
+        string baseUrl;
+#if DEBUG
+        baseUrl = "https://localhost:7030/";
+#else
+        baseUrl = "https://flurinbruehwiler.github.io/WebGPUGameEngine/";
+#endif
+
+        var obj = await HttpClient.GetStringAsync(baseUrl + name);
         // var obj = File.ReadAllText(@"C:\Programming\Github\webgputest\GameEngine\Resources\teapot.obj");
 
         return Parse(obj);
