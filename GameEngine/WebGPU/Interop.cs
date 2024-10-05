@@ -140,6 +140,7 @@ public static class InteropHelper
 [JsonSerializable(typeof(KeyboardEvent))]
 [JsonSerializable(typeof(MouseEvent))]
 [JsonSerializable(typeof(TextureDescriptor))]
+[JsonSerializable(typeof(BindGroupLayoutDescriptor))]
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true, IncludeFields = true)]
 public partial class InteropSerializerContext : JsonSerializerContext;
 

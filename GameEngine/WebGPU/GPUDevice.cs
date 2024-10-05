@@ -124,7 +124,7 @@ public class LayoutEntry
 {
     public required int Binding { get; init; }
     public required GPUShaderStage Visibility { get; set; }
-    public BufferBindingLayout? BufferBindingLayout { get; set; }
+    public BufferBindingLayout? Buffer { get; set; }
 }
 
 public class BufferBindingLayout

@@ -193,9 +193,9 @@ public static class Renderer
                 {
                     Binding = 0,
                     Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                    BufferBindingLayout = new BufferBindingLayout
+                    Buffer = new BufferBindingLayout
                     {
-                        HasDynamicOffset = true
+                        HasDynamicOffset = false
                     }
                 }
             ]
@@ -204,6 +204,7 @@ public static class Renderer
         var bindGroup = gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
         {
             Layout = bindGroupLayout,
+            // Layout = gameInfo.RenderPipeline.GetBindGroupLayout(0),
             Entries =
             [
                 new BindGroupEntry

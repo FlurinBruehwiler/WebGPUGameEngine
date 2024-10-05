@@ -10,7 +10,7 @@ public class ResourceManager
     {
         string baseUrl;
 #if DEBUG
-        baseUrl = "http://localhost:7030/";
+        baseUrl = "https://localhost:7030/";
 #else
         baseUrl = "https://flurinbruehwiler.github.io/WebGPUGameEngine/";
 #endif
@@ -72,7 +72,7 @@ public class ResourceManager
 
     private static void EatNewLine(ref ReadOnlySpan<char> span)
     {
-        while (span.Length > 0 && ( span[0] == '\r' || span[0] != '\n' || span[0] != '\n'))
+        while (span.Length > 0 && ( span[0] == '\r' || span[0] == '\n' || span[0] == ' '))
         {
             span = span.Slice(1);
         }
