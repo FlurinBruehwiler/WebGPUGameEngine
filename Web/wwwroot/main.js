@@ -25,6 +25,7 @@ setModuleImports('main.js', {
         createBuffer: (device, json, references) => device.createBuffer(JsonToObjectWithReferences(json, references)),
         createRenderPipeline: (device, json, references) => device.createRenderPipeline(JsonToObjectWithReferences(json, references)),
         createBindGroup: (device, json, references) => device.createBindGroup(JsonToObjectWithReferences(json, references)),
+        createBindGroupLayout: (device, json, references) => device.createBindGroupLayout(JsonToObjectWithReferences(json, references)),
         createShaderModule: (device, json, references) => device.createShaderModule(JsonToObjectWithReferences(json, references)),
         createTexture: (device, json, references) => device.createTexture(JsonToObjectWithReferences(json, references))
     },

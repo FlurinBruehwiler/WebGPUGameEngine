@@ -54,6 +54,9 @@ public partial class Interop
     [JSImport("GPUDevice.createBindGroup", "main.js")]
     public static partial JSObject GPUDevice_CreateBindGroup(JSObject gpuDevice, string json, JSObject[] references);
 
+    [JSImport("GPUDevice.createBindGroupLayout", "main.js")]
+    public static partial JSObject GPUDevice_CreateBindGroupLayout(JSObject gpuDevice, string json, JSObject[] references);
+
     [JSImport("GPUDevice.createShaderModule", "main.js")]
     public static partial JSObject GPUDevice_CreateShaderModule(JSObject gpuDevice, string json, JSObject[] references);
 
@@ -137,7 +140,7 @@ public static class InteropHelper
 [JsonSerializable(typeof(KeyboardEvent))]
 [JsonSerializable(typeof(MouseEvent))]
 [JsonSerializable(typeof(TextureDescriptor))]
-[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
+[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true, IncludeFields = true)]
 public partial class InteropSerializerContext : JsonSerializerContext;
 
 public class ReferenceManager

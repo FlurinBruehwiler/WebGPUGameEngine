@@ -176,13 +176,34 @@ public static class Renderer
 
         var modelMatrix = Transform.Default(10).ToMatrix();
 
-        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 0, modelMatrix.ToColumnMajorArray(), 0, 16);
-        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 256, viewMatrix.ToColumnMajorArray(), 0, 16);
-        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 512, projectionMatrix.ToColumnMajorArray(), 0, 16);
+        var uniforms = new Uniforms
+        {
+            ModelMatrix = modelMatrix,
+            ProjectionMatrix = projectionMatrix,
+            ViewMatrix = viewMatrix
+        };
+
+        var uniformData = uniforms.ToArray();
+        gameInfo.Device.Queue.WriteBuffer(uniformBuffer, 0, uniformData, 0, uniformData.Length);
+
+        var bindGroupLayout = gameInfo.Device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
+        {
+            Entries = [
+                new LayoutEntry
+                {
+                    Binding = 0,
+                    Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    BufferBindingLayout = new BufferBindingLayout
+                    {
+                        HasDynamicOffset = true
+                    }
+                }
+            ]
+        });
 
         var bindGroup = gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
         {
-            Layout = gameInfo.RenderPipeline.GetBindGroupLayout(0),
+            Layout = bindGroupLayout,
             Entries =
             [
                 new BindGroupEntry
@@ -192,27 +213,7 @@ public static class Renderer
                     {
                         Buffer = uniformBuffer,
                         Offset = 0,
-                        Size = 16 * sizeof(float)
-                    }
-                },
-                new BindGroupEntry
-                {
-                    Binding = 1,
-                    Resource = new EntryResource
-                    {
-                        Buffer = uniformBuffer,
-                        Offset = 256,
-                        Size = 16 * sizeof(float)
-                    }
-                },
-                new BindGroupEntry
-                {
-                    Binding = 2,
-                    Resource = new EntryResource
-                    {
-                        Buffer = uniformBuffer,
-                        Offset = 512,
-                        Size = 16 * sizeof(float)
+                        Size = uniformData.Length * sizeof(float)
                     }
                 }
             ]
@@ -246,6 +247,22 @@ public static class Renderer
     }
 }
 
+public struct Uniforms
+{
+    public required Matrix4x4 ModelMatrix;
+    public required Matrix4x4 ViewMatrix;
+    public required Matrix4x4 ProjectionMatrix;
+
+    public double[] ToArray()
+    {
+        var result = new double[16 * 3];
+        ModelMatrix.ToColumnMajorArray().CopyTo(result.AsMemory(0, 16));
+        ViewMatrix.ToColumnMajorArray().CopyTo(result.AsMemory(16, 16));
+        ProjectionMatrix.ToColumnMajorArray().CopyTo(result.AsMemory(32, 16));
+        return result;
+    }
+}
+
 public class Camera
 {
     public required Transform Transform;
@@ -255,6 +272,7 @@ public static class Extensions
 {
     public static double[] ToColumnMajorArray(this Matrix4x4 matrix)
     {
+        //id don't get it, this is row major, if I try column major, it doesn't work!!!!!!
         return
         [
             matrix.M11, matrix.M12, matrix.M13, matrix.M14,

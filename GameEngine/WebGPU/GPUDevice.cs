@@ -68,7 +68,9 @@ public class GPUDevice : IInteropObject
         };
     }
 
-    //https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createBindGroup
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createBindGroup
+    /// </summary>
     public GPUBindGroup CreateBindGroup(BindGroupDescriptor descriptor)
     {
         var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
@@ -76,6 +78,16 @@ public class GPUDevice : IInteropObject
         return new GPUBindGroup
         {
             JsObject = Interop.GPUDevice_CreateBindGroup(JsObject, json, references)
+        };
+    }
+
+    public GPUBindGroupLayout CreateBindGroupLayout(BindGroupLayoutDescriptor descriptor)
+    {
+        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+
+        return new GPUBindGroupLayout
+        {
+            JsObject = Interop.GPUDevice_CreateBindGroupLayout(JsObject, json, references)
         };
     }
 
@@ -101,6 +113,31 @@ public class GPUDevice : IInteropObject
             JsObject = Interop.GPUDevice_CreateTexture(JsObject, json, references)
         };
     }
+}
+
+public class BindGroupLayoutDescriptor
+{
+    public required LayoutEntry[] Entries { get; init; }
+}
+
+public class LayoutEntry
+{
+    public required int Binding { get; init; }
+    public required GPUShaderStage Visibility { get; set; }
+    public BufferBindingLayout? BufferBindingLayout { get; set; }
+}
+
+public class BufferBindingLayout
+{
+    public bool HasDynamicOffset { get; set; }
+}
+
+[Flags]
+public enum GPUShaderStage
+{
+    FRAGMENT = 2,
+    VERTEX = 1,
+    COMPUTE = 4
 }
 
 public class TextureDescriptor

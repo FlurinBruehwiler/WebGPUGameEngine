@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace GameEngine;
 
@@ -7,18 +6,21 @@ public class ResourceManager
 {
     public static HttpClient HttpClient = new();
 
-    public static async Task<Model> LoadModel(string name)
+    public static async Task<string> LoadString(string name)
     {
         string baseUrl;
 #if DEBUG
-        baseUrl = "https://localhost:7030/";
+        baseUrl = "http://localhost:7030/";
 #else
         baseUrl = "https://flurinbruehwiler.github.io/WebGPUGameEngine/";
 #endif
 
-        var obj = await HttpClient.GetStringAsync(baseUrl + name);
-        // var obj = File.ReadAllText(@"C:\Programming\Github\webgputest\GameEngine\Resources\teapot.obj");
+        return await HttpClient.GetStringAsync(baseUrl + name);
+    }
 
+    public static async Task<Model> LoadModel(string name)
+    {
+        var obj = await LoadString(name);
         return Parse(obj);
     }
 
