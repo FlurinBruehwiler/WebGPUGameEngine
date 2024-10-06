@@ -24,7 +24,7 @@ public static class Program
                 }
             };
 
-            var model = await ResourceManager.LoadModel("teapot.obj");
+            var model = await ResourceManager.LoadModel("cube.obj");
             Renderer.UploadModel(model);
 
             for (int i = 0; i < 10; i++)

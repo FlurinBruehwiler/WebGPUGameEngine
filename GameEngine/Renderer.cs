@@ -264,6 +264,21 @@ public class Camera
 
 public static class Extensions
 {
+    public static T GetAt<T>(this IList<T> list, int index)
+    {
+        if (index >= list.Count)
+        {
+            return list[index % list.Count];
+        }
+
+        if (index < 0)
+        {
+            return list[index % list.Count + list.Count];
+        }
+
+        return list[index];
+    }
+
     public static double[] ToColumnMajorArray(this Matrix4x4 matrix)
     {
         //id don't get it, this is row major, if I try column major, it doesn't work!!!!!!
