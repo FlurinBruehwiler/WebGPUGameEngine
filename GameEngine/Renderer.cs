@@ -73,23 +73,89 @@ public static class Renderer
     {
     }
 
+    public static GPUTexture CreateTextureFromBitmap(ImageBitmap imageBitmap)
+    {
+        var texture = Game.GameInfo.Device.CreateTexture(new TextureDescriptor
+        {
+            Format = "rgba8unorm",
+            Usage = GPUTextureUsage.TEXTURE_BINDING |
+                    GPUTextureUsage.COPY_DST |
+                    GPUTextureUsage.RENDER_ATTACHMENT,
+            Size = new SizeObject
+            {
+                Width = imageBitmap.Width,
+                Height = imageBitmap.Height,
+                DepthOrArrayLayers = 1
+            }
+        });
+
+        Game.GameInfo.Device.Queue.CopyExternalImageToTexture(
+            new ImageSource
+            {
+                Source = imageBitmap,
+                FlipY = true
+            },
+            new TextureDestination
+            {
+                Texture = texture
+            },
+            new TextureSize
+            {
+                Width = imageBitmap.Width,
+                Height = imageBitmap.Height
+            });
+
+        return texture;
+    }
+
+    public static GPUTexture CreateTexture(byte[] data, int width, int height)
+    {
+        var texture = Game.GameInfo.Device.CreateTexture(new TextureDescriptor
+        {
+            Format = "rgba8unorm",
+            Usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+            Size = new SizeObject
+            {
+                Width = width,
+                Height = height,
+                DepthOrArrayLayers = 1
+            }
+        });
+
+        Game.GameInfo.Device.Queue.WriteTexture(
+            new TextureDestination
+            {
+                Texture = texture
+            },
+            data,
+            new DataLayout
+            {
+                BytesPerRow = width * 4
+            },
+            new TextureSize
+            {
+                Width = width,
+                Height = height
+            });
+
+        return texture;
+    }
+
     public static void UploadModel(Model model)
     {
         var gameInfo = Game.GameInfo;
 
-        var vertices = new double[model.Vertices.Length * 8];
+        var vertices = new double[model.Vertices.Length * 6];
 
         for (var i = 0; i < model.Vertices.Length; i++)
         {
             var vertex = model.Vertices[i];
-            vertices[i * 8] = vertex.X;
-            vertices[i * 8 + 1] = vertex.Y;
-            vertices[i * 8 + 2] = vertex.Z;
-            vertices[i * 8 + 3] = 1;
-            vertices[i * 8 + 4] = i % 3 == 0 ? 1 : 0;
-            vertices[i * 8 + 5] = i % 3 == 1 ? 1 : 0;
-            vertices[i * 8 + 6] = i % 3 == 2 ? 1 : 0;
-            vertices[i * 8 + 7] = 1;
+            vertices[i * 6] = vertex.Position.X;
+            vertices[i * 6 + 1] = vertex.Position.Y;
+            vertices[i * 6 + 2] = vertex.Position.Z;
+            vertices[i * 6 + 3] = 1;
+            vertices[i * 6 + 4] = vertex.Texcoord.X;
+            vertices[i * 6 + 5] = vertex.Texcoord.Y;
         }
 
         var vertexBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
@@ -103,18 +169,19 @@ public static class Renderer
         model.GpuBuffer = vertexBuffer;
     }
 
-    private static Model CreateImmediateModel()
-    {
-        var immediateModel = new Model
-        {
-            Vertices = Game.GameInfo.ImmediateVertices.ToArray()
-        };
-
-        UploadModel(immediateModel);
-
-        Game.GameInfo.ImmediateVertices = [];
-        return immediateModel;
-    }
+    // private static Model CreateImmediateModel()
+    // {
+    //     var immediateModel = new Model
+    //     {
+    //         Vertices = Game.GameInfo.ImmediateVertices.ToArray(),
+    //         Texture = null
+    //     };
+    //
+    //     UploadModel(immediateModel);
+    //
+    //     Game.GameInfo.ImmediateVertices = [];
+    //     return immediateModel;
+    // }
 
     public static void EndFrame(Camera camera)
     {
@@ -122,11 +189,11 @@ public static class Renderer
 
         gameInfo.UpdateScreenDimensions();
 
-        using var immediateModel = CreateImmediateModel();
+        // using var immediateModel = CreateImmediateModel();
 
         var commandEncoder = gameInfo.Device.CreateCommandEncoder();
 
-        var depthTexture = gameInfo.Device.CreateTexture(new TextureDescriptor
+        using var depthTexture = gameInfo.Device.CreateTexture(new TextureDescriptor
         {
             Format = "depth24plus",
             Usage = GPUTextureUsage.RENDER_ATTACHMENT,
@@ -160,9 +227,9 @@ public static class Renderer
         };
 
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(60 * (MathF.PI / 180),
-                                                                    (float)gameInfo.ScreenWidth / gameInfo.ScreenHeight,
-                                                                    0.01f,
-                                                                    10_000);
+            (float)gameInfo.ScreenWidth / gameInfo.ScreenHeight,
+            0.01f,
+            10_000);
 
         var cameraModelMatrix = camera.Transform.ToMatrix();
 
@@ -170,7 +237,8 @@ public static class Renderer
 
         const int uniformStride = 256;
 
-        var uniformBufferSize = gameInfo.Entities.Count * uniformStride; //only works as long as each uniform is smaller than 256 bytes
+        var uniformBufferSize =
+            gameInfo.Entities.Count * uniformStride; //only works as long as each uniform is smaller than 256 bytes
         using var uniformBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
             Size = uniformBufferSize,
@@ -193,7 +261,7 @@ public static class Renderer
             gameInfo.Device.Queue.WriteBuffer(uniformBuffer, i * uniformStride, uniformData, 0, uniformData.Length);
         }
 
-        var bindGroup = gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
+        var uniformBindGroup = gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
         {
             // Layout = bindGroupLayout,
             Layout = gameInfo.RenderPipeline.GetBindGroupLayout(0),
@@ -202,7 +270,7 @@ public static class Renderer
                 new BindGroupEntry
                 {
                     Binding = 0,
-                    Resource = new EntryResource
+                    Resource = new BufferBinding
                     {
                         Buffer = uniformBuffer,
                         Offset = 0,
@@ -220,9 +288,12 @@ public static class Renderer
         {
             var model = gameInfo.Entities[i].Model;
 
+            model.TextureBindGroup ??= CreateTextureBindGroup(model);
+
             if (model.GpuBuffer != null)
             {
-                passEncoder.SetBindGroup(0, bindGroup, [i * uniformStride], 0, 1);
+                passEncoder.SetBindGroup(0, uniformBindGroup, [i * uniformStride], 0, 1);
+                passEncoder.SetBindGroup(1, model.TextureBindGroup);
                 passEncoder.SetVertexBuffer(0, model.GpuBuffer);
                 passEncoder.Draw(model.Vertices.Length);
             }
@@ -238,6 +309,32 @@ public static class Renderer
 
         var commandBuffer = commandEncoder.Finish();
         gameInfo.Device.Queue.Submit([commandBuffer]);
+    }
+
+    private static GPUBindGroup CreateTextureBindGroup(Model model)
+    {
+        var gameInfo = Game.GameInfo;
+
+        var sampler = gameInfo.Device.CreateSampler();
+
+        return gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
+        {
+            // Layout = bindGroupLayout,
+            Layout = gameInfo.RenderPipeline.GetBindGroupLayout(1),
+            Entries =
+            [
+                new BindGroupEntry
+                {
+                    Binding = 0,
+                    Resource = sampler
+                },
+                new BindGroupEntry
+                {
+                    Binding = 1,
+                    Resource = model.Texture.GpuTexture.CreateView() //todo what if there is no texture??? use default texture
+                }
+            ]
+        });
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
+using System.Text.Json.Serialization;
 
 namespace GameEngine.WebGPU;
 
@@ -47,7 +48,7 @@ public class GPUDevice : IInteropObject
     /// </summary>
     public GPUBuffer CreateBuffer(CreateBufferDescriptor descriptor)
     {
-        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+        var (json, references) = InteropHelper.MarshalObjWithReferences(descriptor);
 
         return new GPUBuffer
         {
@@ -60,7 +61,7 @@ public class GPUDevice : IInteropObject
     /// </summary>
     public GPURenderPipeline CreateRenderPipeline(RenderPipelineDescriptor descriptor)
     {
-        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+        var (json, references) = InteropHelper.MarshalObjWithReferences(descriptor);
 
         return new GPURenderPipeline
         {
@@ -73,7 +74,7 @@ public class GPUDevice : IInteropObject
     /// </summary>
     public GPUBindGroup CreateBindGroup(BindGroupDescriptor descriptor)
     {
-        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+        var (json, references) = InteropHelper.MarshalObjWithReferences(descriptor);
 
         return new GPUBindGroup
         {
@@ -81,9 +82,12 @@ public class GPUDevice : IInteropObject
         };
     }
 
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createBindGroupLayout
+    /// </summary>
     public GPUBindGroupLayout CreateBindGroupLayout(BindGroupLayoutDescriptor descriptor)
     {
-        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+        var (json, references) = InteropHelper.MarshalObjWithReferences(descriptor);
 
         return new GPUBindGroupLayout
         {
@@ -93,7 +97,7 @@ public class GPUDevice : IInteropObject
 
     public GPUShaderModule CreateShaderModule(ShaderModuleDescriptor descriptor)
     {
-        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+        var (json, references) = InteropHelper.MarshalObjWithReferences(descriptor);
 
         return new GPUShaderModule
         {
@@ -106,7 +110,7 @@ public class GPUDevice : IInteropObject
     /// </summary>
     public GPUTexture CreateTexture(TextureDescriptor descriptor)
     {
-        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+        var (json, references) = InteropHelper.MarshalObjWithReferences(descriptor);
 
         return new GPUTexture
         {
@@ -119,11 +123,22 @@ public class GPUDevice : IInteropObject
     /// </summary>
     public GPUPipelineLayout CreatePipelineLayout(PipelineLayoutDescriptor descriptor)
     {
-        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+        var (json, references) = InteropHelper.MarshalObjWithReferences(descriptor);
 
         return new GPUPipelineLayout
         {
             JsObject = Interop.GPUDevice_CreatePipelineLayout(JsObject, json, references)
+        };
+    }
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createSampler
+    /// </summary>
+    public GPUSampler CreateSampler() //can also have a descriptor
+    {
+        return new GPUSampler
+        {
+            JsObject = Interop.GPUDevice_CreateSampler(JsObject)
         };
     }
 }
@@ -142,8 +157,21 @@ public class LayoutEntry
 {
     public required int Binding { get; init; }
     public required GPUShaderStage Visibility { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public BufferBindingLayout? Buffer { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SamplerBindingLayout? Sampler { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TextureBindingLayout? Texture { get; set; }
 }
+
+public struct SamplerBindingLayout;
+
+public struct TextureBindingLayout;
+
 
 public class BufferBindingLayout
 {
@@ -181,10 +209,15 @@ public class BindGroupDescriptor
 public class BindGroupEntry
 {
     public required int Binding { get; init; }
-    public required EntryResource Resource { get; init; }
+    public required IBindGroupResource Resource { get; init; }
 }
 
-public class EntryResource
+[JsonDerivedType(typeof(BufferBinding))]
+[JsonDerivedType(typeof(GPUSampler))]
+[JsonDerivedType(typeof(GPUTextureView))]
+public interface IBindGroupResource;
+
+public class BufferBinding : IBindGroupResource
 {
     public required GPUBuffer Buffer { get; init; }
     public int Offset { get; set; }

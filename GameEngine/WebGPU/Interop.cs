@@ -13,8 +13,12 @@ public partial class Interop
     [JSImport("GPURenderPassEncoder.draw", "main.js")]
     public static partial void GPURenderPassEncoder_Draw(JSObject renderPassEncoder, int vertexCount);
 
-    [JSImport("GPURenderPassEncoder.setBindGroup", "main.js")]
+    [JSImport("GPURenderPassEncoder.setBindGroup0", "main.js")]
+    public static partial void GPURenderPassEncoder_SetBindGroup(JSObject renderPassEncoder, int slot, JSObject bindGroup);
+
+    [JSImport("GPURenderPassEncoder.setBindGroup1", "main.js")]
     public static partial void GPURenderPassEncoder_SetBindGroup(JSObject renderPassEncoder, int slot, JSObject bindGroup, int[] dynamicOffsets, int dynamicOffsetsStart, int dynamicOffsetsLength);
+
 
     [JSImport("GPURenderPassEncoder.setVertexBuffer", "main.js")]
     public static partial void GPURenderPassEncoder_SetVertexBuffer(JSObject renderPassEncoder, int slot, JSObject buffer);
@@ -32,10 +36,19 @@ public partial class Interop
     [JSImport("GPUTexture.createView", "main.js")]
     public static partial JSObject GPUTexture_CreateView(JSObject gpuTexture);
 
+    [JSImport("GPUTexture.destroy", "main.js")]
+    public static partial void GPUTexture_Destroy(JSObject gpuTexture);
+
 
     //GPUQueue
     [JSImport("GPUQueue.writeBuffer", "main.js")]
     public static partial void GPUQueue_WriteBuffer(JSObject gpuQueue, JSObject buffer, int bufferOffset, double[] data, int dataOffset, int size);
+
+    [JSImport("GPUQueue.writeTexture", "main.js")]
+    public static partial void GPUQueue_WriteTexture(JSObject gpuQueue, string destinationJson, JSObject[] destinationReferences, byte[] data, string dataLayoutJson, string sizeJson);
+
+    [JSImport("GPUQueue.copyExternalImageToTexture", "main.js")]
+    public static partial void GPUQueue_CopyExternalImageToTexture(JSObject gpuQueue, string sourceJson, JSObject[] sourceReferences, string destinationJson, JSObject[] destinationReferences, string copySizeJson);
 
     [JSImport("GPUQueue.submit", "main.js")]
     public static partial void GPUQueue_Submit(JSObject gpuQueue, JSObject[] commandBuffers);
@@ -65,6 +78,9 @@ public partial class Interop
 
     [JSImport("GPUDevice.createPipelineLayout", "main.js")]
     public static partial JSObject GPUDevice_CreatePipelineLayout(JSObject gpuDevice, string json, JSObject[] references);
+
+    [JSImport("GPUDevice.createSampler", "main.js")]
+    public static partial JSObject GPUDevice_CreateSampler(JSObject gpuDevice);
 
 
     //GPUCommandEncoder
@@ -114,23 +130,39 @@ public partial class Interop
     [JSImport("globalThis.window.requestAnimationFrame")]
     public static partial void Window_RequestAnimationFrame([JSMarshalAs<JSType.Function>] Action callback);
 
+    [JSImport("Window.createImageBitmap", "main.js")]
+    public static partial Task<JSObject> Window_CreateImageBitmap(byte[] image, string optionsJson);
+
 }
 
 public static class InteropHelper
 {
-    public static (string str, JSObject[] references) MarshalComplexObject<T>(T complexObject)
+    public static (string str, JSObject[] references) MarshalObjWithReferences<T>(T complexObject)
     {
         var referenceManager = new ReferenceManager();
         var options = new JsonSerializerOptions
         {
             Converters = { new InteropObjectConverterFactory(referenceManager) },
             TypeInfoResolver = InteropSerializerContext.Default,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            IncludeFields = true
         };
 
         var json = JsonSerializer.Serialize(complexObject, options);
 
         return (json, referenceManager.GetReferences());
+    }
+
+    public static string MarshalObj<T>(T complexObject)
+    {
+        var options = new JsonSerializerOptions
+        {
+            TypeInfoResolver = InteropSerializerContext.Default,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            IncludeFields = true
+        };
+
+        return JsonSerializer.Serialize(complexObject, options);
     }
 }
 
@@ -145,6 +177,13 @@ public static class InteropHelper
 [JsonSerializable(typeof(TextureDescriptor))]
 [JsonSerializable(typeof(BindGroupLayoutDescriptor))]
 [JsonSerializable(typeof(PipelineLayoutDescriptor))]
+[JsonSerializable(typeof(DataLayout))]
+[JsonSerializable(typeof(TextureSize))]
+[JsonSerializable(typeof(ImageSource))]
+[JsonSerializable(typeof(TextureDestination))]
+[JsonSerializable(typeof(SamplerBindingLayout))]
+[JsonSerializable(typeof(TextureBindingLayout))]
+[JsonSerializable(typeof(BitmapOptions))]
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true, IncludeFields = true)]
 public partial class InteropSerializerContext : JsonSerializerContext;
 

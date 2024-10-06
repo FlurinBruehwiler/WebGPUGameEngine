@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Net.Mime;
+using System.Numerics;
+using GameEngine.WebGPU;
 using ObjLoader.Loader.Loaders;
 
 namespace GameEngine;
@@ -28,6 +30,22 @@ public class ResourceManager
 
     private static IObjLoader? _objLoader;
 
+    public static async Task<Texture> LoadTexture(string name)
+    {
+        var stream = await LoadStream(name);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var imageBitmap = await JsWindow.CreateImageBitmap(ms.ToArray(), new BitmapOptions
+        {
+            ClorSpaceConversion = "none"
+        });
+        var gpuTexture = Renderer.CreateTextureFromBitmap(imageBitmap);
+        return new Texture
+        {
+            GpuTexture = gpuTexture
+        };
+    }
+
     public static async Task<Model> LoadModel(string name)
     {
         var stream = await LoadStream(name);
@@ -38,19 +56,38 @@ public class ResourceManager
         }
         var result = _objLoader.Load(stream);
 
+        var group = result.Groups.First();
+
         return new Model
         {
-            Vertices = result.Groups.First().Faces.SelectMany(face =>
+            Vertices = group.Faces.SelectMany(face =>
             {
                 if (face.Count < 3) //is this even a face??
                     return [];
 
-                var vertices = new Vector3[face.Count];
+                var vertices = new Vertex[face.Count];
 
                 for (var i = 0; i < face.Count; i++)
                 {
-                    var v = result.Vertices[face[i].VertexIndex - 1];
-                    vertices[i] = new Vector3(v.X, v.Y, v.Z);
+                    var faceVertex = face[i];
+                    Vector2 texCoord;
+
+                    if (faceVertex.TextureIndex != 0)
+                    {
+                        var t = result.Textures[faceVertex.TextureIndex - 1];
+                        texCoord = new Vector2(t.X, t.Y);
+                    }
+                    else
+                    {
+                        texCoord = new Vector2(0, 0);
+                    }
+
+                    var v = result.Vertices[faceVertex.VertexIndex - 1];
+                    vertices[i] = new Vertex
+                    {
+                        Position = new Vector3(v.X, v.Y, v.Z),
+                        Texcoord = texCoord
+                    };
                 }
 
                 if (vertices.Length == 3)
@@ -59,8 +96,8 @@ public class ResourceManager
                 //https://www.youtube.com/watch?v=hTJFcHutls8
 
                 //determine vector plane
-                var v1 = vertices[0] - vertices[1];
-                var v2 = vertices[2] - vertices[1];
+                var v1 = vertices[0].Position - vertices[1].Position;
+                var v2 = vertices[2].Position - vertices[1].Position;
                 var faceNormal = Vector3.Cross(v1, v2);
 
                 var projectedVertices = new Vector2[face.Count];
@@ -70,7 +107,7 @@ public class ResourceManager
                 {
                     var v = vertices[i];
 
-                    Vector3 projectedPoint = ProjectOntoPlane(v, faceNormal);
+                    Vector3 projectedPoint = ProjectOntoPlane(v.Position, faceNormal);
                     Vector2 plane2DPoint = ConvertTo2D(projectedPoint, faceNormal);
                     projectedVertices[i] = plane2DPoint;
                 }
@@ -80,7 +117,7 @@ public class ResourceManager
                     throw new Exception(error);
                 }
 
-                var resultV = new Vector3[triangles.Length];
+                var resultV = new Vertex[triangles.Length];
 
                 for (var i = 0; i < triangles.Length; i++)
                 {

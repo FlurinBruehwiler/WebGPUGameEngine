@@ -22,7 +22,7 @@ public class GPUCanvasContext : IInteropObject
 
     public void Configure(ContextConfig config)
     {
-        var (json, references) = InteropHelper.MarshalComplexObject(config);
+        var (json, references) = InteropHelper.MarshalObjWithReferences(config);
 
         Interop.GPUCanvasContext_Configure(JsObject, json, references);
     }

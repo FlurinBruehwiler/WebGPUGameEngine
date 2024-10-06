@@ -27,6 +27,8 @@ public static class Program
             var model = await ResourceManager.LoadModel("cube.obj");
             Renderer.UploadModel(model);
 
+            model.Texture = await ResourceManager.LoadTexture("crate-texture.jpg");
+
             for (int i = 0; i < 10; i++)
             {
                 Game.GameInfo.Entities.Add(new Entity
@@ -133,6 +135,9 @@ public static class Program
 
         canvas.AddEventListener<MouseEvent>("mousemove", e =>
         {
+            if (!Game.StartedUp())
+                return;
+
             Game.GameInfo.Input.MouseChangeX += e.MovementX;
             Game.GameInfo.Input.MouseChangeY += e.MovementY;
         });
@@ -158,24 +163,24 @@ public static class Program
         {
             Attributes =
             [
-                new VertexAttribute
+                new VertexAttribute //position
                 {
                     ShaderLocation = 0,
                     Offset = 0,
                     Format = "float32x4"
                 },
-                new VertexAttribute
+                new VertexAttribute //texcoord
                 {
                     ShaderLocation = 1,
                     Offset = 16,
-                    Format = "float32x4"
+                    Format = "float32x2"
                 }
             ],
-            ArrayStride = 32,
+            ArrayStride = 24,
             StepMode = "vertex"
         };
 
-        var bindGroupLayout = device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
+        var uniformBindGroupLayout = device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
         {
             Entries = [
                 new LayoutEntry
@@ -186,6 +191,24 @@ public static class Program
                     {
                         HasDynamicOffset = true
                     }
+                }
+            ]
+        });
+
+        var textureBindGroupLayout = device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
+        {
+            Entries = [
+                new LayoutEntry
+                {
+                    Binding = 0,
+                    Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    Sampler = new SamplerBindingLayout()
+                },
+                new LayoutEntry
+                {
+                    Binding = 1,
+                    Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    Texture = new TextureBindingLayout()
                 }
             ]
         });
@@ -213,7 +236,7 @@ public static class Program
             },
             Layout = device.CreatePipelineLayout(new PipelineLayoutDescriptor
             {
-                BindGroupLayouts = [bindGroupLayout]
+                BindGroupLayouts = [uniformBindGroupLayout, textureBindGroupLayout]
             }),
             DepthStencil = new DepthStencil
             {

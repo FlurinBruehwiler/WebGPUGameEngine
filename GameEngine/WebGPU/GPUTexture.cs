@@ -5,7 +5,7 @@ namespace GameEngine.WebGPU;
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/GPUTexture
 /// </summary>
-public class GPUTexture : IInteropObject
+public class GPUTexture : IInteropObject, IDisposable
 {
     public required JSObject JsObject { get; init; }
 
@@ -18,5 +18,15 @@ public class GPUTexture : IInteropObject
         {
             JsObject = Interop.GPUTexture_CreateView(JsObject)
         };
+    }
+
+    public void Destory()
+    {
+        Interop.GPUTexture_Destroy(JsObject);
+    }
+
+    public void Dispose()
+    {
+        Destory();
     }
 }

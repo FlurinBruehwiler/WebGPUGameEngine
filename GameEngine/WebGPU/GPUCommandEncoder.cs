@@ -14,7 +14,7 @@ public class GPUCommandEncoder : IInteropObject
     /// </summary>
     public GPURenderPassEncoder BeginRenderPass(RenderPassDescriptor descriptor)
     {
-        var (json, references) = InteropHelper.MarshalComplexObject(descriptor);
+        var (json, references) = InteropHelper.MarshalObjWithReferences(descriptor);
 
         return new GPURenderPassEncoder
         {
