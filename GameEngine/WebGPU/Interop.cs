@@ -80,7 +80,7 @@ public partial class Interop
     public static partial JSObject GPUDevice_CreatePipelineLayout(JSObject gpuDevice, string json, JSObject[] references);
 
     [JSImport("GPUDevice.createSampler", "main.js")]
-    public static partial JSObject GPUDevice_CreateSampler(JSObject gpuDevice);
+    public static partial JSObject GPUDevice_CreateSampler(JSObject gpuDevice, string descriptorJson);
 
 
     //GPUCommandEncoder
@@ -184,6 +184,7 @@ public static class InteropHelper
 [JsonSerializable(typeof(SamplerBindingLayout))]
 [JsonSerializable(typeof(TextureBindingLayout))]
 [JsonSerializable(typeof(BitmapOptions))]
+[JsonSerializable(typeof(SamplerDescriptor))]
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true, IncludeFields = true)]
 public partial class InteropSerializerContext : JsonSerializerContext;
 

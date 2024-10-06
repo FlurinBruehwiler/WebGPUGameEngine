@@ -45,7 +45,7 @@ setModuleImports('main.js', {
         createShaderModule: (device, json, references) => device.createShaderModule(JsonToObjectWithReferences(json, references)),
         createTexture: (device, json, references) => device.createTexture(JsonToObjectWithReferences(json, references)),
         createPipelineLayout: (device, json, references) => device.createPipelineLayout(JsonToObjectWithReferences(json, references)),
-        createSampler: (device) => device.createSampler()
+        createSampler: (device, jsonDescriptor) => device.createSampler(JSON.parse(jsonDescriptor))
     },
     GPUCommandEncoder: {
         beginRenderPass: (commandEncoder, json, references) => commandEncoder.beginRenderPass(JsonToObjectWithReferences(json, references)),

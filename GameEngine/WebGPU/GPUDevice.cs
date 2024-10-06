@@ -135,13 +135,25 @@ public class GPUDevice : IInteropObject
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createSampler
     /// </summary>
-    public GPUSampler CreateSampler() //can also have a descriptor
+    public GPUSampler CreateSampler(SamplerDescriptor descriptor)
     {
         return new GPUSampler
         {
-            JsObject = Interop.GPUDevice_CreateSampler(JsObject)
+            JsObject = Interop.GPUDevice_CreateSampler(JsObject, InteropHelper.MarshalObj(descriptor))
         };
     }
+}
+
+public struct SamplerDescriptor
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? AddressModeU { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? AddressModeV { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? AddressModeW { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? MagFilter { get; set; }
 }
 
 public class PipelineLayoutDescriptor

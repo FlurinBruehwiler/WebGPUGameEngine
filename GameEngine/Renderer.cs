@@ -211,7 +211,7 @@ public static class Renderer
             [
                 new ColorAttachment
                 {
-                    ClearValue = Color.CornflowerBlue.ToColor(),
+                    ClearValue = Color.Gray.ToColor(),
                     LoadOp = "clear",
                     StoreOp = "store",
                     View = gameInfo.Context.GetCurrentTexture().CreateView()
@@ -315,7 +315,12 @@ public static class Renderer
     {
         var gameInfo = Game.GameInfo;
 
-        var sampler = gameInfo.Device.CreateSampler();
+        var sampler = gameInfo.Device.CreateSampler(new SamplerDescriptor
+        {
+            AddressModeU = "repeat",
+            AddressModeV = "repeat",
+            MagFilter = "linear"
+        });
 
         var info = new Info
         {
