@@ -28,7 +28,6 @@ setModuleImports('main.js', {
                 JSON.parse(sizeJson)),
         copyExternalImageToTexture: (queue, sourceJson, sourceReferences, destinationJson, destinationReferences, copySizeJson) =>
             {
-                console.log(sourceJson);
                 queue.copyExternalImageToTexture(
                     JsonToObjectWithReferences(sourceJson, sourceReferences),
                     JsonToObjectWithReferences(destinationJson, destinationReferences),

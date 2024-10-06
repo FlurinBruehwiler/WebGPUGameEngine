@@ -317,6 +317,22 @@ public static class Renderer
 
         var sampler = gameInfo.Device.CreateSampler();
 
+        var info = new Info
+        {
+            Color = model.SolidColor,
+            TextureType = model.Texture == null ? 0 : 1
+        };
+
+        var infoData = info.ToArray();
+
+        //set color
+        var infoBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
+        {
+            Size = 256,
+            Usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        });
+        gameInfo.Device.Queue.WriteBuffer(infoBuffer, 0, infoData, 0, infoData.Length);
+
         return gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
         {
             // Layout = bindGroupLayout,
@@ -331,10 +347,35 @@ public static class Renderer
                 new BindGroupEntry
                 {
                     Binding = 1,
-                    Resource = model.Texture.GpuTexture.CreateView() //todo what if there is no texture??? use default texture
+                    Resource = model.Texture?.GpuTexture.CreateView() ?? gameInfo.NullTexture.GpuTexture.CreateView()
+                },
+                new BindGroupEntry
+                {
+                    Binding = 2,
+                    Resource = new BufferBinding
+                    {
+                        Buffer = infoBuffer
+                    }
                 }
             ]
         });
+    }
+}
+
+public struct Info
+{
+    public required Color Color;
+    public required int TextureType;
+
+    public double[] ToArray()
+    {
+        var result = new double[8];
+        result[0] = (double)Color.R / 255;
+        result[1] = (double)Color.G / 255;
+        result[2] = (double)Color.B / 255;
+        result[3] = (double)Color.A / 255;
+        result[4] = TextureType;
+        return result;
     }
 }
 
@@ -374,6 +415,11 @@ public static class Extensions
         }
 
         return list[index];
+    }
+
+    public static double[] ToArray(this Color color)
+    {
+        return [(double)color.R / 255, (double)color.G / 255, (double)color.B / 255, (double)color.A / 255];
     }
 
     public static double[] ToColumnMajorArray(this Matrix4x4 matrix)

@@ -9,12 +9,18 @@ struct MVP {
     projectionMatrix: mat4x4<f32>,
 }
 
+struct Info{
+    color: vec4f,
+    textureType: i32,
+}
+
 @binding(0)
 @group(0)
 var<uniform> mvp : MVP;
 
 @group(1) @binding(0) var ourSampler: sampler;
 @group(1) @binding(1) var ourTexture: texture_2d<f32>;
+@group(1) @binding(2) var<uniform> info: Info;
 
 @vertex
 fn vertex_main(@location(0) position: vec4f, @location(1) texcoord: vec2f) -> VertexOut
@@ -29,5 +35,9 @@ fn vertex_main(@location(0) position: vec4f, @location(1) texcoord: vec2f) -> Ve
 @fragment
 fn fragment_main(fragData: VertexOut) -> @location(0) vec4f
 {
-    return textureSample(ourTexture, ourSampler, fragData.texcoord);
+    if info.textureType == 0 {
+        return info.color;
+    }else{
+        return textureSample(ourTexture, ourSampler, fragData.texcoord);
+    }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
 using GameEngine;
@@ -14,6 +15,8 @@ public static class Program
         {
             Game.GameInfo = await InitializeGame();
 
+            Game.GameInfo.NullTexture = await ResourceManager.LoadTexture("NullTexture.png");
+
             Game.GameInfo.Camera = new Camera
             {
                 Transform = new Transform
@@ -24,10 +27,10 @@ public static class Program
                 }
             };
 
-            var model = await ResourceManager.LoadModel("cube.obj");
-            Renderer.UploadModel(model);
+            var cubeModel = await ResourceManager.LoadModel("cube.obj");
+            Renderer.UploadModel(cubeModel);
 
-            model.Texture = await ResourceManager.LoadTexture("crate-texture.jpg");
+            cubeModel.Texture = await ResourceManager.LoadTexture("crate-texture.jpg");
 
             for (int i = 0; i < 10; i++)
             {
@@ -39,9 +42,23 @@ public static class Program
                         Rotation = RandomVector(0, MathF.PI * 2),
                         Position = RandomVector(-25, 25)
                     },
-                    Model = model,
+                    Model = cubeModel,
                 });
             }
+
+            var planeModel = await ResourceManager.LoadModel("plane.obj");
+            Renderer.UploadModel(planeModel);
+            planeModel.Texture = await ResourceManager.LoadTexture("grass.png");
+            planeModel.SolidColor = Color.Green;
+
+            Game.GameInfo.Entities.Add(new Entity
+            {
+                Transform = Transform.Default(1000) with
+                {
+                    Position = new Vector3(0, -20, 0)
+                },
+                Model = planeModel
+            });
 
             JsWindow.RequestAnimationFrame(FrameCatch);
         }
@@ -209,6 +226,12 @@ public static class Program
                     Binding = 1,
                     Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
                     Texture = new TextureBindingLayout()
+                },
+                new LayoutEntry
+                {
+                    Binding = 2,
+                    Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                    Buffer = new BufferBindingLayout()
                 }
             ]
         });
@@ -254,6 +277,7 @@ public static class Program
             JsCanvas = canvas,
             Context = context,
             RenderPipeline = renderPipeline,
+            NullTexture = null!
         };
 
         gameInfo.UpdateScreenDimensions();

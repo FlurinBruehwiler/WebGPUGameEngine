@@ -59,6 +59,7 @@ public class GameInfo
     public required JsCanvas JsCanvas;
     public Camera Camera;
     public Input Input = new();
+    public required Texture NullTexture;
 
     public void UpdateScreenDimensions()
     {

@@ -28,8 +28,6 @@ public class ResourceManager
         return await HttpClient.GetStreamAsync(baseUrl + name);
     }
 
-    private static IObjLoader? _objLoader;
-
     public static async Task<Texture> LoadTexture(string name)
     {
         var stream = await LoadStream(name);
@@ -37,7 +35,7 @@ public class ResourceManager
         await stream.CopyToAsync(ms);
         var imageBitmap = await JsWindow.CreateImageBitmap(ms.ToArray(), new BitmapOptions
         {
-            ClorSpaceConversion = "none"
+            ColorSpaceConversion = "none"
         });
         var gpuTexture = Renderer.CreateTextureFromBitmap(imageBitmap);
         return new Texture
@@ -49,12 +47,10 @@ public class ResourceManager
     public static async Task<Model> LoadModel(string name)
     {
         var stream = await LoadStream(name);
-        if (_objLoader == null)
-        {
-            var factory = new ObjLoaderFactory();
-            _objLoader = factory.Create();
-        }
-        var result = _objLoader.Load(stream);
+        var factory = new ObjLoaderFactory();
+        var objLoader = factory.Create();
+
+        var result = objLoader.Load(stream);
 
         var group = result.Groups.First();
 

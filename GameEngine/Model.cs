@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using GameEngine.WebGPU;
 
 namespace GameEngine;
@@ -14,6 +15,7 @@ public class Model : IDisposable
     public required Vertex[] Vertices;
     public GPUBuffer? GpuBuffer;
     public Texture? Texture;
+    public Color SolidColor;
     public GPUBindGroup? TextureBindGroup;
 
     public void Dispose()

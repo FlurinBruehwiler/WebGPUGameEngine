@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices.JavaScript;
+﻿using System.ComponentModel;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json.Serialization;
 
 namespace GameEngine.WebGPU;
@@ -220,8 +221,12 @@ public interface IBindGroupResource;
 public class BufferBinding : IBindGroupResource
 {
     public required GPUBuffer Buffer { get; init; }
-    public int Offset { get; set; }
-    public int Size { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Offset { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Size { get; set; }
 }
 
 public class ShaderModuleDescriptor

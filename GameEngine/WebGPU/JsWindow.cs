@@ -19,5 +19,5 @@ public static class JsWindow
 
 public struct BitmapOptions
 {
-    public required string ClorSpaceConversion{ get; set; }
+    public required string ColorSpaceConversion{ get; set; }
 }
