@@ -8,7 +8,7 @@
     <RootNamespace>WasmTestCSharp</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GameEngine\GameEngine.csproj" />
+    <ProjectReference Include="..\Client\Client.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\teapot.obj" />

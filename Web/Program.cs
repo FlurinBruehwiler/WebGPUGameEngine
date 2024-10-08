@@ -40,26 +40,25 @@ public static class Program
                     Transform = new Transform
                     {
                         Scale = Vector3.One,
-                        Rotation = RandomVector(0, MathF.PI * 2),
-                        Position = RandomVector(-25, 25)
+                        Position = RandomVector(-25, 25) with{ Y = 1}
                     },
                     Model = cubeModel,
                 });
             }
 
-            // var planeModel = await ResourceManager.LoadModel("plane.obj");
-            // Renderer.UploadModel(planeModel);
-            // planeModel.Texture = await ResourceManager.LoadTexture("grass.png");
-            // planeModel.SolidColor = Color.Green;
-            //
-            // Game.GameInfo.Entities.Add(new Entity
-            // {
-            //     Transform = Transform.Default(1000) with
-            //     {
-            //         Position = new Vector3(0, -20, 0)
-            //     },
-            //     Model = planeModel
-            // });
+            var planeModel = await ResourceManager.LoadModel("plane.obj");
+            Renderer.UploadModel(planeModel);
+            planeModel.Texture = await ResourceManager.LoadTexture("grass.png");
+            planeModel.SolidColor = Color.Green;
+
+            Game.GameInfo.Entities.Add(new Entity
+            {
+                Transform = Transform.Default(30) with
+                {
+                    Position = new Vector3(-10, 0, -10)
+                },
+                Model = planeModel
+            });
 
             JsWindow.RequestAnimationFrame(FrameCatch);
         }
