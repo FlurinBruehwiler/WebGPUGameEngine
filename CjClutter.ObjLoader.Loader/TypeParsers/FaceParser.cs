@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using ObjLoader.Loader.Common;
 using ObjLoader.Loader.Data;
 using ObjLoader.Loader.Data.DataStore;
@@ -21,7 +22,7 @@ namespace ObjLoader.Loader.TypeParsers
             get { return "f"; }
         }
 
-        public override void Parse(string line)
+        public override Task Parse(string line)
         {
             var vertices = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -34,6 +35,8 @@ namespace ObjLoader.Loader.TypeParsers
             }
 
             _faceGroup.AddFace(face);
+
+            return Task.CompletedTask;
         }
 
         private FaceVertex ParseFaceVertex(string vertexString)

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ObjLoader.Loader.Loaders
 {
@@ -6,32 +7,32 @@ namespace ObjLoader.Loader.Loaders
     {
         private StreamReader _lineStreamReader;
 
-        protected void StartLoad(Stream lineStream)
+        protected async Task StartLoad(Stream lineStream)
         {
             _lineStreamReader = new StreamReader(lineStream);
 
             while (!_lineStreamReader.EndOfStream)
             {
-                ParseLine();
+                await ParseLine();
             }
         }
 
-        private void ParseLine()
+        private Task ParseLine()
         {
             var currentLine = _lineStreamReader.ReadLine();
 
             if (string.IsNullOrWhiteSpace(currentLine) || currentLine[0] == '#')
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var fields = currentLine.Trim().Split(null, 2);
             var keyword = fields[0].Trim();
             var data = fields[1].Trim();
 
-            ParseLine(keyword, data);
+            return ParseLine(keyword, data);
         }
 
-        protected abstract void ParseLine(string keyword, string data);
+        protected abstract Task ParseLine(string keyword, string data);
     }
 }

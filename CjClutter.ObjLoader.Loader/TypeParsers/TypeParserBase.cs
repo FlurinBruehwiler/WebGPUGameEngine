@@ -1,4 +1,5 @@
-﻿using ObjLoader.Loader.Common;
+﻿using System.Threading.Tasks;
+using ObjLoader.Loader.Common;
 using ObjLoader.Loader.TypeParsers.Interfaces;
 
 namespace ObjLoader.Loader.TypeParsers
@@ -12,6 +13,6 @@ namespace ObjLoader.Loader.TypeParsers
             return keyword.EqualsOrdinalIgnoreCase(Keyword);
         }
 
-        public abstract void Parse(string line);
+        public abstract Task Parse(string line);
     }
 }

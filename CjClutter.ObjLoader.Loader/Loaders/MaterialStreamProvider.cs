@@ -1,18 +1,19 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ObjLoader.Loader.Loaders
 {
     public class MaterialStreamProvider : IMaterialStreamProvider
     {
-        public Stream Open(string materialFilePath)
+        public Task<Stream> Open(string materialFilePath)
         {
-            return File.Open(materialFilePath, FileMode.Open, FileAccess.Read);
+            return Task.FromResult((Stream)File.Open(materialFilePath, FileMode.Open, FileAccess.Read));
         }
     }
 
     public class MaterialNullStreamProvider : IMaterialStreamProvider
     {
-        public Stream Open(string materialFilePath)
+        public Task<Stream> Open(string materialFilePath)
         {
             return null;
         }

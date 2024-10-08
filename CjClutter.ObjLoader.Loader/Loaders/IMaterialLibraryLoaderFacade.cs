@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
+
 namespace ObjLoader.Loader.Loaders
 {
     public interface IMaterialLibraryLoaderFacade
     {
-        void Load(string materialFileName);
+        Task Load(string materialFileName);
     }
 }

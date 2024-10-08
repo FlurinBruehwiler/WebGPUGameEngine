@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using ObjLoader.Loader.Common;
 using ObjLoader.Loader.Data;
 using ObjLoader.Loader.Data.DataStore;
@@ -53,17 +54,18 @@ namespace ObjLoader.Loader.Loaders
             _parseActionDictionary.Add(key.ToLowerInvariant(), action);
         }
 
-        protected override void ParseLine(string keyword, string data)
+        protected override Task ParseLine(string keyword, string data)
         {
             var parseAction = GetKeywordAction(keyword);
 
             if (parseAction == null)
             {
                 _unrecognizedLines.Add(keyword + " " + data);
-                return;
+                return Task.CompletedTask;
             }
 
             parseAction(data);
+            return Task.CompletedTask;
         }
 
         private Action<string> GetKeywordAction(string keyword)
@@ -91,9 +93,9 @@ namespace ObjLoader.Loader.Loaders
             return new Vec3(x, y, z);
         }
 
-        public void Load(Stream lineStream)
+        public Task Load(Stream lineStream)
         {
-            StartLoad(lineStream);
+            return StartLoad(lineStream);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using ObjLoader.Loader.Common;
 using ObjLoader.Loader.Data;
 using ObjLoader.Loader.Data.DataStore;
@@ -20,7 +21,7 @@ namespace ObjLoader.Loader.TypeParsers
             get { return "vn"; }
         }
 
-        public override void Parse(string line)
+        public override Task Parse(string line)
         {
             string[] parts = line.Split(' ');
 
@@ -30,6 +31,7 @@ namespace ObjLoader.Loader.TypeParsers
 
             var normal = new Normal(x, y, z);
             _normalDataStore.AddNormal(normal);
+            return Task.CompletedTask;
         }
     }
 }

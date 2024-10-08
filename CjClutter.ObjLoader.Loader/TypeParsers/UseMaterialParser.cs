@@ -1,4 +1,5 @@
-﻿using ObjLoader.Loader.Data;
+﻿using System.Threading.Tasks;
+using ObjLoader.Loader.Data;
 using ObjLoader.Loader.Data.DataStore;
 using ObjLoader.Loader.TypeParsers.Interfaces;
 
@@ -18,9 +19,10 @@ namespace ObjLoader.Loader.TypeParsers
             get { return "usemtl"; }
         }
 
-        public override void Parse(string line)
+        public override Task Parse(string line)
         {
             _elementGroup.SetMaterial(line);
+            return Task.CompletedTask;
         }
     }
 }

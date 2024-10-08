@@ -1,4 +1,5 @@
-﻿using ObjLoader.Loader.Loaders;
+﻿using System.Threading.Tasks;
+using ObjLoader.Loader.Loaders;
 using ObjLoader.Loader.TypeParsers.Interfaces;
 
 namespace ObjLoader.Loader.TypeParsers
@@ -17,9 +18,9 @@ namespace ObjLoader.Loader.TypeParsers
             get { return "mtllib"; }
         }
 
-        public override void Parse(string line)
+        public override Task Parse(string line)
         {
-            _libraryLoaderFacade.Load(line);
+            return _libraryLoaderFacade.Load(line);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using ObjLoader.Loader.Data.DataStore;
 using ObjLoader.Loader.TypeParsers;
 
@@ -6,7 +7,7 @@ namespace ObjLoader.Loader.Loaders
 {
     public interface IMaterialStreamProvider
     {
-        Stream Open(string materialFilePath);
+        Task<Stream> Open(string materialFilePath);
     }
 
     public class ObjLoaderFactory : IObjLoaderFactory

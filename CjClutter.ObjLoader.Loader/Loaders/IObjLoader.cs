@@ -1,9 +1,10 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ObjLoader.Loader.Loaders
 {
     public interface IObjLoader
     {
-        LoadResult Load(Stream lineStream);
+        Task<LoadResult> Load(Stream lineStream);
     }
 }

@@ -1,8 +1,10 @@
-﻿namespace ObjLoader.Loader.TypeParsers.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace ObjLoader.Loader.TypeParsers.Interfaces
 {
     public interface ITypeParser
     {
         bool CanParse(string keyword);
-        void Parse(string line);
+        Task Parse(string line);
     }
 }

@@ -1,9 +1,19 @@
-﻿using System.Net.Mime;
+﻿using System.Collections.Specialized;
+using System.Diagnostics.Metrics;
 using System.Numerics;
 using GameEngine.WebGPU;
+using ObjLoader.Loader.Data.Elements;
 using ObjLoader.Loader.Loaders;
 
 namespace GameEngine;
+
+public class MyMaterialStreamProvider : IMaterialStreamProvider
+{
+    public Task<Stream> Open(string materialFilePath)
+    {
+        return ResourceManager.LoadStream(materialFilePath);
+    }
+}
 
 public class ResourceManager
 {
@@ -19,6 +29,7 @@ public class ResourceManager
     public static async Task<Stream> LoadStream(string name)
     {
         string baseUrl;
+
 #if DEBUG
         baseUrl = "https://localhost:7030/";
 #else
@@ -48,81 +59,94 @@ public class ResourceManager
     {
         var stream = await LoadStream(name);
         var factory = new ObjLoaderFactory();
-        var objLoader = factory.Create();
+        var objLoader = factory.Create(new MyMaterialStreamProvider());
 
-        var result = objLoader.Load(stream);
+        var result = await objLoader.Load(stream);
 
         var group = result.Groups.First();
 
-        return new Model
+        var model = new Model
         {
-            Vertices = group.Faces.SelectMany(face =>
-            {
-                if (face.Count < 3) //is this even a face??
-                    return [];
-
-                var vertices = new Vertex[face.Count];
-
-                for (var i = 0; i < face.Count; i++)
-                {
-                    var faceVertex = face[i];
-                    Vector2 texCoord;
-
-                    if (faceVertex.TextureIndex != 0)
-                    {
-                        var t = result.Textures[faceVertex.TextureIndex - 1];
-                        texCoord = new Vector2(t.X, t.Y);
-                    }
-                    else
-                    {
-                        texCoord = new Vector2(0, 0);
-                    }
-
-                    var v = result.Vertices[faceVertex.VertexIndex - 1];
-                    vertices[i] = new Vertex
-                    {
-                        Position = new Vector3(v.X, v.Y, v.Z),
-                        Texcoord = texCoord
-                    };
-                }
-
-                if (vertices.Length == 3)
-                    return vertices; //fast path
-
-                //https://www.youtube.com/watch?v=hTJFcHutls8
-
-                //determine vector plane
-                var v1 = vertices[0].Position - vertices[1].Position;
-                var v2 = vertices[2].Position - vertices[1].Position;
-                var faceNormal = Vector3.Cross(v1, v2);
-
-                var projectedVertices = new Vector2[face.Count];
-
-                //project vertices
-                for (var i = 0; i < vertices.Length; i++)
-                {
-                    var v = vertices[i];
-
-                    Vector3 projectedPoint = ProjectOntoPlane(v.Position, faceNormal);
-                    Vector2 plane2DPoint = ConvertTo2D(projectedPoint, faceNormal);
-                    projectedVertices[i] = plane2DPoint;
-                }
-
-                if (!Triangulate(projectedVertices, out int[] triangles, out string error))
-                {
-                    throw new Exception(error);
-                }
-
-                var resultV = new Vertex[triangles.Length];
-
-                for (var i = 0; i < triangles.Length; i++)
-                {
-                    resultV[i] = vertices[triangles[i]];
-                }
-
-                return resultV;
-            }).ToArray()
+            Vertices = GetVertices(group, result),
         };
+
+        if (result.Materials.Count == 1)
+        {
+            var mat = result.Materials[0];
+            model.Texture = await LoadTexture(mat.DiffuseTextureMap);
+        }
+
+        return model;
+    }
+
+    private static Vertex[] GetVertices(Group group, LoadResult result)
+    {
+        return group.Faces.SelectMany(face =>
+        {
+            if (face.Count < 3) //is this even a face??
+                return [];
+
+            var vertices = new Vertex[face.Count];
+
+            for (var i = 0; i < face.Count; i++)
+            {
+                var faceVertex = face[i];
+                Vector2 texCoord;
+
+                if (faceVertex.TextureIndex != 0)
+                {
+                    var t = result.Textures[faceVertex.TextureIndex - 1];
+                    texCoord = new Vector2(t.X, t.Y);
+                }
+                else
+                {
+                    texCoord = new Vector2(0, 0);
+                }
+
+                var v = result.Vertices[faceVertex.VertexIndex - 1];
+                vertices[i] = new Vertex
+                {
+                    Position = new Vector3(v.X, v.Y, v.Z),
+                    Texcoord = texCoord
+                };
+            }
+
+            if (vertices.Length == 3)
+                return vertices; //fast path
+
+            //https://www.youtube.com/watch?v=hTJFcHutls8
+
+            //determine vector plane
+            var v1 = vertices[0].Position - vertices[1].Position;
+            var v2 = vertices[2].Position - vertices[1].Position;
+            var faceNormal = Vector3.Normalize(Vector3.Cross(v1, v2));
+
+            var projectedVertices = new Vector2[face.Count];
+
+            //project vertices
+            for (var i = 0; i < vertices.Length; i++)
+            {
+                var v = vertices[i];
+
+                Vector3 projectedPoint = ProjectOntoPlane(v.Position, faceNormal);
+                Vector2 plane2DPoint = ConvertTo2D(projectedPoint, faceNormal);
+                projectedVertices[i] = plane2DPoint;
+            }
+
+            if (!Triangulate(projectedVertices, out int[] triangles, out string error))
+            {
+                throw new Exception(error);
+            }
+
+            var resultV = new Vertex[triangles.Length];
+
+            for (var i = 0; i < triangles.Length; i++)
+            {
+                resultV[i] = vertices[triangles[i]];
+            }
+
+            return resultV;
+        }).ToArray();
     }
 
     private static bool Triangulate(Vector2[] vertices, out int[] triangles, out string errorMessage)
@@ -142,29 +166,30 @@ public class ResourceManager
             return false;
         }
 
-        // if (!IsSimplePolygon(vertices))
-        // {
-        //     errorMessage = "Not a simple polygon";
-        //     return false;
-        // }
-        //
-        // if (ContainsColinearEdges(vertices))
-        // {
-        //     errorMessage = "Contains colinear edges";
-        //     return false;
-        // }
-        //
-        // ComputePolygonArea(vertices, out float area, out WindingOrder windingOrder);
-        //
-        // if (windingOrder == WindingOrder.Invalid)
-        // {
-        //     return false;
-        // }
-        //
-        // if (windingOrder == WindingOrder.CounterClockwise)
-        // {
-        //     Array.Reverse(vertices);
-        // }
+        if (!IsSimplePolygon(vertices))
+        {
+            errorMessage = "Not a simple polygon";
+            return false;
+        }
+
+        if (ContainsColinearEdges(vertices))
+        {
+            errorMessage = "Contains colinear edges";
+            return false;
+        }
+
+        ComputePolygonArea(vertices, out float area, out WindingOrder windingOrder);
+
+        if (windingOrder == WindingOrder.Invalid)
+        {
+            errorMessage = "Invalid winding order";
+            return false;
+        }
+
+        if (windingOrder == WindingOrder.CounterClockwise)
+        {
+            Array.Reverse(vertices);
+        }
 
         var indexList = Enumerable.Range(0, vertices.Length).ToList();
 
@@ -257,14 +282,37 @@ public class ResourceManager
 
     private static bool ComputePolygonArea(Vector2[] vertices, out float area, out WindingOrder windingOrder)
     {
-        area = 0;
-        windingOrder = WindingOrder.Invalid;
-        return false;
+        area = 0f;
+        int n = vertices.Length;
+
+        for (int i = 0; i < n; i++)
+        {
+            Vector2 current = vertices[i];
+            Vector2 next = vertices[(i + 1) % n];
+            area += (current.X * next.Y) - (next.X * current.Y);
+        }
+
+        area = area / 2.0f;
+
+        if (area < 0)
+        {
+            windingOrder = WindingOrder.Clockwise;
+        }else if (area > 0)
+        {
+            windingOrder = WindingOrder.CounterClockwise;
+        }
+        else
+        {
+            windingOrder = WindingOrder.Invalid;
+        }
+
+        return true;
     }
 
     enum WindingOrder
     {
         Invalid,
+        Clockwise,
         CounterClockwise
     }
 
@@ -293,8 +341,14 @@ public class ResourceManager
     {
         // Choose an arbitrary vector not aligned with the normal to create a basis vector
         Vector3 u1;
-        if (planeNormal != Vector3.UnitX) u1 = Vector3.Cross(planeNormal, Vector3.UnitX);
-        else u1 = Vector3.Cross(planeNormal, Vector3.UnitY);
+        if (planeNormal != Vector3.UnitX && planeNormal != -Vector3.UnitX)
+        {
+            u1 = Vector3.Cross(planeNormal, Vector3.UnitX);
+        }
+        else
+        {
+            u1 = Vector3.Cross(planeNormal, Vector3.UnitY);
+        }
         u1 = Vector3.Normalize(u1); // Normalize to get a unit vector
 
         // u2 is perpendicular to both planeNormal and u1

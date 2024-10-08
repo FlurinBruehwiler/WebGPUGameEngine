@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace ObjLoader.Loader.Loaders
 {
     public class MaterialLibraryLoaderFacade : IMaterialLibraryLoaderFacade
@@ -11,13 +13,13 @@ namespace ObjLoader.Loader.Loaders
             _materialStreamProvider = materialStreamProvider;
         }
 
-        public void Load(string materialFileName)
+        public async Task Load(string materialFileName)
         {
-            using (var stream = _materialStreamProvider.Open(materialFileName))
+            using (var stream = await _materialStreamProvider.Open(materialFileName))
             {
                 if (stream != null)
                 {
-                    _loader.Load(stream);    
+                    await _loader.Load(stream);
                 }
             }
         }

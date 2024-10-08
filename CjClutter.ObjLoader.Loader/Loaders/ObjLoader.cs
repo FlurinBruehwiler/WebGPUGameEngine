@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using ObjLoader.Loader.Data.DataStore;
 using ObjLoader.Loader.TypeParsers.Interfaces;
 
@@ -41,23 +42,23 @@ namespace ObjLoader.Loader.Loaders
             }
         }
 
-        protected override void ParseLine(string keyword, string data)
+        protected override Task ParseLine(string keyword, string data)
         {
             foreach (var typeParser in _typeParsers)
             {
                 if (typeParser.CanParse(keyword))
                 {
-                    typeParser.Parse(data);
-                    return;
+                    return typeParser.Parse(data);
                 }
             }
 
             _unrecognizedLines.Add(keyword + " " + data);
+            return Task.CompletedTask;
         }
 
-        public LoadResult Load(Stream lineStream)
+        public async Task<LoadResult> Load(Stream lineStream)
         {
-            StartLoad(lineStream);
+            await StartLoad(lineStream);
 
             return CreateResult();
         }

@@ -1,9 +1,10 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ObjLoader.Loader.Loaders
 {
     public interface IMaterialLibraryLoader
     {
-        void Load(Stream lineStream);
+        Task Load(Stream lineStream);
     }
 }

@@ -27,10 +27,11 @@ public static class Program
                 }
             };
 
-            var cubeModel = await ResourceManager.LoadModel("cube.obj");
+            var cubeModel = await ResourceManager.LoadModel("crate.obj");
             Renderer.UploadModel(cubeModel);
+            cubeModel.SolidColor = Color.Beige;
 
-            cubeModel.Texture = await ResourceManager.LoadTexture("crate-texture.jpg");
+            // cubeModel.Texture = await ResourceManager.LoadTexture("crate-texture.jpg");
 
             for (int i = 0; i < 10; i++)
             {
@@ -38,7 +39,7 @@ public static class Program
                 {
                     Transform = new Transform
                     {
-                        Scale = RandomVector(1, 3),
+                        Scale = Vector3.One,
                         Rotation = RandomVector(0, MathF.PI * 2),
                         Position = RandomVector(-25, 25)
                     },
@@ -46,19 +47,19 @@ public static class Program
                 });
             }
 
-            var planeModel = await ResourceManager.LoadModel("plane.obj");
-            Renderer.UploadModel(planeModel);
-            planeModel.Texture = await ResourceManager.LoadTexture("grass.png");
-            planeModel.SolidColor = Color.Green;
-
-            Game.GameInfo.Entities.Add(new Entity
-            {
-                Transform = Transform.Default(1000) with
-                {
-                    Position = new Vector3(0, -20, 0)
-                },
-                Model = planeModel
-            });
+            // var planeModel = await ResourceManager.LoadModel("plane.obj");
+            // Renderer.UploadModel(planeModel);
+            // planeModel.Texture = await ResourceManager.LoadTexture("grass.png");
+            // planeModel.SolidColor = Color.Green;
+            //
+            // Game.GameInfo.Entities.Add(new Entity
+            // {
+            //     Transform = Transform.Default(1000) with
+            //     {
+            //         Position = new Vector3(0, -20, 0)
+            //     },
+            //     Model = planeModel
+            // });
 
             JsWindow.RequestAnimationFrame(FrameCatch);
         }
