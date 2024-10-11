@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using ObjLoader.Loader.Loaders;
-using ObjLoader.Loader.TypeParsers.Interfaces;
+using CjClutter.ObjLoader.Loader.Loaders;
+using CjClutter.ObjLoader.Loader.TypeParsers.Interfaces;
 
-namespace ObjLoader.Loader.TypeParsers
+namespace CjClutter.ObjLoader.Loader.TypeParsers
 {
     public class MaterialLibraryParser : TypeParserBase, IMaterialLibraryParser
     {

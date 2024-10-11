@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using ObjLoader.Loader.Common;
-using ObjLoader.Loader.TypeParsers.Interfaces;
+using CjClutter.ObjLoader.Loader.Common;
+using CjClutter.ObjLoader.Loader.TypeParsers.Interfaces;
 
-namespace ObjLoader.Loader.TypeParsers
+namespace CjClutter.ObjLoader.Loader.TypeParsers
 {
     public abstract class TypeParserBase : ITypeParser
     {

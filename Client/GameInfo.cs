@@ -73,12 +73,12 @@ public class GameInfo
     public List<Vector3> ImmediateVertices = [];
     // public List<Model> Models = [];
     public List<Entity> Entities = [];
-    public required GPURenderPipeline RenderPipeline;
-    public required GPUDevice Device;
-    public required GPUCanvasContext Context;
+    public required IGPURenderPipeline RenderPipeline;
+    public required IGPUDevice Device;
+    public required IGPUCanvasContext Context;
     public int ScreenWidth;
     public int ScreenHeight;
-    public required JsCanvas JsCanvas;
+    public required IScreen Screen;
     public Camera Camera;
     public Input Input = new();
     public required Texture NullTexture;
@@ -87,8 +87,8 @@ public class GameInfo
 
     public void UpdateScreenDimensions()
     {
-        ScreenWidth = JsCanvas.JsObject.GetPropertyAsInt32("width");
-        ScreenHeight = JsCanvas.JsObject.GetPropertyAsInt32("height");
+        ScreenWidth = Screen.GetWidth();
+        ScreenHeight = Screen.GetHeight();
     }
 }
 

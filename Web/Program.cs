@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GameEngine;
 using GameEngine.WebGPU;
 using Shared;
+using WasmTestCSharp.WebGPU;
 
 namespace WasmTestCSharp;
 
@@ -64,6 +65,13 @@ public static class Program
 
             Game.GameInfo.Server?.ListenForMessages();
 
+            Game.GameInfo.Server?.SendMessage(new CreateMessage //should probably happen automatically, when an entity is added to the game..
+            {
+                ModelId = "player",
+                Transform = new NetworkTransform(), //will be updated on the first frame
+                EntityId = PlayerGuid
+            });
+
             JsWindow.RequestAnimationFrame(FrameCatch);
         }
         catch (Exception e)
@@ -119,11 +127,13 @@ public static class Program
         {
             if (message is UpdateMessage updateMessage)
             {
+                Console.WriteLine("Got update message");
                 var entity = Game.GameInfo.Entities.First(x => x.Id == updateMessage.EntityId);
                 entity.Transform = Transform.FromNetwork(updateMessage.Transform);
             }
             else if (message is CreateMessage createMessage)
             {
+                Console.WriteLine("Got create message");
                 Game.GameInfo.Entities.Add(new Entity
                 {
                     Id = createMessage.EntityId,
@@ -138,6 +148,21 @@ public static class Program
     {
         ProcessServerMessages();
 
+        UpdateCamera();
+
+        SendUpdatesToServer();
+        _ = Game.GameInfo.Server?.SendPendingMessages(); //async
+
+        Renderer.RenderFrame(Game.GameInfo.Camera);
+
+        Game.GameInfo.Input.NextFrame();
+
+        //request next frame
+        JsWindow.RequestAnimationFrame(FrameCatch);
+    }
+
+    private static void UpdateCamera()
+    {
         const float velocity = 0.5f;
 
         if (Game.GameInfo.Input.IsKeyDown("KeyW"))
@@ -172,20 +197,6 @@ public static class Program
         {
             Game.GameInfo.Camera.Transform.Position.Y += velocity;
         }
-
-        SendUpdatesToServer();
-
-        Renderer.StartFrame();
-            Renderer.DrawCube(new Vector3(10, 0, 0));
-            // Renderer.DrawCube(new Vector3(0, 0, 10));
-            // Renderer.DrawCube(new Vector3(-10, 0, 0));
-            // Renderer.DrawCube(new Vector3(0, 0, -10));
-        Renderer.EndFrame(Game.GameInfo.Camera);
-
-        Game.GameInfo.Input.NextFrame();
-
-        //request next frame
-        JsWindow.RequestAnimationFrame(FrameCatch);
     }
 
     private static void HandleKeyEvent(string code, bool isDown)
@@ -212,7 +223,7 @@ public static class Program
         var adapter = await GPU.RequestAdapter();
         var device = await adapter.RequestDevice();
 
-        var resourceManager = new ResourceManager();
+        var resourceManager = new ResourceManager(new WebResourceHelper());
 
         var shaderModule = device.CreateShaderModule(new ShaderModuleDescriptor
         {
@@ -236,17 +247,17 @@ public static class Program
                 {
                     ShaderLocation = 0,
                     Offset = 0,
-                    Format = "float32x4"
+                    Format = VertexFormat.Float32x4
                 },
                 new VertexAttribute //texcoord
                 {
                     ShaderLocation = 1,
                     Offset = 16,
-                    Format = "float32x2"
+                    Format = VertexFormat.Float32x2
                 }
             ],
             ArrayStride = 24,
-            StepMode = "vertex"
+            StepMode = VertexStepMode.Vertex
         };
 
         var uniformBindGroupLayout = device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
@@ -305,9 +316,9 @@ public static class Program
                     Format = presentationFormat
                 }]
             },
-            Primitive = new PrimitiveDecsriptor
+            Primitive = new PrimitiveDescriptor
             {
-                Topology = "triangle-list"
+                Topology = PrimitiveTopology.TriangleList
             },
             Layout = device.CreatePipelineLayout(new PipelineLayoutDescriptor
             {
@@ -315,23 +326,39 @@ public static class Program
             }),
             DepthStencil = new DepthStencil
             {
-                Format = "depth24plus",
-                DepthCompare = "less",
+                Format = TextureFormat.Depth24Plus,
+                DepthCompare = CompareFunction.Less,
                 DepthWriteEnabled = true
             }
         };
 
         var renderPipeline = device.CreateRenderPipeline(pipelineDescriptor);
 
+
         var gameInfo = new GameInfo
         {
             Device = device,
-            JsCanvas = canvas,
+            Screen = new Screen
+            {
+                Canvas = canvas
+            },
             Context = context,
             RenderPipeline = renderPipeline,
             NullTexture = null!,
             ResourceManager = resourceManager
         };
+
+
+        var server = new Server();
+        if (await server.TryEstablishConnection())
+        {
+            Console.WriteLine("running in online mode");
+            gameInfo.Server = server;
+        }
+        else
+        {
+            Console.WriteLine("running in offline mode");
+        }
 
         gameInfo.UpdateScreenDimensions();
 

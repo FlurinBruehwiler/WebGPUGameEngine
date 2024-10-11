@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using ObjLoader.Loader.Data;
-using ObjLoader.Loader.Data.Elements;
-using ObjLoader.Loader.Data.VertexData;
+using CjClutter.ObjLoader.Loader.Data;
+using CjClutter.ObjLoader.Loader.Data.Elements;
+using CjClutter.ObjLoader.Loader.Data.VertexData;
 
-namespace ObjLoader.Loader.Loaders
+namespace CjClutter.ObjLoader.Loader.Loaders
 {
     public class LoadResult  
     {

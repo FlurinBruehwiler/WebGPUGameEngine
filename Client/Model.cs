@@ -38,10 +38,10 @@ public class Model : IDisposable
 {
     public required Vertex[] Vertices;
     public CollisionBox CollisionBox;
-    public GPUBuffer? GpuBuffer;
+    public IGPUBuffer? GpuBuffer;
     public Texture? Texture;
     public Color SolidColor;
-    public GPUBindGroup? TextureBindGroup;
+    public IGPUBindGroup? TextureBindGroup;
 
     public void Dispose()
     {

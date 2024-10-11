@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using ObjLoader.Loader.Data.Elements;
-using ObjLoader.Loader.Data.VertexData;
+using CjClutter.ObjLoader.Loader.Data.Elements;
+using CjClutter.ObjLoader.Loader.Data.VertexData;
 
-namespace ObjLoader.Loader.Data.DataStore
+namespace CjClutter.ObjLoader.Loader.Data.DataStore
 {
     public interface IDataStore 
     {

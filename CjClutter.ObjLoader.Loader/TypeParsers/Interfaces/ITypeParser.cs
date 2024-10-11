@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace ObjLoader.Loader.TypeParsers.Interfaces
+namespace CjClutter.ObjLoader.Loader.TypeParsers.Interfaces
 {
     public interface ITypeParser
     {

@@ -14,7 +14,15 @@ public class Server
         var cts = new CancellationTokenSource();
         cts.CancelAfter(1000);
 
-        await WebSocket.ConnectAsync(new Uri("ws://localhost:7235/ws"), cts.Token);
+        try
+        {
+            await WebSocket.ConnectAsync(new Uri("ws://localhost:5105/ws"), cts.Token);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Unable to connect to server because: {e.Message}");
+            return false;
+        }
 
         if (cts.IsCancellationRequested)
         {
@@ -29,24 +37,39 @@ public class Server
         return Networking.SendMessage(WebSocket, message);
     }
 
-    public ValueTask<IMessage?> GetNextMessage()
+    private ValueTask<IMessage?> GetNextMessage()
     {
         return Networking.GetNextMessage(WebSocket);
     }
 
+    public async Task SendPendingMessages()
+    {
+        while (PendingSendingMessages.TryDequeue(out var message))
+        {
+            await SendMessage(message);
+        }
+    }
+
     public async ValueTask ListenForMessages()
     {
-        while (true)
+        try
         {
-            var message = await GetNextMessage();
-
-            if (message == null)
+            while (true)
             {
-                await Task.Delay(1000);
-                return;
-            }
+                var message = await GetNextMessage();
 
-            PendingReceivingMessages.Enqueue(message);
+                if (message == null)
+                {
+                    await Task.Delay(1000);
+                    return;
+                }
+
+                PendingReceivingMessages.Enqueue(message);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
 }

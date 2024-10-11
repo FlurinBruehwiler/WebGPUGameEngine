@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
-using ObjLoader.Loader.Common;
-using ObjLoader.Loader.Data;
-using ObjLoader.Loader.Data.DataStore;
-using ObjLoader.Loader.Data.VertexData;
-using ObjLoader.Loader.TypeParsers.Interfaces;
+using CjClutter.ObjLoader.Loader.Common;
+using CjClutter.ObjLoader.Loader.Data.DataStore;
+using CjClutter.ObjLoader.Loader.Data.VertexData;
+using CjClutter.ObjLoader.Loader.TypeParsers.Interfaces;
 
-namespace ObjLoader.Loader.TypeParsers
+namespace CjClutter.ObjLoader.Loader.TypeParsers
 {
     public class TextureParser : TypeParserBase, ITextureParser
     {

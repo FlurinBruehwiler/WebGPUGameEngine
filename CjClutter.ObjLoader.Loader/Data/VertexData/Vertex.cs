@@ -1,4 +1,4 @@
-namespace ObjLoader.Loader.Data.VertexData
+namespace CjClutter.ObjLoader.Loader.Data.VertexData
 {
     public struct Vertex
     {

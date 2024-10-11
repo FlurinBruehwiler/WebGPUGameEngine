@@ -1,9 +1,9 @@
 ﻿using System.Collections.Specialized;
 using System.Diagnostics.Metrics;
 using System.Numerics;
+using CjClutter.ObjLoader.Loader.Data.Elements;
+using CjClutter.ObjLoader.Loader.Loaders;
 using GameEngine.WebGPU;
-using ObjLoader.Loader.Data.Elements;
-using ObjLoader.Loader.Loaders;
 
 namespace GameEngine;
 
@@ -15,9 +15,8 @@ public class MyMaterialStreamProvider : IMaterialStreamProvider
     }
 }
 
-public class ResourceManager
+public class ResourceManager(IResourceHelper resourceHelper)
 {
-    public static HttpClient HttpClient = new();
     public Dictionary<string, Model> Models = [];
 
     public Model GetModelFromId(string modelId)
@@ -32,27 +31,14 @@ public class ResourceManager
         return await reader.ReadToEndAsync();
     }
 
-    public async Task<Stream> LoadStream(string name)
+    public Task<Stream> LoadStream(string name)
     {
-        string url = Path.Combine(JsWindow.Location, name);
-
-        return await HttpClient.GetStreamAsync(url);
+        return resourceHelper.LoadStream(name);
     }
 
-    public async Task<Texture> LoadTexture(string name)
+    public Task<Texture> LoadTexture(string name)
     {
-        var stream = await LoadStream(name);
-        using var ms = new MemoryStream();
-        await stream.CopyToAsync(ms);
-        var imageBitmap = await JsWindow.CreateImageBitmap(ms.ToArray(), new BitmapOptions
-        {
-            ColorSpaceConversion = "none"
-        });
-        var gpuTexture = Renderer.CreateTextureFromBitmap(imageBitmap);
-        return new Texture
-        {
-            GpuTexture = gpuTexture
-        };
+        return resourceHelper.LoadTexture(name);
     }
 
     public async Task<Model> LoadModel(string name)

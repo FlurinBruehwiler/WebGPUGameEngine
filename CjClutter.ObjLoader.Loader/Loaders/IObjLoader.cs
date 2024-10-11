@@ -1,7 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace ObjLoader.Loader.Loaders
+namespace CjClutter.ObjLoader.Loader.Loaders
 {
     public interface IObjLoader
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ObjLoader.Loader.Data.Elements
+namespace CjClutter.ObjLoader.Loader.Data.Elements
 {
     public class Face
     {

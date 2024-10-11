@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
-using ObjLoader.Loader.Data;
-using ObjLoader.Loader.Data.DataStore;
-using ObjLoader.Loader.TypeParsers.Interfaces;
+using CjClutter.ObjLoader.Loader.Data.DataStore;
+using CjClutter.ObjLoader.Loader.TypeParsers.Interfaces;
 
-namespace ObjLoader.Loader.TypeParsers
+namespace CjClutter.ObjLoader.Loader.TypeParsers
 {
     public class GroupParser : TypeParserBase, IGroupParser
     {

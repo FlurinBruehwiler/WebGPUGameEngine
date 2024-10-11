@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using GameEngine.WebGPU;
+using WasmTestCSharp.WebGPU;
 
 namespace GameEngine;
 
@@ -69,46 +70,7 @@ public static class Renderer
         Game.GameInfo.ImmediateVertices.Add(v3);
     }
 
-    public static void StartFrame()
-    {
-    }
-
-    public static GPUTexture CreateTextureFromBitmap(ImageBitmap imageBitmap)
-    {
-        var texture = Game.GameInfo.Device.CreateTexture(new TextureDescriptor
-        {
-            Format = "rgba8unorm",
-            Usage = GPUTextureUsage.TEXTURE_BINDING |
-                    GPUTextureUsage.COPY_DST |
-                    GPUTextureUsage.RENDER_ATTACHMENT,
-            Size = new SizeObject
-            {
-                Width = imageBitmap.Width,
-                Height = imageBitmap.Height,
-                DepthOrArrayLayers = 1
-            }
-        });
-
-        Game.GameInfo.Device.Queue.CopyExternalImageToTexture(
-            new ImageSource
-            {
-                Source = imageBitmap,
-                FlipY = true
-            },
-            new TextureDestination
-            {
-                Texture = texture
-            },
-            new TextureSize
-            {
-                Width = imageBitmap.Width,
-                Height = imageBitmap.Height
-            });
-
-        return texture;
-    }
-
-    public static GPUTexture CreateTexture(byte[] data, int width, int height)
+    public static IGPUTexture CreateTexture(byte[] data, int width, int height)
     {
         var texture = Game.GameInfo.Device.CreateTexture(new TextureDescriptor
         {
@@ -183,7 +145,7 @@ public static class Renderer
     //     return immediateModel;
     // }
 
-    public static void EndFrame(Camera camera)
+    public static void RenderFrame(Camera camera)
     {
         var gameInfo = Game.GameInfo;
 
@@ -311,7 +273,7 @@ public static class Renderer
         gameInfo.Device.Queue.Submit([commandBuffer]);
     }
 
-    private static GPUBindGroup CreateTextureBindGroup(Model model)
+    private static IGPUBindGroup CreateTextureBindGroup(Model model)
     {
         var gameInfo = Game.GameInfo;
 

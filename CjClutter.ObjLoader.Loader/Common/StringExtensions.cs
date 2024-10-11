@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 
-namespace ObjLoader.Loader.Common
+namespace CjClutter.ObjLoader.Loader.Common
 {
     public static class StringExtensions
     {

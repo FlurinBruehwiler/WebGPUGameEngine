@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ObjLoader.Loader.Common;
-using ObjLoader.Loader.Data.Elements;
-using ObjLoader.Loader.Data.VertexData;
+using CjClutter.ObjLoader.Loader.Common;
+using CjClutter.ObjLoader.Loader.Data.Elements;
+using CjClutter.ObjLoader.Loader.Data.VertexData;
 
-namespace ObjLoader.Loader.Data.DataStore
+namespace CjClutter.ObjLoader.Loader.Data.DataStore
 {
     public class DataStore : IDataStore, IGroupDataStore, IVertexDataStore, ITextureDataStore, INormalDataStore,
                              IFaceGroup, IMaterialLibrary, IElementGroup

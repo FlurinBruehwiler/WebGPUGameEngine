@@ -1,4 +1,4 @@
-namespace ObjLoader.Loader.Data.DataStore
+namespace CjClutter.ObjLoader.Loader.Data.DataStore
 {
     public interface IGroupDataStore
     {

@@ -1,3 +1,5 @@
+using Shared;
+
 namespace Server;
 
 public class Program
@@ -7,14 +9,14 @@ public class Program
 
     public static void Main()
     {
-        var builder = WebApplication.CreateBuilder();
+        var builder = WebApplication.CreateSlimBuilder();
         var app = builder.Build();
 
         app.UseWebSockets();
 
         app.MapGet("/", () => "Server alive!");
 
-        app.Map("/wd", async context =>
+        app.Map("/ws", async context =>
         {
             if (!context.WebSockets.IsWebSocketRequest)
             {
@@ -32,9 +34,32 @@ public class Program
             };
             Clients.Add(client);
 
-            _ = client.ListenForMessages().ContinueWith(t => Console.WriteLine("Client disconnected"));
+            await SendAllEntitiesToClient(client);
+
+            _ = client.ListenForMessages().ContinueWith(t =>
+            {
+                if (t.Exception != null)
+                {
+                    Console.WriteLine(t.Exception);
+                }
+
+                Console.WriteLine("Client disconnected");
+            });
         });
 
         app.Run();
+    }
+
+    public static async ValueTask SendAllEntitiesToClient(Client client)
+    {
+        foreach (var networkEntity in Entities)
+        {
+            await client.SendMessage(new CreateMessage
+            {
+                ModelId = networkEntity.ModelId,
+                EntityId = networkEntity.Id,
+                Transform = networkEntity.Transform
+            });
+        }
     }
 }

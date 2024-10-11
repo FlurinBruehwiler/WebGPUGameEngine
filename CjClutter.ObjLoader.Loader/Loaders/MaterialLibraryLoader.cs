@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using ObjLoader.Loader.Common;
-using ObjLoader.Loader.Data;
-using ObjLoader.Loader.Data.DataStore;
+using CjClutter.ObjLoader.Loader.Common;
+using CjClutter.ObjLoader.Loader.Data;
+using CjClutter.ObjLoader.Loader.Data.DataStore;
 
-namespace ObjLoader.Loader.Loaders
+namespace CjClutter.ObjLoader.Loader.Loaders
 {
     public class MaterialLibraryLoader : LoaderBase, IMaterialLibraryLoader
     {

@@ -4,7 +4,7 @@ namespace GameEngine;
 
 public class Texture : IDisposable
 {
-    public required GPUTexture GpuTexture;
+    public required IGPUTexture GpuTexture;
 
     public void Dispose()
     {

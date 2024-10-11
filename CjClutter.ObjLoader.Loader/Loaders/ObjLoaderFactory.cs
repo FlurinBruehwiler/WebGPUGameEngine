@@ -1,9 +1,9 @@
 using System.IO;
 using System.Threading.Tasks;
-using ObjLoader.Loader.Data.DataStore;
-using ObjLoader.Loader.TypeParsers;
+using CjClutter.ObjLoader.Loader.Data.DataStore;
+using CjClutter.ObjLoader.Loader.TypeParsers;
 
-namespace ObjLoader.Loader.Loaders
+namespace CjClutter.ObjLoader.Loader.Loaders
 {
     public interface IMaterialStreamProvider
     {

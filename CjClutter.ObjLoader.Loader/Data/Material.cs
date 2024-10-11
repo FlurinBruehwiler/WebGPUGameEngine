@@ -1,4 +1,4 @@
-﻿namespace ObjLoader.Loader.Data
+﻿namespace CjClutter.ObjLoader.Loader.Data
 {
     public class Material
     {

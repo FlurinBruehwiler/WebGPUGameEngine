@@ -40,6 +40,8 @@ public static class Networking
 
     private static async ValueTask ReadExactlyAsync(WebSocket webSocket, Memory<byte> buffer) //very simplistic WS implementation, needs to be reworked
     {
+        Console.WriteLine(webSocket.State);
+
         var currentPosition = 0;
 
         while (true)

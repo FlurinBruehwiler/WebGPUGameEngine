@@ -1,8 +1,18 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+global using NativeGPU = Silk.NET.WebGPU.WebGPU;
 
 using GameEngine;
+using GameEngine.WebGPU;
+using Silk.NET.Core.Contexts;
+using Silk.NET.WebGPU;
 
-Console.WriteLine("Hello, World!");
+namespace Desktop;
 
-var model = await Game.GameInfo.ResourceManager.LoadModel("teapot.obj");
+public static class Program
+{
+    public static unsafe void Main()
+    {
+
+    }
+}
