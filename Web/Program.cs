@@ -1,9 +1,11 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using GameEngine;
 using GameEngine.WebGPU;
+using Shared;
 
 namespace WasmTestCSharp;
 
@@ -15,7 +17,7 @@ public static class Program
         {
             Game.GameInfo = await InitializeGame();
 
-            Game.GameInfo.NullTexture = await ResourceManager.LoadTexture("NullTexture.png");
+            Game.GameInfo.NullTexture = await Game.GameInfo.ResourceManager.LoadTexture("NullTexture.png");
 
             Game.GameInfo.Camera = new Camera
             {
@@ -27,7 +29,7 @@ public static class Program
                 }
             };
 
-            var cubeModel = await ResourceManager.LoadModel("crate.obj");
+            var cubeModel = await Game.GameInfo.ResourceManager.LoadModel("crate.obj");
             Renderer.UploadModel(cubeModel);
             cubeModel.SolidColor = Color.Beige;
 
@@ -46,9 +48,9 @@ public static class Program
                 });
             }
 
-            var planeModel = await ResourceManager.LoadModel("plane.obj");
+            var planeModel = await Game.GameInfo.ResourceManager.LoadModel("plane.obj");
             Renderer.UploadModel(planeModel);
-            planeModel.Texture = await ResourceManager.LoadTexture("grass.png");
+            planeModel.Texture = await Game.GameInfo.ResourceManager.LoadTexture("grass.png");
             planeModel.SolidColor = Color.Green;
 
             Game.GameInfo.Entities.Add(new Entity
@@ -59,6 +61,8 @@ public static class Program
                 },
                 Model = planeModel
             });
+
+            Game.GameInfo.Server?.ListenForMessages();
 
             JsWindow.RequestAnimationFrame(FrameCatch);
         }
@@ -88,8 +92,52 @@ public static class Program
         }
     }
 
+    private static Guid PlayerGuid = Guid.NewGuid();
+
+    private static void SendUpdatesToServer()
+    {
+        if (Game.GameInfo.Server == null)
+            return;
+
+        var server = Game.GameInfo.Server;
+
+        server.PendingSendingMessages.Enqueue(new UpdateMessage
+        {
+            EntityId = PlayerGuid,
+            Transform = Game.GameInfo.Camera.Transform.ToNetwork()
+        });
+    }
+
+    private static void ProcessServerMessages()
+    {
+        if (Game.GameInfo.Server == null)
+            return;
+
+        var server = Game.GameInfo.Server;
+
+        while (server.PendingReceivingMessages.TryDequeue(out var message))
+        {
+            if (message is UpdateMessage updateMessage)
+            {
+                var entity = Game.GameInfo.Entities.First(x => x.Id == updateMessage.EntityId);
+                entity.Transform = Transform.FromNetwork(updateMessage.Transform);
+            }
+            else if (message is CreateMessage createMessage)
+            {
+                Game.GameInfo.Entities.Add(new Entity
+                {
+                    Id = createMessage.EntityId,
+                    Transform = Transform.FromNetwork(createMessage.Transform),
+                    Model = Game.GameInfo.ResourceManager.GetModelFromId(createMessage.ModelId)
+                });
+            }
+        }
+    }
+
     private static void Frame()
     {
+        ProcessServerMessages();
+
         const float velocity = 0.5f;
 
         if (Game.GameInfo.Input.IsKeyDown("KeyW"))
@@ -124,6 +172,8 @@ public static class Program
         {
             Game.GameInfo.Camera.Transform.Position.Y += velocity;
         }
+
+        SendUpdatesToServer();
 
         Renderer.StartFrame();
             Renderer.DrawCube(new Vector3(10, 0, 0));
@@ -162,9 +212,11 @@ public static class Program
         var adapter = await GPU.RequestAdapter();
         var device = await adapter.RequestDevice();
 
+        var resourceManager = new ResourceManager();
+
         var shaderModule = device.CreateShaderModule(new ShaderModuleDescriptor
         {
-            Code = await ResourceManager.LoadString("shaders.wgsl")
+            Code = await resourceManager.LoadString("shaders.wgsl")
         });
 
         var presentationFormat = GPU.GetPreferredCanvasFormat();
@@ -277,7 +329,8 @@ public static class Program
             JsCanvas = canvas,
             Context = context,
             RenderPipeline = renderPipeline,
-            NullTexture = null!
+            NullTexture = null!,
+            ResourceManager = resourceManager
         };
 
         gameInfo.UpdateScreenDimensions();

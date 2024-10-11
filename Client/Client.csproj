@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CjClutter.ObjLoader.Loader\CjClutter.ObjLoader.Loader.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
 </Project>

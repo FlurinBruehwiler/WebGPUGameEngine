@@ -73,7 +73,8 @@ setModuleImports('main.js', {
         })
     },
     Window: {
-        createImageBitmap: (image, options) => createImageBitmap(new Blob([new Uint8Array(image)]), JSON.parse(options))
+        createImageBitmap: (image, options) => createImageBitmap(new Blob([new Uint8Array(image)]), JSON.parse(options)),
+        getLocation: () => window.location.href
     }
 });
 

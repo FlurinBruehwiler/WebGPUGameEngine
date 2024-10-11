@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using GameEngine.WebGPU;
+using Shared;
 
 namespace GameEngine;
 
@@ -17,6 +18,16 @@ public struct Transform
         };
     }
 
+    public NetworkTransform ToNetwork()
+    {
+        return new NetworkTransform
+        {
+            Position = Position,
+            Rotation = Rotation,
+            Scale = Scale
+        };
+    }
+
     public static Transform Create(Vector3 position, Vector3 rotation, float scale = 1)
     {
         return new Transform
@@ -24,6 +35,16 @@ public struct Transform
             Scale = new Vector3(scale),
             Position = position,
             Rotation = rotation
+        };
+    }
+
+    public static Transform FromNetwork(NetworkTransform transform)
+    {
+        return new Transform
+        {
+            Scale = transform.Scale,
+            Position = transform.Position,
+            Rotation = transform.Rotation,
         };
     }
 
@@ -42,6 +63,7 @@ public struct Transform
 
 public class Entity
 {
+    public Guid Id = Guid.NewGuid();
     public required Model Model;
     public required Transform Transform;
 }
@@ -60,6 +82,8 @@ public class GameInfo
     public Camera Camera;
     public Input Input = new();
     public required Texture NullTexture;
+    public Server? Server;
+    public required ResourceManager ResourceManager;
 
     public void UpdateScreenDimensions()
     {

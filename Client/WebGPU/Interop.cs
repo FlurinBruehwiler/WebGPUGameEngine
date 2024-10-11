@@ -130,9 +130,12 @@ public partial class Interop
     [JSImport("globalThis.window.requestAnimationFrame")]
     public static partial void Window_RequestAnimationFrame([JSMarshalAs<JSType.Function>] Action callback);
 
+    [JSImport("Window.getLocation", "main.js")]
+    public static partial string Window_LocationHref();
+
+
     [JSImport("Window.createImageBitmap", "main.js")]
     public static partial Task<JSObject> Window_CreateImageBitmap(byte[] image, string optionsJson);
-
 }
 
 public static class InteropHelper

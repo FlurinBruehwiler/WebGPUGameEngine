@@ -5,4 +5,4 @@ using GameEngine;
 
 Console.WriteLine("Hello, World!");
 
-var model = await ResourceManager.LoadModel("teapot.obj");
+var model = await Game.GameInfo.ResourceManager.LoadModel("teapot.obj");

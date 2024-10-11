@@ -2,6 +2,8 @@
 
 public static class JsWindow
 {
+    public static string Location => Interop.Window_LocationHref();
+
     public static void RequestAnimationFrame(Action callback)
     {
         Interop.Window_RequestAnimationFrame(callback);

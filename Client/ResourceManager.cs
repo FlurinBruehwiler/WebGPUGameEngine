@@ -11,35 +11,35 @@ public class MyMaterialStreamProvider : IMaterialStreamProvider
 {
     public Task<Stream> Open(string materialFilePath)
     {
-        return ResourceManager.LoadStream(materialFilePath);
+        return Game.GameInfo.ResourceManager.LoadStream(materialFilePath);
     }
 }
 
 public class ResourceManager
 {
     public static HttpClient HttpClient = new();
+    public Dictionary<string, Model> Models = [];
 
-    public static async Task<string> LoadString(string name)
+    public Model GetModelFromId(string modelId)
+    {
+        return Models[modelId];
+    }
+
+    public async Task<string> LoadString(string name)
     {
         var stream = await LoadStream(name);
         var reader = new StreamReader(stream);
         return await reader.ReadToEndAsync();
     }
 
-    public static async Task<Stream> LoadStream(string name)
+    public async Task<Stream> LoadStream(string name)
     {
-        string baseUrl;
+        string url = Path.Combine(JsWindow.Location, name);
 
-#if DEBUG
-        baseUrl = "https://localhost:7030/";
-#else
-        baseUrl = "https://flurinbruehwiler.github.io/WebGPUGameEngine/";
-#endif
-
-        return await HttpClient.GetStreamAsync(baseUrl + name);
+        return await HttpClient.GetStreamAsync(url);
     }
 
-    public static async Task<Texture> LoadTexture(string name)
+    public async Task<Texture> LoadTexture(string name)
     {
         var stream = await LoadStream(name);
         using var ms = new MemoryStream();
@@ -55,8 +55,11 @@ public class ResourceManager
         };
     }
 
-    public static async Task<Model> LoadModel(string name)
+    public async Task<Model> LoadModel(string name)
     {
+        if (Models.TryGetValue(name, out var m))
+            return m;
+
         var stream = await LoadStream(name);
         var factory = new ObjLoaderFactory();
         var objLoader = factory.Create(new MyMaterialStreamProvider());
@@ -75,6 +78,8 @@ public class ResourceManager
             var mat = result.Materials[0];
             model.Texture = await LoadTexture(mat.DiffuseTextureMap);
         }
+
+        Models.Add(name, model);
 
         return model;
     }
