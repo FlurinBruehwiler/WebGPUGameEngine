@@ -29,10 +29,7 @@ public struct Plane
     }
 }
 
-public struct CollisionBox
-{
-
-}
+public struct CollisionBox;
 
 public class Model : IDisposable
 {

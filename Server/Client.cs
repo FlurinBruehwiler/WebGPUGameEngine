@@ -44,7 +44,8 @@ public class Client
                     Program.Entities.Add(new NetworkEntity
                     {
                         Transform = createMessage.Transform,
-                        Id = createMessage.EntityId
+                        Id = createMessage.EntityId,
+                        ModelId = createMessage.ModelId
                     });
                     await DistributeMessageToOtherClients(createMessage);
                 }

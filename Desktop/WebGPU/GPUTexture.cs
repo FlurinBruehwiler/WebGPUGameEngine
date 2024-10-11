@@ -15,10 +15,17 @@ public unsafe class GPUTexture : IGPUTexture
     /// </summary>
     public IGPUTextureView CreateView()
     {
+        var descriptor = new TextureViewDescriptor();
+
+        return new GPUTextureView
+        {
+            TextureView = GPU.API.TextureCreateView(Texture, in descriptor)
+        };
     }
 
     public void Destory()
     {
+        GPU.API.TextureDestroy(Texture);
     }
 
     public void Dispose()

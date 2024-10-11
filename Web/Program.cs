@@ -223,7 +223,10 @@ public static class Program
         var adapter = await GPU.RequestAdapter();
         var device = await adapter.RequestDevice();
 
-        var resourceManager = new ResourceManager(new WebResourceHelper());
+        var context = canvas.GetContext();
+        var platformImplementation = new WebPlatformImplementation(context);
+
+        var resourceManager = new ResourceManager(platformImplementation);
 
         var shaderModule = device.CreateShaderModule(new ShaderModuleDescriptor
         {
@@ -231,7 +234,6 @@ public static class Program
         });
 
         var presentationFormat = GPU.GetPreferredCanvasFormat();
-        var context = canvas.GetContext();
         context.Configure(new ContextConfig
         {
             Device = device,
@@ -342,7 +344,7 @@ public static class Program
             {
                 Canvas = canvas
             },
-            Context = context,
+            PlatformImplementation = platformImplementation,
             RenderPipeline = renderPipeline,
             NullTexture = null!,
             ResourceManager = resourceManager

@@ -12,5 +12,9 @@ public unsafe class GPURenderPipeline : IGPURenderPipeline
 
     public IGPUBindGroupLayout GetBindGroupLayout(int index)
     {
+        return new GPUBindGroupLayout
+        {
+            BindGroupLayout = GPU.API.RenderPipelineGetBindGroupLayout(RenderPipeline, (uint)index)
+        };
     }
 }

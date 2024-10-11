@@ -29,9 +29,9 @@ public class GPUCanvasContext : IInteropObject
     }
 }
 
-public class ContextConfig
+public struct ContextConfig
 {
-    public IGPUDevice Device { get; set; }
-    public string Format { get; set; }
-    public string AlphaMode { get; set; }
+    public required IGPUDevice Device { get; set; }
+    public required TextureFormat Format { get; set; }
+    public required  string AlphaMode { get; set; }
 }

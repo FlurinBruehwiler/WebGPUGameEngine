@@ -1,5 +1,3 @@
 ﻿namespace GameEngine.WebGPU;
 
-public interface IGPUPipelineLayout
-{
-}
+public interface IGPUPipelineLayout;

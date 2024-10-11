@@ -175,7 +175,7 @@ public static class InteropHelper
 
 [JsonSerializable(typeof(CreateBufferDescriptor))]
 [JsonSerializable(typeof(RenderPipelineDescriptor))]
-[JsonSerializable(typeof(RenderPassDescriptor))]
+[JsonSerializable(typeof(GPURenderPassDescriptor))]
 [JsonSerializable(typeof(BindGroupDescriptor))]
 [JsonSerializable(typeof(ShaderModuleDescriptor))]
 [JsonSerializable(typeof(ContextConfig))]

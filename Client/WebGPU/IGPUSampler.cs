@@ -1,5 +1,3 @@
 ﻿namespace GameEngine.WebGPU;
 
-public interface IGPUSampler : IBindGroupResource
-{
-}
+public interface IGPUSampler : IBindGroupResource;

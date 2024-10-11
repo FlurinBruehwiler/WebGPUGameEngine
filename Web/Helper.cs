@@ -10,7 +10,7 @@ public class Helper
     {
         var texture = Game.GameInfo.Device.CreateTexture(new TextureDescriptor
         {
-            Format = "rgba8unorm",
+            Format = TextureFormat.Rgba8Unorm,
             Usage = GPUTextureUsage.TEXTURE_BINDING |
                     GPUTextureUsage.COPY_DST |
                     GPUTextureUsage.RENDER_ATTACHMENT,

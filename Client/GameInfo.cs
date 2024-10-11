@@ -75,7 +75,9 @@ public class GameInfo
     public List<Entity> Entities = [];
     public required IGPURenderPipeline RenderPipeline;
     public required IGPUDevice Device;
-    public required IGPUCanvasContext Context;
+
+    public required IPlatformImplementation PlatformImplementation;
+    // public required GPUCanvasContext Context;
     public int ScreenWidth;
     public int ScreenHeight;
     public required IScreen Screen;

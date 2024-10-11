@@ -2,6 +2,6 @@
 
 public class Game
 {
-    public static GameInfo GameInfo;
-    public static bool StartedUp() => GameInfo != null;
+    public static GameInfo GameInfo = null!;
+    public static bool StartedUp() => GameInfo != null!;
 }

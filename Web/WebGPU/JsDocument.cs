@@ -23,10 +23,7 @@ public static class JsDocument
     }
 }
 
-public class Event
-{
-
-}
+public class Event;
 
 public class MouseEvent : Event
 {
@@ -36,5 +33,5 @@ public class MouseEvent : Event
 
 public class KeyboardEvent : Event
 {
-    public string Code { get; set; }
+    public required string Code { get; set; }
 }

@@ -15,7 +15,7 @@ public class MyMaterialStreamProvider : IMaterialStreamProvider
     }
 }
 
-public class ResourceManager(IResourceHelper resourceHelper)
+public class ResourceManager(IPlatformImplementation platformImplementation)
 {
     public Dictionary<string, Model> Models = [];
 
@@ -33,12 +33,12 @@ public class ResourceManager(IResourceHelper resourceHelper)
 
     public Task<Stream> LoadStream(string name)
     {
-        return resourceHelper.LoadStream(name);
+        return platformImplementation.LoadStream(name);
     }
 
     public Task<Texture> LoadTexture(string name)
     {
-        return resourceHelper.LoadTexture(name);
+        return platformImplementation.LoadTexture(name);
     }
 
     public async Task<Model> LoadModel(string name)

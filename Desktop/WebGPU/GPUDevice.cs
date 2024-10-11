@@ -2,10 +2,12 @@
 using GameEngine.WebGPU;
 using Silk.NET.WebGPU;
 using WasmTestCSharp.WebGPU;
+using AddressMode = Silk.NET.WebGPU.AddressMode;
 using BindGroupDescriptor = GameEngine.WebGPU.BindGroupDescriptor;
 using BindGroupEntry = Silk.NET.WebGPU.BindGroupEntry;
 using BindGroupLayoutDescriptor = GameEngine.WebGPU.BindGroupLayoutDescriptor;
 using BufferBindingLayout = Silk.NET.WebGPU.BufferBindingLayout;
+using FilterMode = Silk.NET.WebGPU.FilterMode;
 using PipelineLayoutDescriptor = GameEngine.WebGPU.PipelineLayoutDescriptor;
 using RenderPipelineDescriptor = GameEngine.WebGPU.RenderPipelineDescriptor;
 using SamplerBindingLayout = Silk.NET.WebGPU.SamplerBindingLayout;
@@ -22,7 +24,23 @@ public unsafe class GPUDevice : IGPUDevice
 {
     public required Device* Device;
 
-    public IGPUQueue Queue { get; }
+    public IGPUQueue Queue
+    {
+        get
+        {
+            var queue = GPU.API.DeviceGetQueue(Device);
+            if (cachedGPUQueue == null || queue != cachedGPUQueue.Queue)
+            {
+                return cachedGPUQueue = new GPUQueue
+                {
+                    Queue = queue
+                };
+            }
+
+            return cachedGPUQueue;
+        }
+    }
+    private GPUQueue? cachedGPUQueue;
 
     public IGPUCommandEncoder CreateCommandEncoder()
     {
@@ -30,7 +48,7 @@ public unsafe class GPUDevice : IGPUDevice
 
         return new GPUCommandEncoder
         {
-            CommandEncoder = GPU.API.DeviceCreateCommandEncoder(Device, descriptor)
+            CommandEncoder = GPU.API.DeviceCreateCommandEncoder(Device, in descriptor)
         };
     }
 
@@ -44,7 +62,8 @@ public unsafe class GPUDevice : IGPUDevice
 
         return new GPUBuffer
         {
-            Buffer = GPU.API.DeviceCreateBuffer(Device, in bufferDescriptor)
+            Buffer = GPU.API.DeviceCreateBuffer(Device, in bufferDescriptor),
+            Size = descriptor.Size
         };
     }
 
@@ -128,7 +147,7 @@ public unsafe class GPUDevice : IGPUDevice
 
         return new GPURenderPipeline
         {
-            RenderPipeline = GPU.API.DeviceCreateRenderPipeline(Device, nativeDescriptor)
+            RenderPipeline = GPU.API.DeviceCreateRenderPipeline(Device, in nativeDescriptor)
         };
     }
 
@@ -221,21 +240,85 @@ public unsafe class GPUDevice : IGPUDevice
 
     public IGPUShaderModule CreateShaderModule(ShaderModuleDescriptor descriptor)
     {
-        throw new NotImplementedException();
+        var wgslDescriptor = new ShaderModuleWGSLDescriptor
+        {
+            Code = descriptor.Code.ToPtr(), //todo, allocate in unmanaged heap!!
+            Chain = new ChainedStruct
+            {
+                Next = null,
+                SType = SType.ShaderModuleWgslDescriptor
+            }
+        };
+
+        IntPtr chainPtr = IntPtr.Zero;
+        Marshal.StructureToPtr(wgslDescriptor.Chain, chainPtr, false);
+
+        var shaderModuleDescriptor = new Silk.NET.WebGPU.ShaderModuleDescriptor
+        {
+            NextInChain = (ChainedStruct*)chainPtr
+        };
+
+        return new GPUShaderModule
+        {
+            ShaderModule = GPU.API.DeviceCreateShaderModule(Device, in shaderModuleDescriptor)
+        };
     }
 
     public IGPUTexture CreateTexture(TextureDescriptor descriptor)
     {
-        throw new NotImplementedException();
+        var size = new Extent3D
+        {
+            Width = (uint)descriptor.Size.Width,
+            Height = (uint)descriptor.Size.Height,
+            DepthOrArrayLayers = (uint)descriptor.Size.DepthOrArrayLayers
+        };
+
+        var textureDescriptor = new Silk.NET.WebGPU.TextureDescriptor
+        {
+            Format = (TextureFormat)descriptor.Format,
+            Size = size,
+            Usage = (TextureUsage)descriptor.Usage
+        };
+
+        return new GPUTexture
+        {
+            Texture = GPU.API.DeviceCreateTexture(Device, in textureDescriptor)
+        };
     }
 
     public IGPUPipelineLayout CreatePipelineLayout(PipelineLayoutDescriptor descriptor)
     {
-        throw new NotImplementedException();
+        var bindGroupLayouts = stackalloc BindGroupLayout*[descriptor.BindGroupLayouts.Length];
+        for (int i = 0; i < descriptor.BindGroupLayouts.Length; i++)
+        {
+            bindGroupLayouts[i] = ((GPUBindGroupLayout)descriptor.BindGroupLayouts[i]).BindGroupLayout;
+        }
+
+        var pipelineLayoutDescriptor = new Silk.NET.WebGPU.PipelineLayoutDescriptor
+        {
+            BindGroupLayouts = bindGroupLayouts,
+            BindGroupLayoutCount = (nuint)descriptor.BindGroupLayouts.Length
+        };
+
+        return new GPUPipelineLayout
+        {
+            PipelineLayout = GPU.API.DeviceCreatePipelineLayout(Device, in pipelineLayoutDescriptor)
+        };
     }
 
     public IGPUSampler CreateSampler(SamplerDescriptor descriptor)
     {
-        throw new NotImplementedException();
+        var samplerDescriptor = new Silk.NET.WebGPU.SamplerDescriptor
+        {
+            AddressModeU = (AddressMode)(descriptor.AddressModeU ?? GameEngine.WebGPU.AddressMode.ClampToEdge),
+            AddressModeV = (AddressMode)(descriptor.AddressModeV ?? GameEngine.WebGPU.AddressMode.ClampToEdge),
+            AddressModeW = (AddressMode)(descriptor.AddressModeW ?? GameEngine.WebGPU.AddressMode.ClampToEdge),
+            MagFilter = (FilterMode)(descriptor.MagFilter ?? GameEngine.WebGPU.FilterMode.Linear)
+        };
+
+        return new GPUSampler
+        {
+            Sampler = GPU.API.DeviceCreateSampler(Device, in samplerDescriptor)
+        };
     }
 }

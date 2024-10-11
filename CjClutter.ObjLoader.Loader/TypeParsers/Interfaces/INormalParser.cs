@@ -1,6 +1,4 @@
 namespace CjClutter.ObjLoader.Loader.TypeParsers.Interfaces
 {
-    public interface INormalParser : ITypeParser
-    {
-    }
+    public interface INormalParser : ITypeParser;
 }

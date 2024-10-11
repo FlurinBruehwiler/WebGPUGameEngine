@@ -2,11 +2,12 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using GameEngine;
+using GameEngine.WebGPU;
 using WasmTestCSharp.WebGPU;
 
 namespace WasmTestCSharp;
 
-public class WebResourceHelper : IResourceHelper
+public class WebPlatformImplementation(GPUCanvasContext canvasContext) : IPlatformImplementation
 {
     public static HttpClient HttpClient = new();
 
@@ -15,6 +16,11 @@ public class WebResourceHelper : IResourceHelper
         string url = Path.Combine(JsWindow.Location, name);
 
         return await HttpClient.GetStreamAsync(url);
+    }
+
+    public IGPUTextureView CreateView()
+    {
+        return canvasContext.GetCurrentTexture().CreateView();
     }
 
     public async Task<Texture> LoadTexture(string name)

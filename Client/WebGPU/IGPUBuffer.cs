@@ -3,5 +3,4 @@
 public interface IGPUBuffer : IDisposable
 {
     void Destory();
-    void Dispose();
 }

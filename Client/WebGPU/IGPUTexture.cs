@@ -8,5 +8,4 @@ public interface IGPUTexture : IDisposable
     IGPUTextureView CreateView();
 
     void Destory();
-    void Dispose();
 }

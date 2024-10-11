@@ -74,7 +74,7 @@ public static class Renderer
     {
         var texture = Game.GameInfo.Device.CreateTexture(new TextureDescriptor
         {
-            Format = "rgba8unorm",
+            Format = TextureFormat.Rgba8Unorm,
             Usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
             Size = new SizeObject
             {
@@ -157,7 +157,7 @@ public static class Renderer
 
         using var depthTexture = gameInfo.Device.CreateTexture(new TextureDescriptor
         {
-            Format = "depth24plus",
+            Format = TextureFormat.Depth24Plus,
             Usage = GPUTextureUsage.RENDER_ATTACHMENT,
             Size = new SizeObject
             {
@@ -167,24 +167,24 @@ public static class Renderer
             }
         });
 
-        var renderPassDescriptor = new RenderPassDescriptor
+        var renderPassDescriptor = new GPURenderPassDescriptor
         {
             ColorAttachments =
             [
                 new ColorAttachment
                 {
                     ClearValue = Color.Gray.ToColor(),
-                    LoadOp = "clear",
-                    StoreOp = "store",
-                    View = gameInfo.Context.GetCurrentTexture().CreateView()
+                    LoadOp = GPULoadOp.Clear,
+                    StoreOp = GPUStoreOp.Store,
+                    View = gameInfo.PlatformImplementation.CreateView()
                 }
             ],
             DepthStencilAttachment = new DepthStencilAttachment
             {
                 View = depthTexture.CreateView(),
                 DepthClearValue = 1.0f,
-                DepthLoadOp = "clear",
-                DepthStoreOp = "store"
+                DepthGpuLoadOp = GPULoadOp.Clear,
+                DepthGpuStoreOp = GPUStoreOp.Store
             }
         };
 
@@ -279,9 +279,9 @@ public static class Renderer
 
         var sampler = gameInfo.Device.CreateSampler(new SamplerDescriptor
         {
-            AddressModeU = "repeat",
-            AddressModeV = "repeat",
-            MagFilter = "linear"
+            AddressModeU = AddressMode.Repeat,
+            AddressModeV = AddressMode.Repeat,
+            MagFilter = FilterMode.Linear
         });
 
         var info = new Info
@@ -362,7 +362,7 @@ public struct Uniforms
     }
 }
 
-public class Camera
+public struct Camera
 {
     public required Transform Transform;
 }

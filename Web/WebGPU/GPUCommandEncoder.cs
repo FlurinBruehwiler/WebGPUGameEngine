@@ -13,7 +13,7 @@ public class GPUCommandEncoder : IInteropObject, IGPUCommandEncoder
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/GPUCommandEncoder/beginRenderPass
     /// </summary>
-    public IGPURenderPassEncoder BeginRenderPass(RenderPassDescriptor descriptor)
+    public IGPURenderPassEncoder BeginRenderPass(GPURenderPassDescriptor descriptor)
     {
         var (json, references) = InteropHelper.MarshalObjWithReferences(descriptor);
 

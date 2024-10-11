@@ -9,9 +9,11 @@ namespace Desktop.WebGPU;
 public unsafe class GPUBuffer : IGPUBuffer
 {
     public required Buffer* Buffer;
+    public required int Size;
 
     public void Destory()
     {
+        GPU.API.BufferDestroy(Buffer);
     }
 
     public void Dispose()

@@ -44,7 +44,4 @@ public struct Ray
     public Vector3 Direction;
 }
 
-public struct RaycastHit
-{
-
-}
+public struct RaycastHit;

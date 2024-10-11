@@ -53,13 +53,28 @@ public interface IGPUDevice
 public struct SamplerDescriptor
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? AddressModeU { get; set; }
+    public AddressMode? AddressModeU { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? AddressModeV { get; set; }
+    public AddressMode? AddressModeV { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? AddressModeW { get; set; }
+    public AddressMode? AddressModeW { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? MagFilter { get; set; }
+    public FilterMode? MagFilter { get; set; }
+}
+
+public enum FilterMode
+{
+    Nearest = 0,
+    Linear = 1,
+    Force32 = 2147483647, // 0x7FFFFFFF
+}
+
+public enum AddressMode
+{
+    Repeat = 0,
+    MirrorRepeat = 1,
+    ClampToEdge = 2,
+    Force32 = 2147483647, // 0x7FFFFFFF
 }
 
 public class PipelineLayoutDescriptor
@@ -107,7 +122,7 @@ public enum GPUShaderStage
 
 public class TextureDescriptor
 {
-    public required string Format { get; set; }
+    public required TextureFormat Format { get; set; }
     public required SizeObject Size { get; set; }
     public required GPUTextureUsage Usage { get; set; }
 }
