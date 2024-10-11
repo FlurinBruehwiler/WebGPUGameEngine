@@ -1,13 +1,13 @@
 ﻿using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GameEngine;
-using GameEngine.WebGPU;
-using WasmTestCSharp.WebGPU;
+using Client;
+using Client.WebGPU;
+using Web.WebGPU;
 
-namespace WasmTestCSharp;
+namespace Web;
 
-public class WebPlatformImplementation(GPUCanvasContext canvasContext) : IPlatformImplementation
+public class WebImplementation(GPUCanvasContext canvasContext) : IPlatformImplementation
 {
     public static HttpClient HttpClient = new();
 
@@ -18,7 +18,7 @@ public class WebPlatformImplementation(GPUCanvasContext canvasContext) : IPlatfo
         return await HttpClient.GetStreamAsync(url);
     }
 
-    public IGPUTextureView CreateView()
+    public IGPUTextureView CreateTextureView()
     {
         return canvasContext.GetCurrentTexture().CreateView();
     }

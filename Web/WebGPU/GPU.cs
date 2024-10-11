@@ -1,22 +1,21 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Web.WebGPU;
 
 public class GPU
 {
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/GPU/getPreferredCanvasFormat
     /// </summary>
-    public static TextureFormat GetPreferredCanvasFormat()
+    public static GPUTextureFormat GetPreferredCanvasFormat()
     {
         var str = Interop.GPU_GetPreferredCanvasFormat();
         if (str == "rgba8unorm")
-            return TextureFormat.Rgba8Unorm;
+            return GPUTextureFormat.Rgba8Unorm;
         if (str == "bgra8unorm")
-            return TextureFormat.Bgra8Unorm;
+            return GPUTextureFormat.Bgra8Unorm;
         throw new Exception("$Unknown texture format {str}");
     }
 

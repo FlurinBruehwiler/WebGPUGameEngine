@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Web.WebGPU;
 
 public static class JsWindow
 {

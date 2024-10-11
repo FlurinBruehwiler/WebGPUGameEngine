@@ -1,11 +1,8 @@
-﻿using System.Collections.Specialized;
-using System.Diagnostics.Metrics;
-using System.Numerics;
+﻿using System.Numerics;
 using CjClutter.ObjLoader.Loader.Data.Elements;
 using CjClutter.ObjLoader.Loader.Loaders;
-using GameEngine.WebGPU;
 
-namespace GameEngine;
+namespace Client;
 
 public class MyMaterialStreamProvider : IMaterialStreamProvider
 {

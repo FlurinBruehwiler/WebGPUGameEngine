@@ -1,7 +1,6 @@
 ﻿using System.Reflection.Metadata.Ecma335;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 using Silk.NET.WebGPU;
-using WasmTestCSharp.WebGPU;
 
 namespace Desktop.WebGPU;
 

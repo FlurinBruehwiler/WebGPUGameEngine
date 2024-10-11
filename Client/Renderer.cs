@@ -1,9 +1,8 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using GameEngine.WebGPU;
-using WasmTestCSharp.WebGPU;
+using Client.WebGPU;
 
-namespace GameEngine;
+namespace Client;
 
 public static class Renderer
 {
@@ -74,7 +73,7 @@ public static class Renderer
     {
         var texture = Game.GameInfo.Device.CreateTexture(new TextureDescriptor
         {
-            Format = TextureFormat.Rgba8Unorm,
+            Format = GPUTextureFormat.Rgba8Unorm,
             Usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
             Size = new SizeObject
             {
@@ -157,7 +156,7 @@ public static class Renderer
 
         using var depthTexture = gameInfo.Device.CreateTexture(new TextureDescriptor
         {
-            Format = TextureFormat.Depth24Plus,
+            Format = GPUTextureFormat.Depth24Plus,
             Usage = GPUTextureUsage.RENDER_ATTACHMENT,
             Size = new SizeObject
             {
@@ -176,7 +175,7 @@ public static class Renderer
                     ClearValue = Color.Gray.ToColor(),
                     LoadOp = GPULoadOp.Clear,
                     StoreOp = GPUStoreOp.Store,
-                    View = gameInfo.PlatformImplementation.CreateView()
+                    View = gameInfo.PlatformImplementation.CreateTextureView()
                 }
             ],
             DepthStencilAttachment = new DepthStencilAttachment

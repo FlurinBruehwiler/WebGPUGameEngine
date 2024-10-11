@@ -1,11 +1,11 @@
 ﻿using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 using Silk.NET.WebGPU;
 
 namespace Desktop.WebGPU;
 
-public unsafe static class GPU
+public static unsafe class GPU
 {
     private static NativeGPU? _api;
     public static NativeGPU API
@@ -32,13 +32,18 @@ public unsafe static class GPU
         }
     }
 
-    public static unsafe Task<IGPUAdapter> RequestAdapter()
+    public static Task<GPUAdapter> RequestAdapter(GPURequestAdapterOptions options)
     {
-        var taskCompletionSource = new TaskCompletionSource<IGPUAdapter>();
+        var taskCompletionSource = new TaskCompletionSource<GPUAdapter>();
 
         var handle = GCHandle.Alloc(taskCompletionSource);
 
-        API.InstanceRequestAdapter(Instance, null, new PfnRequestAdapterCallback(OnAdapterRequestEnded), ref handle);
+        var nativeOptions = new RequestAdapterOptions
+        {
+            CompatibleSurface = options.CompatibleSurface.Surface
+        };
+
+        API.InstanceRequestAdapter(Instance, nativeOptions, new PfnRequestAdapterCallback(OnAdapterRequestEnded), ref handle);
 
         return taskCompletionSource.Task;
     }
@@ -46,7 +51,7 @@ public unsafe static class GPU
     private static void OnAdapterRequestEnded(RequestAdapterStatus status, Adapter* adapter, byte* data, void* userData)
     {
         GCHandle handle = GCHandle.FromIntPtr(new IntPtr(userData));
-        var tcs = (TaskCompletionSource<IGPUAdapter>)handle.Target!;
+        var tcs = (TaskCompletionSource<GPUAdapter>)handle.Target!;
         switch (status)
         {
             case RequestAdapterStatus.Success:
@@ -60,4 +65,9 @@ public unsafe static class GPU
                 break;
         }
     }
+}
+
+public struct GPURequestAdapterOptions
+{
+    public GPUSurface CompatibleSurface;
 }

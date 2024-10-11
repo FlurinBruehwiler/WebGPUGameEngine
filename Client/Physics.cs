@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace GameEngine;
+namespace Client;
 
 //character contorller
 //https://www.youtube.com/watch?v=YR6Q7dUz2uk&t

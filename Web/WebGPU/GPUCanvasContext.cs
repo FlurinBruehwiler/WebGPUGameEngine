@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Web.WebGPU;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/GPUCanvasContext
@@ -32,6 +32,6 @@ public class GPUCanvasContext : IInteropObject
 public struct ContextConfig
 {
     public required IGPUDevice Device { get; set; }
-    public required TextureFormat Format { get; set; }
+    public required GPUTextureFormat Format { get; set; }
     public required  string AlphaMode { get; set; }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Web.WebGPU;
 
 public interface IInteropObject
 {

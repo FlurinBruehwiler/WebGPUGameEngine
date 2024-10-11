@@ -1,7 +1,8 @@
 ﻿using System.Net.WebSockets;
+using System.Numerics;
 using Shared;
 
-namespace GameEngine;
+namespace Client;
 
 public class Server
 {
@@ -72,4 +73,73 @@ public class Server
             Console.WriteLine(e);
         }
     }
+
+    public void ProcessServerMessages()
+    {
+        while (PendingReceivingMessages.TryDequeue(out var message))
+        {
+            if (message is UpdateMessage updateMessage)
+            {
+                Console.WriteLine("Got update message");
+                var entity = Game.GameInfo.Entities.First(x => x.Id == updateMessage.EntityId);
+                entity.Transform = Transform.FromNetwork(updateMessage.Transform);
+            }
+            else if (message is CreateMessage createMessage)
+            {
+                Console.WriteLine("Got create message");
+                Game.GameInfo.Entities.Add(new Entity
+                {
+                    Id = createMessage.EntityId,
+                    Transform = Transform.FromNetwork(createMessage.Transform),
+                    Model = Game.GameInfo.ResourceManager.GetModelFromId(createMessage.ModelId)
+                });
+            }
+        }
+    }
+
+    private static void Frame()
+    {
+        Game.GameInfo.Server?.ProcessServerMessages();
+
+        Game.UpdateCamera();
+
+        SendUpdatesToServer();
+        _ = Game.GameInfo.Server?.SendPendingMessages(); //async
+
+        Renderer.RenderFrame(Game.GameInfo.Camera);
+
+        Game.GameInfo.Input.NextFrame();
+
+        //request next frame
+        JsWindow.RequestAnimationFrame(FrameCatch);
+    }
+
+    private static Guid PlayerGuid = Guid.NewGuid();
+
+    private static void FrameCatch()
+    {
+        try
+        {
+            Frame();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    private static void SendUpdatesToServer()
+    {
+        if (Game.GameInfo.Server == null)
+            return;
+
+        var server = Game.GameInfo.Server;
+
+        server.PendingSendingMessages.Enqueue(new UpdateMessage
+        {
+            EntityId = PlayerGuid,
+            Transform = Game.GameInfo.Camera.Transform.ToNetwork()
+        });
+    }
+
 }

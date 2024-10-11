@@ -1,6 +1,6 @@
-﻿using GameEngine.WebGPU;
+﻿using Client.WebGPU;
 
-namespace GameEngine;
+namespace Client;
 
 public class Texture : IDisposable
 {

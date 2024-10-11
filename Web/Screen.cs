@@ -1,7 +1,7 @@
-﻿using GameEngine;
-using WasmTestCSharp.WebGPU;
+﻿using Client;
+using Web.WebGPU;
 
-namespace WasmTestCSharp;
+namespace Web;
 
 public class Screen : IScreen
 {

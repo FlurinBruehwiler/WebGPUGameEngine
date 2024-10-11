@@ -1,4 +1,4 @@
-﻿using GameEngine.WebGPU;
+﻿using Client.WebGPU;
 using Silk.NET.WebGPU;
 
 namespace Desktop.WebGPU;
@@ -9,4 +9,14 @@ namespace Desktop.WebGPU;
 public unsafe class GPUTextureView :  IGPUTextureView
 {
     public required TextureView* TextureView;
+
+    public void Release()
+    {
+        GPU.API.TextureViewRelease(TextureView);
+    }
+
+    public void Dispose()
+    {
+        Release();
+    }
 }

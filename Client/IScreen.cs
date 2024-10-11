@@ -1,4 +1,4 @@
-﻿namespace GameEngine;
+﻿namespace Client;
 
 public interface IScreen
 {

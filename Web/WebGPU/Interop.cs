@@ -4,9 +4,9 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Web.WebGPU;
 
 public partial class Interop
 {

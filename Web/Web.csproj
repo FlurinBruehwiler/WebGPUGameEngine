@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>
-    <RootNamespace>WasmTestCSharp</RootNamespace>
+    <RootNamespace>Web</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Client\Client.csproj" />

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices.JavaScript;
-using System.Text.Json.Serialization;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Web.WebGPU;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice

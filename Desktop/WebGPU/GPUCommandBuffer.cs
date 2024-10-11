@@ -1,4 +1,4 @@
-﻿using GameEngine.WebGPU;
+﻿using Client.WebGPU;
 using Silk.NET.WebGPU;
 
 namespace Desktop.WebGPU;

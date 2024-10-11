@@ -1,7 +1,6 @@
 ﻿using System.Text.Json.Serialization;
-using WasmTestCSharp.WebGPU;
 
-namespace GameEngine.WebGPU;
+namespace Client.WebGPU;
 
 public interface IGPUDevice
 {
@@ -122,7 +121,7 @@ public enum GPUShaderStage
 
 public class TextureDescriptor
 {
-    public required TextureFormat Format { get; set; }
+    public required GPUTextureFormat Format { get; set; }
     public required SizeObject Size { get; set; }
     public required GPUTextureUsage Usage { get; set; }
 }
@@ -180,7 +179,7 @@ public struct DepthStencil
 {
     public required CompareFunction DepthCompare { get; set; }
     public required bool DepthWriteEnabled { get; set; }
-    public required TextureFormat Format { get; set; }
+    public required GPUTextureFormat Format { get; set; }
 }
 
 public enum CompareFunction
@@ -221,7 +220,7 @@ public struct FragmentDescriptor
 
 public struct FragmentTarget
 {
-    public TextureFormat Format { get; set; }
+    public GPUTextureFormat Format { get; set; }
 }
 
 public struct VertexDescriptor
@@ -253,7 +252,7 @@ public struct VertexAttribute
     public VertexFormat Format { get; set; }
 }
 
-public enum TextureFormat
+public enum GPUTextureFormat
 {
     Undefined = 0,
     R8Unorm = 1,

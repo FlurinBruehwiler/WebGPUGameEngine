@@ -1,10 +1,10 @@
-﻿using GameEngine.WebGPU;
+﻿using Client.WebGPU;
 
-namespace GameEngine;
+namespace Client;
 
 public interface IPlatformImplementation
 {
     Task<Texture> LoadTexture(string name);
     Task<Stream> LoadStream(string name);
-    IGPUTextureView CreateView();
+    IGPUTextureView CreateTextureView();
 }

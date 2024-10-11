@@ -1,3 +1,3 @@
-﻿namespace GameEngine.WebGPU;
+﻿namespace Client.WebGPU;
 
-public interface IGPUTextureView : IBindGroupResource;
+public interface IGPUTextureView : IBindGroupResource, IDisposable;

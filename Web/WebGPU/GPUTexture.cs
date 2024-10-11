@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 
-namespace WasmTestCSharp.WebGPU;
+namespace Web.WebGPU;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/GPUTexture
@@ -19,6 +19,11 @@ public class GPUTexture : IInteropObject, IGPUTexture
         {
             JsObject = Interop.GPUTexture_CreateView(JsObject)
         };
+    }
+
+    public IGPUTextureView CreateView(GPUTextureViewDescriptor textureViewDescriptor)
+    {
+        throw new System.NotImplementedException();
     }
 
     public void Destory()

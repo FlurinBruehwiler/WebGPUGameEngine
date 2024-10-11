@@ -1,6 +1,4 @@
-﻿using GameEngine.WebGPU;
-
-namespace WasmTestCSharp.WebGPU;
+﻿namespace Client.WebGPU;
 
 public interface IGPUQueue
 {

@@ -1,8 +1,8 @@
-﻿using GameEngine;
-using GameEngine.WebGPU;
-using WasmTestCSharp.WebGPU;
+﻿using Client;
+using Client.WebGPU;
+using Web.WebGPU;
 
-namespace WasmTestCSharp;
+namespace Web;
 
 public class Helper
 {
@@ -10,7 +10,7 @@ public class Helper
     {
         var texture = Game.GameInfo.Device.CreateTexture(new TextureDescriptor
         {
-            Format = TextureFormat.Rgba8Unorm,
+            Format = GPUTextureFormat.Rgba8Unorm,
             Usage = GPUTextureUsage.TEXTURE_BINDING |
                     GPUTextureUsage.COPY_DST |
                     GPUTextureUsage.RENDER_ATTACHMENT,

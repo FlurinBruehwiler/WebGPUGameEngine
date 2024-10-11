@@ -1,4 +1,4 @@
-﻿using GameEngine.WebGPU;
+﻿using Client.WebGPU;
 using Buffer = Silk.NET.WebGPU.Buffer;
 
 namespace Desktop.WebGPU;

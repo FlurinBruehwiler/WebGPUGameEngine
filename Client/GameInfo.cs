@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 using Shared;
 
-namespace GameEngine;
+namespace Client;
 
 public struct Transform
 {
@@ -80,7 +80,7 @@ public class GameInfo
     // public required GPUCanvasContext Context;
     public int ScreenWidth;
     public int ScreenHeight;
-    public required IScreen Screen;
+    // public required IScreen Screen;
     public Camera Camera;
     public Input Input = new();
     public required Texture NullTexture;
@@ -89,8 +89,8 @@ public class GameInfo
 
     public void UpdateScreenDimensions()
     {
-        ScreenWidth = Screen.GetWidth();
-        ScreenHeight = Screen.GetHeight();
+        // ScreenWidth = Screen.GetWidth();
+        // ScreenHeight = Screen.GetHeight();
     }
 }
 

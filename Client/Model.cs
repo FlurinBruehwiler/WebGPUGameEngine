@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 
-namespace GameEngine;
+namespace Client;
 
 public struct Vertex
 {

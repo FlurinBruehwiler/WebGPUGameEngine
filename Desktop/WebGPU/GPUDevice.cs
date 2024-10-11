@@ -1,20 +1,19 @@
 ﻿using System.Runtime.InteropServices;
-using GameEngine.WebGPU;
+using Client.WebGPU;
 using Silk.NET.WebGPU;
-using WasmTestCSharp.WebGPU;
 using AddressMode = Silk.NET.WebGPU.AddressMode;
-using BindGroupDescriptor = GameEngine.WebGPU.BindGroupDescriptor;
+using BindGroupDescriptor = Client.WebGPU.BindGroupDescriptor;
 using BindGroupEntry = Silk.NET.WebGPU.BindGroupEntry;
-using BindGroupLayoutDescriptor = GameEngine.WebGPU.BindGroupLayoutDescriptor;
+using BindGroupLayoutDescriptor = Client.WebGPU.BindGroupLayoutDescriptor;
 using BufferBindingLayout = Silk.NET.WebGPU.BufferBindingLayout;
 using FilterMode = Silk.NET.WebGPU.FilterMode;
-using PipelineLayoutDescriptor = GameEngine.WebGPU.PipelineLayoutDescriptor;
-using RenderPipelineDescriptor = GameEngine.WebGPU.RenderPipelineDescriptor;
+using PipelineLayoutDescriptor = Client.WebGPU.PipelineLayoutDescriptor;
+using RenderPipelineDescriptor = Client.WebGPU.RenderPipelineDescriptor;
 using SamplerBindingLayout = Silk.NET.WebGPU.SamplerBindingLayout;
-using SamplerDescriptor = GameEngine.WebGPU.SamplerDescriptor;
-using ShaderModuleDescriptor = GameEngine.WebGPU.ShaderModuleDescriptor;
+using SamplerDescriptor = Client.WebGPU.SamplerDescriptor;
+using ShaderModuleDescriptor = Client.WebGPU.ShaderModuleDescriptor;
 using TextureBindingLayout = Silk.NET.WebGPU.TextureBindingLayout;
-using TextureDescriptor = GameEngine.WebGPU.TextureDescriptor;
+using TextureDescriptor = Client.WebGPU.TextureDescriptor;
 using TextureFormat = Silk.NET.WebGPU.TextureFormat;
 using VertexAttribute = Silk.NET.WebGPU.VertexAttribute;
 
@@ -310,10 +309,10 @@ public unsafe class GPUDevice : IGPUDevice
     {
         var samplerDescriptor = new Silk.NET.WebGPU.SamplerDescriptor
         {
-            AddressModeU = (AddressMode)(descriptor.AddressModeU ?? GameEngine.WebGPU.AddressMode.ClampToEdge),
-            AddressModeV = (AddressMode)(descriptor.AddressModeV ?? GameEngine.WebGPU.AddressMode.ClampToEdge),
-            AddressModeW = (AddressMode)(descriptor.AddressModeW ?? GameEngine.WebGPU.AddressMode.ClampToEdge),
-            MagFilter = (FilterMode)(descriptor.MagFilter ?? GameEngine.WebGPU.FilterMode.Linear)
+            AddressModeU = (AddressMode)(descriptor.AddressModeU ?? Client.WebGPU.AddressMode.ClampToEdge),
+            AddressModeV = (AddressMode)(descriptor.AddressModeV ?? Client.WebGPU.AddressMode.ClampToEdge),
+            AddressModeW = (AddressMode)(descriptor.AddressModeW ?? Client.WebGPU.AddressMode.ClampToEdge),
+            MagFilter = (FilterMode)(descriptor.MagFilter ?? Client.WebGPU.FilterMode.Linear)
         };
 
         return new GPUSampler
