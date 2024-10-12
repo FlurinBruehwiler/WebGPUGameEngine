@@ -15,11 +15,4 @@ public static unsafe class InteropHelper
 
         return ptr;
     }
-
-    public static T* ToPtr<T>(in T str) where T : unmanaged
-    {
-        IntPtr chainPtr = IntPtr.Zero;
-        Marshal.StructureToPtr(str, chainPtr, false);
-        return (T*)chainPtr;
-    }
 }

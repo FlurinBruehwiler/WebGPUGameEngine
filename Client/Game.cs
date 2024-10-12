@@ -143,6 +143,23 @@ public class Game
         return gameInfo;
     }
 
+    public static void Frame()
+    {
+        GameInfo.Server?.ProcessServerMessages();
+
+        UpdateCamera();
+
+        GameInfo.Server?.SendUpdatesToServer();
+
+        _ = GameInfo.Server?.SendPendingMessages(); //async
+
+        Renderer.RenderFrame(GameInfo.Camera);
+
+        GameInfo.Input.NextFrame();
+    }
+
+    public static Guid PlayerGuid = Guid.NewGuid();
+
     public static Vector3 RandomVector(float from, float to)
     {
         var x = from + to * Random.Shared.NextSingle();
@@ -151,16 +168,16 @@ public class Game
         return new Vector3(x, y, z);
     }
 
-    public static void UpdateCamera()
+    private static void UpdateCamera()
     {
         const float velocity = 0.5f;
 
-        if (GameInfo.Input.IsKeyDown("KeyW"))
+        if (GameInfo.Input.IsKeyDown(KeyboardKeys.W))
         {
             var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
             GameInfo.Camera.Transform.Position += transformation.AsVector3() * -velocity;
         }
-        if (GameInfo.Input.IsKeyDown("KeyS"))
+        if (GameInfo.Input.IsKeyDown(KeyboardKeys.S))
         {
             var transformation = Vector4.Transform(new Vector4(0, 0, 1, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
             GameInfo.Camera.Transform.Position += transformation.AsVector3() * velocity;
@@ -168,22 +185,22 @@ public class Game
 
         GameInfo.Camera.Transform.Rotation.Y += -GameInfo.Input.MouseChangeX * 0.001f;
 
-        if (GameInfo.Input.IsKeyDown("KeyA"))
+        if (GameInfo.Input.IsKeyDown(KeyboardKeys.A))
         {
             var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
             GameInfo.Camera.Transform.Position += transformation.AsVector3() * -velocity;
         }
-        if (GameInfo.Input.IsKeyDown("KeyD"))
+        if (GameInfo.Input.IsKeyDown(KeyboardKeys.D))
         {
             var transformation = Vector4.Transform(new Vector4(1, 0, 0, 0), Matrix4x4.CreateRotationY(GameInfo.Camera.Transform.Rotation.Y));
             GameInfo.Camera.Transform.Position += transformation.AsVector3() * velocity;
         }
 
-        if (GameInfo.Input.IsKeyDown("ShiftLeft"))
+        if (GameInfo.Input.IsKeyDown(KeyboardKeys.ShiftLeft))
         {
             GameInfo.Camera.Transform.Position.Y -= velocity;
         }
-        if (GameInfo.Input.IsKeyDown("Space"))
+        if (GameInfo.Input.IsKeyDown(KeyboardKeys.Space))
         {
             GameInfo.Camera.Transform.Position.Y += velocity;
         }

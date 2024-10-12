@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 using Client.WebGPU;
 using Silk.NET.WebGPU;
 using AddressMode = Silk.NET.WebGPU.AddressMode;
@@ -239,9 +240,13 @@ public unsafe class GPUDevice : IGPUDevice
 
     public IGPUShaderModule CreateShaderModule(ShaderModuleDescriptor descriptor)
     {
+        IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(descriptor.Code));
+        var stringAsBytes = Encoding.UTF8.GetBytes(descriptor.Code);
+        Marshal.Copy(stringAsBytes, 0, ptr, stringAsBytes.Length);
+
         var wgslDescriptor = new ShaderModuleWGSLDescriptor
         {
-            Code = descriptor.Code.ToPtr(), //todo, allocate in unmanaged heap!!
+            Code = (byte*)ptr,
             Chain = new ChainedStruct
             {
                 Next = null,

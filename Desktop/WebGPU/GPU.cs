@@ -13,6 +13,7 @@ public static unsafe class GPU
         get
         {
             return _api ??= NativeGPU.GetApi();
+            //new NativeGPU(NativeGPU.CreateDefaultContext(["dawn.dll"]));
         }
     }
 
@@ -36,34 +37,29 @@ public static unsafe class GPU
     {
         var taskCompletionSource = new TaskCompletionSource<GPUAdapter>();
 
-        var handle = GCHandle.Alloc(taskCompletionSource);
-
         var nativeOptions = new RequestAdapterOptions
         {
             CompatibleSurface = options.CompatibleSurface.Surface
         };
 
-        API.InstanceRequestAdapter(Instance, nativeOptions, new PfnRequestAdapterCallback(OnAdapterRequestEnded), ref handle);
+        API.InstanceRequestAdapter(Instance, in nativeOptions, PfnRequestAdapterCallback.From(
+            (status, adapter, _, _) =>
+            {
+                switch (status)
+                {
+                    case RequestAdapterStatus.Success:
+                        taskCompletionSource.SetResult(new GPUAdapter
+                        {
+                            Adapter = adapter
+                        });
+                        break;
+                    default:
+                        taskCompletionSource.SetException(new Exception(status.ToString()));
+                        break;
+                }
+            }), null);
 
         return taskCompletionSource.Task;
-    }
-
-    private static void OnAdapterRequestEnded(RequestAdapterStatus status, Adapter* adapter, byte* data, void* userData)
-    {
-        GCHandle handle = GCHandle.FromIntPtr(new IntPtr(userData));
-        var tcs = (TaskCompletionSource<GPUAdapter>)handle.Target!;
-        switch (status)
-        {
-            case RequestAdapterStatus.Success:
-                tcs.SetResult(new GPUAdapter
-                {
-                    Adapter = adapter
-                });
-                break;
-            default:
-                tcs.SetException(new Exception(status.ToString()));
-                break;
-        }
     }
 }
 

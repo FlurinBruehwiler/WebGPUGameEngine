@@ -97,49 +97,12 @@ public class Server
         }
     }
 
-    private static void Frame()
+    public void SendUpdatesToServer()
     {
-        Game.GameInfo.Server?.ProcessServerMessages();
-
-        Game.UpdateCamera();
-
-        SendUpdatesToServer();
-        _ = Game.GameInfo.Server?.SendPendingMessages(); //async
-
-        Renderer.RenderFrame(Game.GameInfo.Camera);
-
-        Game.GameInfo.Input.NextFrame();
-
-        //request next frame
-        JsWindow.RequestAnimationFrame(FrameCatch);
-    }
-
-    private static Guid PlayerGuid = Guid.NewGuid();
-
-    private static void FrameCatch()
-    {
-        try
+        PendingSendingMessages.Enqueue(new UpdateMessage
         {
-            Frame();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-    }
-
-    private static void SendUpdatesToServer()
-    {
-        if (Game.GameInfo.Server == null)
-            return;
-
-        var server = Game.GameInfo.Server;
-
-        server.PendingSendingMessages.Enqueue(new UpdateMessage
-        {
-            EntityId = PlayerGuid,
+            EntityId = Game.PlayerGuid,
             Transform = Game.GameInfo.Camera.Transform.ToNetwork()
         });
     }
-
 }

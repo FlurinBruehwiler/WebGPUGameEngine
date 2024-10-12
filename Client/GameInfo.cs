@@ -96,26 +96,26 @@ public class GameInfo
 
 public class Input
 {
-    private HashSet<string> pressedKeys = [];
+    private HashSet<KeyboardKeys> pressedKeys = [];
 
     public float MouseChangeX;
     public float MouseChangeY;
 
-    public void InformKeyChanged(string code, bool down)
+    public void InformKeyChanged(KeyboardKeys key, bool down)
     {
         if (down)
         {
-            pressedKeys.Add(code);
+            pressedKeys.Add(key);
         }
         else
         {
-            pressedKeys.Remove(code);
+            pressedKeys.Remove(key);
         }
     }
 
-    public bool IsKeyDown(string code)
+    public bool IsKeyDown(KeyboardKeys key)
     {
-        return pressedKeys.Contains(code);
+        return pressedKeys.Contains(key);
     }
 
     public void NextFrame()

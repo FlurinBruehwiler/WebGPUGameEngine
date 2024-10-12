@@ -32,7 +32,7 @@ public unsafe class GPUCommandEncoder : IGPUCommandEncoder
 
         var renderPassDescriptor = new RenderPassDescriptor
         {
-            DepthStencilAttachment = InteropHelper.ToPtr(dsa),
+            DepthStencilAttachment = &dsa,
             ColorAttachments = ca,
             ColorAttachmentCount = (nuint)descriptor.ColorAttachments.Length
         };

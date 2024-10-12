@@ -14,28 +14,22 @@ public unsafe class GPUAdapter : IGPUAdapter
 
         var taskCompletionSource = new TaskCompletionSource<IGPUDevice>();
 
-        var handle = GCHandle.Alloc(taskCompletionSource);
-
-        GPU.API.AdapterRequestDevice(Adapter, in deviceDescriptor, new PfnRequestDeviceCallback(OnDeviceRequestEnded), ref handle);
+        GPU.API.AdapterRequestDevice(Adapter, in deviceDescriptor, PfnRequestDeviceCallback.From((status, device, _, _) =>
+        {
+            switch (status)
+            {
+                case RequestDeviceStatus.Success:
+                    taskCompletionSource.SetResult(new GPUDevice
+                    {
+                        Device = device
+                    });
+                    break;
+                default:
+                    taskCompletionSource.SetException(new Exception(status.ToString()));
+                    break;
+            }
+        }), null);
 
         return taskCompletionSource.Task;
-    }
-
-    private static void OnDeviceRequestEnded(RequestDeviceStatus status, Device* device, byte* data, void* userData)
-    {
-        GCHandle handle = GCHandle.FromIntPtr(new IntPtr(userData));
-        var tcs = (TaskCompletionSource<IGPUDevice>)handle.Target!;
-        switch (status)
-        {
-            case RequestDeviceStatus.Success:
-                tcs.SetResult(new GPUDevice
-                {
-                    Device = device
-                });
-                break;
-            default:
-                tcs.SetException(new Exception(status.ToString()));
-                break;
-        }
     }
 }
