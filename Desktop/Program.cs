@@ -1,9 +1,8 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-global using NativeGPU = Silk.NET.WebGPU.WebGPU;
+﻿global using NativeGPU = Silk.NET.WebGPU.WebGPU;
 using Client;
 using Client.WebGPU;
 using Desktop.WebGPU;
+using Silk.NET.GLFW;
 using Silk.NET.WebGPU;
 
 namespace Desktop;
@@ -71,29 +70,29 @@ public static class Program
 
     private static unsafe void SetupInput(Window window)
     {
-        // window.Glfw.SetInputMode(window.GetHandle(), CursorStateAttribute.Cursor, CursorModeValue.CursorDisabled);
-        //
-        // if (!window.Glfw.RawMouseMotionSupported())
-        // {
-        //     throw new Exception("Raw Mouse Motion not supported!");
-        // }
-        //
-        // window.Glfw.SetInputMode(window.GetHandle(), CursorStateAttribute.RawMouseMotion, true);
-        //
-        // window.Glfw.SetKeyCallback(window.GetHandle(), KeyCallback);
+        window.Glfw.SetInputMode(window.GetHandle(), CursorStateAttribute.Cursor, CursorModeValue.CursorDisabled);
+
+        if (!window.Glfw.RawMouseMotionSupported())
+        {
+            throw new Exception("Raw Mouse Motion not supported!");
+        }
+
+        window.Glfw.SetInputMode(window.GetHandle(), CursorStateAttribute.RawMouseMotion, true);
+
+        window.Glfw.SetKeyCallback(window.GetHandle(), KeyCallback);
     }
 
-    // private static unsafe void KeyCallback(WindowHandle* window, Keys key, int scancode, InputAction action, KeyModifiers mods)
-    // {
-    //     var inputSystem = Game.GameInfo.Input;
-    //
-    //     if (action == InputAction.Press)
-    //     {
-    //         inputSystem.InformKeyChanged((KeyboardKeys)key, true);
-    //     }
-    //     else if(action == InputAction.Release)
-    //     {
-    //         inputSystem.InformKeyChanged((KeyboardKeys)key, false);
-    //     }
-    // }
+    private static unsafe void KeyCallback(WindowHandle* window, Keys key, int scancode, InputAction action, KeyModifiers mods)
+    {
+        var inputSystem = Game.GameInfo.Input;
+
+        if (action == InputAction.Press)
+        {
+            inputSystem.InformKeyChanged((KeyboardKeys)key, true);
+        }
+        else if(action == InputAction.Release)
+        {
+            inputSystem.InformKeyChanged((KeyboardKeys)key, false);
+        }
+    }
 }
