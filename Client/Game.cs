@@ -102,12 +102,12 @@ public class Game
             {
                 BindGroupLayouts = [uniformBindGroupLayout, textureBindGroupLayout]
             }),
-            DepthStencil = new DepthStencil
-            {
-                Format = GPUTextureFormat.Depth24Plus,
-                DepthCompare = CompareFunction.Less,
-                DepthWriteEnabled = true
-            }
+            // DepthStencil = new DepthStencil
+            // {
+            //     Format = GPUTextureFormat.Depth24Plus,
+            //     DepthCompare = CompareFunction.Less,
+            //     DepthWriteEnabled = true
+            // }
         };
 
         var renderPipeline = device.CreateRenderPipeline(pipelineDescriptor);

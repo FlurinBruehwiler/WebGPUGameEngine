@@ -9,14 +9,6 @@ public unsafe class GPUCommandEncoder : IGPUCommandEncoder
 
     public IGPURenderPassEncoder BeginRenderPass(GPURenderPassDescriptor descriptor)
     {
-        var dsa = new RenderPassDepthStencilAttachment
-        {
-            View = ((GPUTextureView)descriptor.DepthStencilAttachment.View).TextureView,
-            DepthStoreOp = (StoreOp)descriptor.DepthStencilAttachment.DepthGpuStoreOp,
-            DepthLoadOp = (LoadOp)descriptor.DepthStencilAttachment.DepthGpuLoadOp,
-            DepthClearValue = descriptor.DepthStencilAttachment.DepthClearValue,
-        };
-
         var ca = stackalloc RenderPassColorAttachment[descriptor.ColorAttachments.Length];
         for (var i = 0; i < descriptor.ColorAttachments.Length; i++)
         {
@@ -32,10 +24,21 @@ public unsafe class GPUCommandEncoder : IGPUCommandEncoder
 
         var renderPassDescriptor = new RenderPassDescriptor
         {
-            DepthStencilAttachment = &dsa,
             ColorAttachments = ca,
             ColorAttachmentCount = (nuint)descriptor.ColorAttachments.Length
         };
+
+        if (descriptor.DepthStencilAttachment is {} depthStencilAttachment)
+        {
+            var dsa = new RenderPassDepthStencilAttachment
+            {
+                View = ((GPUTextureView)depthStencilAttachment.View).TextureView,
+                DepthStoreOp = (StoreOp)depthStencilAttachment.DepthGpuStoreOp,
+                DepthLoadOp = (LoadOp)depthStencilAttachment.DepthGpuLoadOp,
+                DepthClearValue = depthStencilAttachment.DepthClearValue,
+            };
+            renderPassDescriptor.DepthStencilAttachment = &dsa;
+        }
 
         return new GPURenderPassEncoder
         {

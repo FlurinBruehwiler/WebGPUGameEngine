@@ -172,7 +172,7 @@ public struct RenderPipelineDescriptor
     public required FragmentDescriptor Fragment { get; set; }
     public required PrimitiveDescriptor Primitive { get; set; }
     public required IGPUPipelineLayout Layout { get; set; }
-    public required DepthStencil DepthStencil { get; set; }
+    public DepthStencil? DepthStencil { get; set; }
 }
 
 public struct DepthStencil

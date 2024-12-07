@@ -19,7 +19,6 @@ unsafe
     window.FramebufferResize += onResize;
     window.Render += onRender;
     window.Run();
-
     void onLoad()
     {
         wgpu = WebGPU.GetApi();

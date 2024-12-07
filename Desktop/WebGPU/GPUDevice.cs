@@ -75,7 +75,7 @@ public unsafe class GPUDevice : IGPUDevice
             var bufferDescriptor = descriptor.Vertex.Buffers[i];
 
             // ReSharper disable once StackAllocInsideLoop
-            var attributes = stackalloc VertexAttribute[bufferDescriptor.Attributes.Length];
+            var attributes = stackalloc VertexAttribute[bufferDescriptor.Attributes.Length]; //should be fine as long as there aren't too many buffers
             for (var j = 0; j < bufferDescriptor.Attributes.Length; j++)
             {
                 var vertexAttribute = bufferDescriptor.Attributes[j];
@@ -111,16 +111,9 @@ public unsafe class GPUDevice : IGPUDevice
         var fragmentState = new FragmentState
         {
             Module = ((GPUShaderModule)descriptor.Fragment.Module).ShaderModule,
-            EntryPoint = descriptor.Fragment.EntryPoint.ToPtr(),
+            EntryPoint = descriptor.Fragment.EntryPoint.MarshalUtf8().ToPtr(),
             Targets = targets,
             TargetCount = (nuint)descriptor.Fragment.Targets.Length,
-        };
-
-        var depthStencilState = new DepthStencilState
-        {
-            DepthCompare = (Silk.NET.WebGPU.CompareFunction)descriptor.DepthStencil.DepthCompare,
-            Format = (TextureFormat)descriptor.DepthStencil.Format,
-            DepthWriteEnabled = descriptor.DepthStencil.DepthWriteEnabled,
         };
 
         var nativeDescriptor = new Silk.NET.WebGPU.RenderPipelineDescriptor
@@ -130,7 +123,7 @@ public unsafe class GPUDevice : IGPUDevice
                 Module = ((GPUShaderModule)descriptor.Vertex.Module).ShaderModule,
                 Buffers = bufferLayouts,
                 BufferCount = (nuint)descriptor.Vertex.Buffers.Length,
-                EntryPoint = descriptor.Vertex.EntryPoint.ToPtr() //this probably only works if it is a string literal
+                EntryPoint = descriptor.Vertex.EntryPoint.MarshalUtf8().ToPtr()
             },
             Fragment = &fragmentState,
             Layout = ((GPUPipelineLayout)descriptor.Layout).PipelineLayout,
@@ -138,8 +131,25 @@ public unsafe class GPUDevice : IGPUDevice
             {
                 Topology = (Silk.NET.WebGPU.PrimitiveTopology)descriptor.Primitive.Topology
             },
-            DepthStencil = &depthStencilState
+            Multisample = new MultisampleState
+            {
+                Count = 1,
+                AlphaToCoverageEnabled = true,
+                Mask = 0xFFFFFFFF
+            }
         };
+
+        if (descriptor.DepthStencil != null)
+        {
+            var depthStencilState = new DepthStencilState
+            {
+                DepthCompare = (Silk.NET.WebGPU.CompareFunction)descriptor.DepthStencil.Value.DepthCompare,
+                Format = (TextureFormat)descriptor.DepthStencil.Value.Format,
+                DepthWriteEnabled = descriptor.DepthStencil.Value.DepthWriteEnabled,
+            };
+
+            nativeDescriptor.DepthStencil = &depthStencilState;
+        }
 
         return new GPURenderPipeline
         {
@@ -276,7 +286,7 @@ public unsafe class GPUDevice : IGPUDevice
             Format = (TextureFormat)descriptor.Format,
             Size = size,
             Usage = (TextureUsage)descriptor.Usage,
-            SampleCount = 1,
+            SampleCount = 2,
             Dimension = TextureDimension.Dimension2D,
         };
 

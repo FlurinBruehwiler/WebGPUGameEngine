@@ -16,7 +16,7 @@ public interface IGPUCommandEncoder
 public struct GPURenderPassDescriptor
 {
     public required ColorAttachment[] ColorAttachments { get; init; }
-    public required DepthStencilAttachment DepthStencilAttachment { get; init; }
+    public DepthStencilAttachment? DepthStencilAttachment { get; init; }
 }
 
 public struct DepthStencilAttachment
