@@ -27,6 +27,7 @@ public static unsafe class GPU
                 return _instance;
             }
 
+
             InstanceDescriptor instanceDescriptor = new InstanceDescriptor();
             _instance = API.CreateInstance(in instanceDescriptor);
             return _instance;
@@ -39,7 +40,8 @@ public static unsafe class GPU
 
         var nativeOptions = new RequestAdapterOptions
         {
-            CompatibleSurface = options.CompatibleSurface.Surface
+            CompatibleSurface = options.CompatibleSurface.Surface,
+            BackendType = BackendType.D3D12
         };
 
         API.InstanceRequestAdapter(Instance, in nativeOptions, PfnRequestAdapterCallback.From(

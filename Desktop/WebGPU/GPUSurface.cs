@@ -13,12 +13,13 @@ public unsafe class GPUSurface
         {
             Width = (uint)surfaceConfiguration.Width,
             Height = (uint)surfaceConfiguration.Height,
-            // Format = (TextureFormat)surfaceConfiguration.TextureFormat,
-            Format = TextureFormat.Bgra8Unorm,
+            Format = (TextureFormat)surfaceConfiguration.TextureFormat,
+            // Format = TextureFormat.Bgra8Unorm,
             Usage = (TextureUsage)surfaceConfiguration.Usage,
             Device = surfaceConfiguration.Device.Device,
             PresentMode = surfaceConfiguration.PresentMode,
-            AlphaMode = surfaceConfiguration.AlphaMode
+            AlphaMode = surfaceConfiguration.AlphaMode,
+            ViewFormatCount = 0
         };
 
         GPU.API.SurfaceConfigure(Surface, in config);

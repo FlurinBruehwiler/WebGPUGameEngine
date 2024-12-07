@@ -115,17 +115,13 @@ public unsafe class GPUDevice : IGPUDevice
             Targets = targets,
             TargetCount = (nuint)descriptor.Fragment.Targets.Length,
         };
-        IntPtr fragmentPtr = IntPtr.Zero;
-        Marshal.StructureToPtr(fragmentState, fragmentPtr, false);
 
         var depthStencilState = new DepthStencilState
         {
             DepthCompare = (Silk.NET.WebGPU.CompareFunction)descriptor.DepthStencil.DepthCompare,
             Format = (TextureFormat)descriptor.DepthStencil.Format,
-            DepthWriteEnabled = descriptor.DepthStencil.DepthWriteEnabled
+            DepthWriteEnabled = descriptor.DepthStencil.DepthWriteEnabled,
         };
-        IntPtr depthStencilPtr = IntPtr.Zero;
-        Marshal.StructureToPtr(depthStencilState, depthStencilPtr, false);
 
         var nativeDescriptor = new Silk.NET.WebGPU.RenderPipelineDescriptor
         {
@@ -136,13 +132,13 @@ public unsafe class GPUDevice : IGPUDevice
                 BufferCount = (nuint)descriptor.Vertex.Buffers.Length,
                 EntryPoint = descriptor.Vertex.EntryPoint.ToPtr() //this probably only works if it is a string literal
             },
-            Fragment = (FragmentState*)fragmentPtr,
+            Fragment = &fragmentState,
             Layout = ((GPUPipelineLayout)descriptor.Layout).PipelineLayout,
             Primitive = new PrimitiveState
             {
                 Topology = (Silk.NET.WebGPU.PrimitiveTopology)descriptor.Primitive.Topology
             },
-            DepthStencil = (DepthStencilState*)depthStencilPtr
+            DepthStencil = &depthStencilState
         };
 
         return new GPURenderPipeline
@@ -240,8 +236,9 @@ public unsafe class GPUDevice : IGPUDevice
 
     public IGPUShaderModule CreateShaderModule(ShaderModuleDescriptor descriptor)
     {
-        IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(descriptor.Code));
         var stringAsBytes = Encoding.UTF8.GetBytes(descriptor.Code);
+        Array.Resize(ref stringAsBytes, stringAsBytes.Length + 1);
+        IntPtr ptr = Marshal.AllocHGlobal(stringAsBytes.Length);
         Marshal.Copy(stringAsBytes, 0, ptr, stringAsBytes.Length);
 
         var wgslDescriptor = new ShaderModuleWGSLDescriptor
@@ -254,12 +251,9 @@ public unsafe class GPUDevice : IGPUDevice
             }
         };
 
-        IntPtr chainPtr = IntPtr.Zero;
-        Marshal.StructureToPtr(wgslDescriptor.Chain, chainPtr, false);
-
         var shaderModuleDescriptor = new Silk.NET.WebGPU.ShaderModuleDescriptor
         {
-            NextInChain = (ChainedStruct*)chainPtr
+            NextInChain = &wgslDescriptor.Chain
         };
 
         return new GPUShaderModule
@@ -281,7 +275,9 @@ public unsafe class GPUDevice : IGPUDevice
         {
             Format = (TextureFormat)descriptor.Format,
             Size = size,
-            Usage = (TextureUsage)descriptor.Usage
+            Usage = (TextureUsage)descriptor.Usage,
+            SampleCount = 1,
+            Dimension = TextureDimension.Dimension2D,
         };
 
         return new GPUTexture

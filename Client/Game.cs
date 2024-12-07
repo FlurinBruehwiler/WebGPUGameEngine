@@ -111,8 +111,7 @@ public class Game
         };
 
         var renderPipeline = device.CreateRenderPipeline(pipelineDescriptor);
-
-
+        
         var gameInfo = new GameInfo
         {
             Device = device,
