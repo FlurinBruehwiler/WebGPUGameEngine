@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 
 namespace Desktop.WebGPU;
 
@@ -17,9 +16,22 @@ public static unsafe class InteropHelper
         return ptr;
     }
 
+    public static string UnmarshalUtf8(byte* data)
+    {
+        if (data == null)
+            return string.Empty;
+
+        int i = 0;
+        while (data[i] != 0)
+        {
+            i++;
+        }
+
+        return Encoding.UTF8.GetString(data, i);
+    }
+
     public static byte[] MarshalUtf8(this string? text)
     {
-        //bugfix: if null is passed, return a zero length span.  previously (wrongly) marshaled null as an empty string.
         if (text == null)
         {
             return [];

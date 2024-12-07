@@ -142,4 +142,14 @@ public class GPUDevice : IInteropObject, IGPUDevice
             JsObject = Interop.GPUDevice_CreateSampler(JsObject, InteropHelper.MarshalObj(descriptor))
         };
     }
+
+    public void PushErrorScope()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void PopErrorScope()
+    {
+        throw new NotImplementedException();
+    }
 }

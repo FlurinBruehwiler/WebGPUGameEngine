@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 using Client.WebGPU;
+using Silk.NET.Core.Native;
 using Silk.NET.WebGPU;
 using AddressMode = Silk.NET.WebGPU.AddressMode;
 using BindGroupDescriptor = Client.WebGPU.BindGroupDescriptor;
@@ -111,7 +112,7 @@ public unsafe class GPUDevice : IGPUDevice
         var fragmentState = new FragmentState
         {
             Module = ((GPUShaderModule)descriptor.Fragment.Module).ShaderModule,
-            EntryPoint = descriptor.Fragment.EntryPoint.MarshalUtf8().ToPtr(),
+            EntryPoint = (byte*) SilkMarshal.StringToPtr(descriptor.Fragment.EntryPoint),
             Targets = targets,
             TargetCount = (nuint)descriptor.Fragment.Targets.Length,
         };
@@ -123,7 +124,7 @@ public unsafe class GPUDevice : IGPUDevice
                 Module = ((GPUShaderModule)descriptor.Vertex.Module).ShaderModule,
                 Buffers = bufferLayouts,
                 BufferCount = (nuint)descriptor.Vertex.Buffers.Length,
-                EntryPoint = descriptor.Vertex.EntryPoint.MarshalUtf8().ToPtr()
+                EntryPoint = (byte*)SilkMarshal.StringToPtr(descriptor.Vertex.EntryPoint)
             },
             Fragment = &fragmentState,
             Layout = ((GPUPipelineLayout)descriptor.Layout).PipelineLayout,
@@ -138,6 +139,8 @@ public unsafe class GPUDevice : IGPUDevice
                 Mask = 0xFFFFFFFF
             }
         };
+
+        Console.WriteLine(new IntPtr(nativeDescriptor.Layout));
 
         if (descriptor.DepthStencil != null)
         {
@@ -235,12 +238,17 @@ public unsafe class GPUDevice : IGPUDevice
 
         var bindGroupLayoutDescriptor = new Silk.NET.WebGPU.BindGroupLayoutDescriptor
         {
-            Entries = entries
+            Entries = entries,
         };
+
+        if (descriptor.Label != null)
+        {
+            bindGroupLayoutDescriptor.Label = (byte*)SilkMarshal.StringToPtr(descriptor.Label);
+        }
 
         return new GPUBindGroupLayout
         {
-            BindGroupLayout = GPU.API.DeviceCreateBindGroupLayout(Device, in bindGroupLayoutDescriptor)
+            BindGroupLayout = GPU.API.DeviceCreateBindGroupLayout(Device, in bindGroupLayoutDescriptor),
         };
     }
 
@@ -304,11 +312,16 @@ public unsafe class GPUDevice : IGPUDevice
             bindGroupLayouts[i] = ((GPUBindGroupLayout)descriptor.BindGroupLayouts[i]).BindGroupLayout;
         }
 
+        Console.WriteLine(new IntPtr(bindGroupLayouts[0]));
+        Console.WriteLine(new IntPtr(bindGroupLayouts[1]));
+
         var pipelineLayoutDescriptor = new Silk.NET.WebGPU.PipelineLayoutDescriptor
         {
             BindGroupLayouts = bindGroupLayouts,
             BindGroupLayoutCount = (nuint)descriptor.BindGroupLayouts.Length
         };
+
+        Console.WriteLine(pipelineLayoutDescriptor.BindGroupLayoutCount);
 
         return new GPUPipelineLayout
         {
@@ -330,5 +343,19 @@ public unsafe class GPUDevice : IGPUDevice
         {
             Sampler = GPU.API.DeviceCreateSampler(Device, in samplerDescriptor)
         };
+    }
+
+    public void PushErrorScope()
+    {
+        GPU.API.DevicePushErrorScope(Device, ErrorFilter.Validation);
+        GPU.API.DevicePushErrorScope(Device, ErrorFilter.OutOfMemory);
+    }
+
+    public void PopErrorScope()
+    {
+        GPU.API.DevicePopErrorScope(Device, new PfnErrorCallback((errorType, message, userData) =>
+        {
+            Console.WriteLine($"{errorType}: {SilkMarshal.PtrToString(new IntPtr(message))}");
+        }), null);
     }
 }

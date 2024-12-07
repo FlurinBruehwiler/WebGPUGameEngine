@@ -10,6 +10,8 @@ public class Game
 
     public static async Task<GameInfo> InitializeGame(IPlatformImplementation platformImplementation, IGPUDevice device, GPUTextureFormat textureFormat)
     {
+        device.PushErrorScope();
+
         var resourceManager = new ResourceManager(platformImplementation);
 
         var shaderModule = device.CreateShaderModule(new ShaderModuleDescriptor
@@ -50,7 +52,8 @@ public class Game
                         HasDynamicOffset = true
                     }
                 }
-            ]
+            ],
+            Label = "UniformBindGroupLayout"
         });
 
         var textureBindGroupLayout = device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
@@ -74,7 +77,8 @@ public class Game
                     Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
                     Buffer = new BufferBindingLayout()
                 }
-            ]
+            ],
+            Label = "TextureBindGroupLayout"
         });
 
         var pipelineDescriptor = new RenderPipelineDescriptor
@@ -111,7 +115,10 @@ public class Game
         };
 
         var renderPipeline = device.CreateRenderPipeline(pipelineDescriptor);
-        
+
+        device.PopErrorScope();
+        device.PopErrorScope();
+
         var gameInfo = new GameInfo
         {
             Device = device,

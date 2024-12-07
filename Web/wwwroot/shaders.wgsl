@@ -28,6 +28,7 @@ fn vertex_main(@location(0) position: vec4f, @location(1) texcoord: vec2f) -> Ve
     var output : VertexOut;
 
     output.position = mvp.projectionMatrix * mvp.viewMatrix * mvp.modelMatrix * position;
+//    output.position = position;
     output.texcoord = texcoord;
     return output;
 }

@@ -47,6 +47,9 @@ public interface IGPUDevice
     /// https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/createSampler
     /// </summary>
     IGPUSampler CreateSampler(SamplerDescriptor descriptor);
+
+    void PushErrorScope();
+    void PopErrorScope();
 }
 
 public struct SamplerDescriptor
@@ -84,6 +87,7 @@ public class PipelineLayoutDescriptor
 public class BindGroupLayoutDescriptor
 {
     public required LayoutEntry[] Entries { get; init; }
+    public string? Label;
 }
 
 public class LayoutEntry

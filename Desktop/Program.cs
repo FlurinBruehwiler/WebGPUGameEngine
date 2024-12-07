@@ -1,4 +1,5 @@
 ﻿global using NativeGPU = Silk.NET.WebGPU.WebGPU;
+using System.Diagnostics;
 using Client;
 using Client.WebGPU;
 using Desktop.WebGPU;
@@ -59,11 +60,16 @@ public static class Program
         options.Size = new Vector2D<int>(800, 600);
 
         var window = Window.Create(options);
+
+        // while (!Debugger.IsAttached)
+        // {
+        //     Thread.Sleep(100);
+        // }
+
         window.Load += () => onLoad(window);
         window.FramebufferResize += onResize;
         window.Render += onRender;
         window.Run();
-
 
         // surface.Configure(new GPUSurfaceConfiguration
         // {
