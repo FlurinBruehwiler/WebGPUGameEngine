@@ -199,7 +199,10 @@ public static class Renderer
         const int uniformStride = 256;
 
         var uniformBufferSize =
-            gameInfo.Entities.Count * uniformStride; //only works as long as each uniform is smaller than 256 bytes
+            Math.Max(1, gameInfo.Entities.Count) * uniformStride; //only works as long as each uniform is smaller than 256 bytes
+
+        Console.WriteLine($"Uniform buffer size: {uniformBufferSize}");
+
         using var uniformBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
             Size = uniformBufferSize,

@@ -1,5 +1,6 @@
 ﻿using Client.WebGPU;
 using Silk.NET.WebGPU;
+using TextureViewDimension = Silk.NET.WebGPU.TextureViewDimension;
 
 namespace Desktop.WebGPU;
 
@@ -12,7 +13,10 @@ public unsafe class GPUTexture : IGPUTexture
 
     public IGPUTextureView CreateView()
     {
-        throw new NotImplementedException();
+        return CreateView(new GPUTextureViewDescriptor
+        {
+            Format = (GPUTextureFormat)GPU.API.TextureGetFormat(Texture)
+        });
     }
 
     /// <summary>

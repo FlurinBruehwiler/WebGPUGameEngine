@@ -105,14 +105,81 @@ public class LayoutEntry
     public TextureBindingLayout? Texture { get; set; }
 }
 
-public struct SamplerBindingLayout;
+public struct SamplerBindingLayout
+{
+    public SamplerBindingType Type;
+}
 
-public struct TextureBindingLayout;
+public enum SamplerBindingType : int
+{
+    Undefined = 0x0,
+    Filtering = 0x1,
+    NonFiltering = 0x2,
+    Comparison = 0x3,
+    Force32 = 0x7FFFFFFF,
+}
+
+public struct TextureBindingLayout
+{
+    public bool Multisampled;
+    public TextureSampleType SampleType;
+    public TextureViewDimension ViewDimension;
+}
+
+public enum TextureViewDimension : int
+    {
+        [Obsolete("Deprecated in favour of \"DimensionUndefined\"")]
+        TextureViewDimensionUndefined = 0x0,
+        [Obsolete("Deprecated in favour of \"Dimension1D\"")]
+        TextureViewDimension1D = 0x1,
+        [Obsolete("Deprecated in favour of \"Dimension2D\"")]
+        TextureViewDimension2D = 0x2,
+        [Obsolete("Deprecated in favour of \"Dimension2DArray\"")]
+        TextureViewDimension2DArray = 0x3,
+        [Obsolete("Deprecated in favour of \"DimensionCube\"")]
+        TextureViewDimensionCube = 0x4,
+        [Obsolete("Deprecated in favour of \"DimensionCubeArray\"")]
+        TextureViewDimensionCubeArray = 0x5,
+        [Obsolete("Deprecated in favour of \"Dimension3D\"")]
+        TextureViewDimension3D = 0x6,
+        [Obsolete("Deprecated in favour of \"DimensionForce32\"")]
+        TextureViewDimensionForce32 = 0x7FFFFFFF,
+        DimensionUndefined = 0x0,
+        Dimension1D = 0x1,
+        Dimension2D = 0x2,
+        Dimension2DArray = 0x3,
+        DimensionCube = 0x4,
+        DimensionCubeArray = 0x5,
+        Dimension3D = 0x6,
+        DimensionForce32 = 0x7FFFFFFF,
+    }
+
+public enum TextureSampleType : int
+{
+    Undefined = 0x0,
+    Float = 0x1,
+    UnfilterableFloat = 0x2,
+    Depth = 0x3,
+    Sint = 0x4,
+    Uint = 0x5,
+    Force32 = 0x7FFFFFFF,
+}
 
 
 public class BufferBindingLayout
 {
     public bool HasDynamicOffset { get; set; }
+    public int MinBindingSize;
+    public BufferBindingType Type;
+}
+
+public enum BufferBindingType
+{
+    Undefined = 0,
+    Uniform = 1,
+    Storage = 2,
+    ReadOnlyStorage = 3,
+    Force32 = 2147483647, // 0x7FFFFFFF
 }
 
 [Flags]

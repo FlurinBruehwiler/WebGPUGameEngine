@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
+using System.Xml;
 using Client.WebGPU;
 using Silk.NET.Core.Native;
 using Silk.NET.WebGPU;
@@ -8,15 +9,19 @@ using BindGroupDescriptor = Client.WebGPU.BindGroupDescriptor;
 using BindGroupEntry = Silk.NET.WebGPU.BindGroupEntry;
 using BindGroupLayoutDescriptor = Client.WebGPU.BindGroupLayoutDescriptor;
 using BufferBindingLayout = Silk.NET.WebGPU.BufferBindingLayout;
+using BufferBindingType = Silk.NET.WebGPU.BufferBindingType;
 using FilterMode = Silk.NET.WebGPU.FilterMode;
 using PipelineLayoutDescriptor = Client.WebGPU.PipelineLayoutDescriptor;
 using RenderPipelineDescriptor = Client.WebGPU.RenderPipelineDescriptor;
 using SamplerBindingLayout = Silk.NET.WebGPU.SamplerBindingLayout;
+using SamplerBindingType = Silk.NET.WebGPU.SamplerBindingType;
 using SamplerDescriptor = Client.WebGPU.SamplerDescriptor;
 using ShaderModuleDescriptor = Client.WebGPU.ShaderModuleDescriptor;
 using TextureBindingLayout = Silk.NET.WebGPU.TextureBindingLayout;
 using TextureDescriptor = Client.WebGPU.TextureDescriptor;
 using TextureFormat = Silk.NET.WebGPU.TextureFormat;
+using TextureSampleType = Silk.NET.WebGPU.TextureSampleType;
+using TextureViewDimension = Silk.NET.WebGPU.TextureViewDimension;
 using VertexAttribute = Silk.NET.WebGPU.VertexAttribute;
 
 namespace Desktop.WebGPU;
@@ -193,7 +198,8 @@ public unsafe class GPUDevice : IGPUDevice
         var bindGroupDescriptor = new Silk.NET.WebGPU.BindGroupDescriptor
         {
             Layout = ((GPUBindGroupLayout)descriptor.Layout).BindGroupLayout,
-            Entries = entries
+            Entries = entries,
+            EntryCount = (nuint)descriptor.Entries.Length
         };
 
         return new GPUBindGroup
@@ -219,18 +225,28 @@ public unsafe class GPUDevice : IGPUDevice
             {
                 newEntry.Buffer = new BufferBindingLayout
                 {
-                    HasDynamicOffset = entry.Buffer.HasDynamicOffset
+                    HasDynamicOffset = entry.Buffer.HasDynamicOffset,
+                    MinBindingSize = (ulong)entry.Buffer.MinBindingSize,
+                    Type = (BufferBindingType)entry.Buffer.Type
                 };
             }
 
             if (entry.Texture != null)
             {
-                newEntry.Texture = new TextureBindingLayout();
+                newEntry.Texture = new TextureBindingLayout
+                {
+                    Multisampled = entry.Texture.Value.Multisampled,
+                    SampleType = (TextureSampleType)entry.Texture.Value.SampleType,
+                    ViewDimension = (TextureViewDimension)entry.Texture.Value.ViewDimension
+                };
             }
 
             if (entry.Sampler != null)
             {
-                newEntry.Sampler = new SamplerBindingLayout();
+                newEntry.Sampler = new SamplerBindingLayout
+                {
+                    Type = (SamplerBindingType)entry.Sampler.Value.Type
+                };
             }
 
             entries[i] = newEntry;
@@ -239,6 +255,7 @@ public unsafe class GPUDevice : IGPUDevice
         var bindGroupLayoutDescriptor = new Silk.NET.WebGPU.BindGroupLayoutDescriptor
         {
             Entries = entries,
+            EntryCount = (nuint)descriptor.Entries.Length
         };
 
         if (descriptor.Label != null)
@@ -254,24 +271,18 @@ public unsafe class GPUDevice : IGPUDevice
 
     public IGPUShaderModule CreateShaderModule(ShaderModuleDescriptor descriptor)
     {
-        var stringAsBytes = Encoding.UTF8.GetBytes(descriptor.Code);
-        Array.Resize(ref stringAsBytes, stringAsBytes.Length + 1);
-        IntPtr ptr = Marshal.AllocHGlobal(stringAsBytes.Length);
-        Marshal.Copy(stringAsBytes, 0, ptr, stringAsBytes.Length);
-
         var wgslDescriptor = new ShaderModuleWGSLDescriptor
         {
-            Code = (byte*)ptr,
+            Code = (byte*)SilkMarshal.StringToPtr(descriptor.Code),
             Chain = new ChainedStruct
             {
-                Next = null,
                 SType = SType.ShaderModuleWgslDescriptor
             }
         };
 
         var shaderModuleDescriptor = new Silk.NET.WebGPU.ShaderModuleDescriptor
         {
-            NextInChain = &wgslDescriptor.Chain
+            NextInChain = (ChainedStruct*) (&wgslDescriptor)
         };
 
         return new GPUShaderModule
@@ -294,8 +305,10 @@ public unsafe class GPUDevice : IGPUDevice
             Format = (TextureFormat)descriptor.Format,
             Size = size,
             Usage = (TextureUsage)descriptor.Usage,
-            SampleCount = 2,
+            SampleCount = 1,
             Dimension = TextureDimension.Dimension2D,
+            MipLevelCount = 1,
+            Label = (byte*)SilkMarshal.StringToPtr("MyTextureDescriptor")
         };
 
         return new GPUTexture
@@ -331,6 +344,7 @@ public unsafe class GPUDevice : IGPUDevice
 
     public IGPUSampler CreateSampler(SamplerDescriptor descriptor)
     {
+        
         var samplerDescriptor = new Silk.NET.WebGPU.SamplerDescriptor
         {
             AddressModeU = (AddressMode)(descriptor.AddressModeU ?? Client.WebGPU.AddressMode.ClampToEdge),

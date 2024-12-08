@@ -41,7 +41,7 @@ public static unsafe class GPU
         var nativeOptions = new RequestAdapterOptions
         {
             CompatibleSurface = options.CompatibleSurface.Surface,
-            BackendType = BackendType.D3D12
+            // BackendType = BackendType.D3D12
         };
 
         API.InstanceRequestAdapter(Instance, in nativeOptions, PfnRequestAdapterCallback.From(

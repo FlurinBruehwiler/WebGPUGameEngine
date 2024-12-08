@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Client;
 using Client.WebGPU;
 using Desktop.WebGPU;
+using Silk.NET.Core.Native;
 using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.WebGPU;
@@ -33,11 +34,31 @@ public static class Program
 
         var desktopImpl = new DesktopImplementation(_surface);
 
-        Game.InitializeGame(desktopImpl, _device, textureFormat).GetAwaiter().GetResult();
+        GPU.API.DeviceSetUncapturedErrorCallback(_device.Device, new PfnErrorCallback((errorType, message, data) =>
+        {
+            Console.WriteLine($"{errorType}: {SilkMarshal.PtrToString((nint) message)}");
+        }), null);
+
+        Game.GameInfo = Game.InitializeGame(desktopImpl, _device, textureFormat).GetAwaiter().GetResult();
+        Game.GameInfo.ScreenWidth = 800;
+        Game.GameInfo.ScreenHeight = 600;
+
+        _surface.Configure(new GPUSurfaceConfiguration
+        {
+            Device = _device,
+            TextureFormat = GPUTextureFormat.Bgra8Unorm,
+            Usage = GPUTextureUsage.RENDER_ATTACHMENT,
+            Width = Game.GameInfo.ScreenWidth,
+            Height = Game.GameInfo.ScreenHeight,
+            PresentMode = PresentMode.Fifo
+        });
     }
 
     static void onResize(Vector2D<int> size)
     {
+        Game.GameInfo.ScreenWidth = size.X;
+        Game.GameInfo.ScreenHeight = size.Y;
+
         _surface.Configure(new GPUSurfaceConfiguration
         {
             Device = _device,

@@ -10,8 +10,6 @@ public class Game
 
     public static async Task<GameInfo> InitializeGame(IPlatformImplementation platformImplementation, IGPUDevice device, GPUTextureFormat textureFormat)
     {
-        device.PushErrorScope();
-
         var resourceManager = new ResourceManager(platformImplementation);
 
         var shaderModule = device.CreateShaderModule(new ShaderModuleDescriptor
@@ -40,6 +38,8 @@ public class Game
             StepMode = VertexStepMode.Vertex
         };
 
+        Console.WriteLine("A");
+
         var uniformBindGroupLayout = device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
         {
             Entries = [
@@ -49,12 +49,16 @@ public class Game
                     Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
                     Buffer = new BufferBindingLayout
                     {
-                        HasDynamicOffset = true
+                        HasDynamicOffset = true,
+                        Type = BufferBindingType.Uniform,
+                        MinBindingSize = 3 * 16 * 4
                     }
                 }
             ],
             Label = "UniformBindGroupLayout"
         });
+
+        Console.WriteLine("B");
 
         var textureBindGroupLayout = device.CreateBindGroupLayout(new BindGroupLayoutDescriptor
         {
@@ -63,23 +67,38 @@ public class Game
                 {
                     Binding = 0,
                     Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                    Sampler = new SamplerBindingLayout()
+                    Sampler = new SamplerBindingLayout
+                    {
+                        Type = SamplerBindingType.Filtering
+                    }
                 },
                 new LayoutEntry
                 {
                     Binding = 1,
                     Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                    Texture = new TextureBindingLayout()
+                    Texture = new TextureBindingLayout
+                    {
+                        Multisampled = false,
+                        SampleType = TextureSampleType.Float,
+                        ViewDimension = TextureViewDimension.Dimension2D
+                    }
                 },
                 new LayoutEntry
                 {
                     Binding = 2,
                     Visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                    Buffer = new BufferBindingLayout()
+                    Buffer = new BufferBindingLayout
+                    {
+                        Type = BufferBindingType.Uniform,
+                        HasDynamicOffset = false,
+                        MinBindingSize = 0
+                    }
                 }
             ],
             Label = "TextureBindGroupLayout"
         });
+
+        Console.WriteLine("C");
 
         var pipelineDescriptor = new RenderPipelineDescriptor
         {
@@ -104,7 +123,10 @@ public class Game
             },
             Layout = device.CreatePipelineLayout(new PipelineLayoutDescriptor
             {
-                BindGroupLayouts = [uniformBindGroupLayout, textureBindGroupLayout]
+                BindGroupLayouts = [
+                    uniformBindGroupLayout,
+                    textureBindGroupLayout
+                ]
             }),
             // DepthStencil = new DepthStencil
             // {
@@ -115,9 +137,6 @@ public class Game
         };
 
         var renderPipeline = device.CreateRenderPipeline(pipelineDescriptor);
-
-        device.PopErrorScope();
-        device.PopErrorScope();
 
         var gameInfo = new GameInfo
         {
@@ -151,13 +170,13 @@ public class Game
 
     public static void Frame()
     {
-        GameInfo.Server?.ProcessServerMessages();
+        // GameInfo.Server?.ProcessServerMessages();
 
         UpdateCamera();
 
-        GameInfo.Server?.SendUpdatesToServer();
+        // GameInfo.Server?.SendUpdatesToServer();
 
-        _ = GameInfo.Server?.SendPendingMessages(); //async
+        // _ = GameInfo.Server?.SendPendingMessages(); //async
 
         Renderer.RenderFrame(GameInfo.Camera);
 

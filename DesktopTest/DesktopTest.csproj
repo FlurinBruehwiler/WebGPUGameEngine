@@ -2,17 +2,34 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>WebGPUTexturedQuad</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+
+  </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.WebGPU.Extensions.WGPU" Version="2.20.0" />
-    <PackageReference Include="Silk.NET.WebGPU.Native.WGPU" Version="2.20.0" />
-    <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.20.0" />
+    <None Include="silk.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="shader.wgsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Silk.NET.GLFW" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.WebGPU.Extensions.WGPU" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.WebGPU.Native.WGPU" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Windowing.Common" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.3" />
   </ItemGroup>
 
 </Project>
