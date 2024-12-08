@@ -23,6 +23,7 @@ public struct TextureDestination
 public struct DataLayout
 {
     public required int BytesPerRow{ get; set; }
+    public required int RowsPerImage;
 }
 
 public struct TextureSize

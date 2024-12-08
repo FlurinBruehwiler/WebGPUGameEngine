@@ -1,5 +1,6 @@
 ﻿global using NativeGPU = Silk.NET.WebGPU.WebGPU;
 using System.Diagnostics;
+using System.Numerics;
 using Client;
 using Client.WebGPU;
 using Desktop.WebGPU;
@@ -8,6 +9,7 @@ using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.WebGPU;
 using Silk.NET.Windowing;
+using Color = System.Drawing.Color;
 
 namespace Desktop;
 
@@ -43,6 +45,50 @@ public static class Program
         Game.GameInfo = Game.InitializeGame(desktopImpl, _device, textureFormat).GetAwaiter().GetResult();
         Game.GameInfo.ScreenWidth = 800;
         Game.GameInfo.ScreenHeight = 600;
+
+        Game.GameInfo.NullTexture = Game.GameInfo.ResourceManager.LoadTexture("NullTexture.png").GetAwaiter().GetResult();
+        Game.GameInfo.Camera = new Camera
+        {
+            Transform = new Transform
+            {
+                Position = new Vector3(10, 0, 0),
+                Scale = Vector3.One,
+                Rotation = new Vector3(0, MathF.PI / 2, 0),
+            }
+        };
+
+        var cubeModel = Game.GameInfo.ResourceManager.LoadModel("crate.obj").GetAwaiter().GetResult();
+        Renderer.UploadModel(cubeModel);
+        cubeModel.SolidColor = System.Drawing.Color.Beige;;
+
+        // cubeModel.Texture = await ResourceManager.LoadTexture("crate-texture.jpg");
+
+        for (int i = 0; i < 10; i++)
+        {
+            Game.GameInfo.Entities.Add(new Entity
+            {
+                Transform = new Transform
+                {
+                    Scale = Vector3.One,
+                    Position = Game.RandomVector(-25, 25) with { Y = 1 }
+                },
+                Model = cubeModel,
+            });
+        }
+
+        var planeModel = Game.GameInfo.ResourceManager.LoadModel("plane.obj").GetAwaiter().GetResult();
+        Renderer.UploadModel(planeModel);
+        planeModel.Texture = Game.GameInfo.ResourceManager.LoadTexture("grass.png").GetAwaiter().GetResult();
+        planeModel.SolidColor = Color.Green;
+
+        Game.GameInfo.Entities.Add(new Entity
+        {
+            Transform = Transform.Default(30) with
+            {
+                Position = new Vector3(-10, 0, -10)
+            },
+            Model = planeModel
+        });
 
         _surface.Configure(new GPUSurfaceConfiguration
         {

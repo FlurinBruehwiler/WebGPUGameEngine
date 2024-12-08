@@ -91,7 +91,8 @@ public static class Renderer
             data,
             new DataLayout
             {
-                BytesPerRow = width * 4
+                BytesPerRow = width * 4,
+                RowsPerImage = height
             },
             new TextureSize
             {
@@ -241,6 +242,7 @@ public static class Renderer
                 }
             ]
         });
+        Console.WriteLine("uniform done");
 
         var passEncoder = commandEncoder.BeginRenderPass(renderPassDescriptor);
 
@@ -254,7 +256,7 @@ public static class Renderer
 
             if (model.GpuBuffer != null)
             {
-                passEncoder.SetBindGroup(0, uniformBindGroup, [i * uniformStride], 0, 1);
+                passEncoder.SetBindGroup(0, uniformBindGroup, [(uint)i * uniformStride], 0, 1);
                 passEncoder.SetBindGroup(1, model.TextureBindGroup);
                 passEncoder.SetVertexBuffer(0, model.GpuBuffer);
                 passEncoder.Draw(model.Vertices.Length);
@@ -301,7 +303,7 @@ public static class Renderer
         });
         gameInfo.Device.Queue.WriteBuffer(infoBuffer, 0, infoData, 0, infoData.Length);
 
-        return gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
+        var bindGroup = gameInfo.Device.CreateBindGroup(new BindGroupDescriptor
         {
             // Layout = bindGroupLayout,
             Layout = gameInfo.RenderPipeline.GetBindGroupLayout(1),
@@ -327,6 +329,10 @@ public static class Renderer
                 }
             ]
         });
+
+        Console.WriteLine("TextureBindGroupDone");
+
+        return bindGroup;
     }
 }
 

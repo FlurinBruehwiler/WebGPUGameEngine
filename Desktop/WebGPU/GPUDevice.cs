@@ -355,7 +355,8 @@ public unsafe class GPUDevice : IGPUDevice
             AddressModeU = (AddressMode)(descriptor.AddressModeU ?? Client.WebGPU.AddressMode.ClampToEdge),
             AddressModeV = (AddressMode)(descriptor.AddressModeV ?? Client.WebGPU.AddressMode.ClampToEdge),
             AddressModeW = (AddressMode)(descriptor.AddressModeW ?? Client.WebGPU.AddressMode.ClampToEdge),
-            MagFilter = (FilterMode)(descriptor.MagFilter ?? Client.WebGPU.FilterMode.Linear)
+            MagFilter = (FilterMode)(descriptor.MagFilter ?? Client.WebGPU.FilterMode.Linear),
+            MaxAnisotropy = 1
         };
 
         return new GPUSampler

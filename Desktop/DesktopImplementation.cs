@@ -35,7 +35,8 @@ public class DesktopImplementation(GPUSurface surface) : IPlatformImplementation
             bitmap.Bytes,
             new DataLayout
             {
-                BytesPerRow = bitmap.Width * 4
+                BytesPerRow = bitmap.Width * 4,
+                RowsPerImage = bitmap.Height
             },
             new TextureSize
             {

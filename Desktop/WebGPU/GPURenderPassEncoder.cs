@@ -33,14 +33,11 @@ public unsafe class GPURenderPassEncoder : IGPURenderPassEncoder
         GPU.API.RenderPassEncoderSetBindGroup(RenderPassEncoder, (uint)index, ((GPUBindGroup)bindGroup).BindGroup, 0, in dynamicOffsets);
     }
 
-    public void SetBindGroup(int index, IGPUBindGroup bindGroup, int[] dynamicOffsets, int dynamicOffsetsStart, int dynamicOffsetsLength)
+    public void SetBindGroup(int index, IGPUBindGroup bindGroup, uint[] dynamicOffsets, int dynamicOffsetsStart, int dynamicOffsetsLength)
     {
-        fixed (int* dynamicOffsetsPtr = dynamicOffsets.AsSpan(dynamicOffsetsStart, dynamicOffsetsLength))
-        {
-            var span = new ReadOnlySpan<uint>((uint*)dynamicOffsetsPtr, 0);
-            GPU.API.RenderPassEncoderSetBindGroup(RenderPassEncoder, (uint)index, ((GPUBindGroup)bindGroup).BindGroup,
-                (UIntPtr)dynamicOffsetsLength, span);
-        }
+        var span = dynamicOffsets.AsSpan(dynamicOffsetsStart, dynamicOffsetsLength);
+        GPU.API.RenderPassEncoderSetBindGroup(RenderPassEncoder, (uint)index, ((GPUBindGroup)bindGroup).BindGroup,
+            (UIntPtr)dynamicOffsetsLength, span);
     }
 
     public void Draw(int vertexCount)

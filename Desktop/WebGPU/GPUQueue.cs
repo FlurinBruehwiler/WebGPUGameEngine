@@ -31,7 +31,8 @@ public unsafe class GPUQueue : IGPUQueue
 
         var textureDataLayout = new TextureDataLayout
         {
-            BytesPerRow = (uint)dataLayout.BytesPerRow
+            BytesPerRow = (uint)dataLayout.BytesPerRow,
+            RowsPerImage = (uint)dataLayout.RowsPerImage
         };
 
         var extend = new Extent3D

@@ -14,7 +14,7 @@ public interface IGPURenderPassEncoder
     /// </summary>
     void SetBindGroup(int index, IGPUBindGroup bindGroup);
 
-    void SetBindGroup(int index, IGPUBindGroup bindGroup, int[] dynamicOffsets, int dynamicOffsetsStart, int dynamicOffsetsLength);
+    void SetBindGroup(int index, IGPUBindGroup bindGroup, uint[] dynamicOffsets, int dynamicOffsetsStart, int dynamicOffsetsLength);
     void Draw(int vertexCount);
     void End();
 }

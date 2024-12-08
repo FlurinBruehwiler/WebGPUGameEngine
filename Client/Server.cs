@@ -12,6 +12,8 @@ public class Server
 
     public async Task<bool> TryEstablishConnection()
     {
+        return false; //no server for now
+
         var cts = new CancellationTokenSource();
         cts.CancelAfter(1000);
 

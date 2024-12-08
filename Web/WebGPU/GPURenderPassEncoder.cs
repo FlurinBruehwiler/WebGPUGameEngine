@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices.JavaScript;
+﻿using System.Linq;
+using System.Runtime.InteropServices.JavaScript;
 using Client.WebGPU;
 
 namespace Web.WebGPU;
@@ -31,9 +32,10 @@ public class GPURenderPassEncoder : IInteropObject, IGPURenderPassEncoder
         Interop.GPURenderPassEncoder_SetBindGroup(JsObject, index, ((GPUBindGroup)bindGroup).JsObject);
     }
 
-    public void SetBindGroup(int index, IGPUBindGroup bindGroup, int[] dynamicOffsets, int dynamicOffsetsStart, int dynamicOffsetsLength)
+    public void SetBindGroup(int index, IGPUBindGroup bindGroup, uint[] dynamicOffsets, int dynamicOffsetsStart, int dynamicOffsetsLength)
     {
-        Interop.GPURenderPassEncoder_SetBindGroup(JsObject, index, ((GPUBindGroup)bindGroup).JsObject, dynamicOffsets, dynamicOffsetsStart, dynamicOffsetsLength);
+        //todo remove toarray...
+        Interop.GPURenderPassEncoder_SetBindGroup(JsObject, index, ((GPUBindGroup)bindGroup).JsObject, dynamicOffsets.Select(x => (int)x).ToArray(), dynamicOffsetsStart, dynamicOffsetsLength);
     }
 
     public void Draw(int vertexCount)
