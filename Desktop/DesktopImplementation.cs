@@ -25,7 +25,7 @@ public class DesktopImplementation(GPUSurface surface) : IPlatformImplementation
                 Width = bitmap.Width,
                 Height = bitmap.Height,
                 DepthOrArrayLayers = 1
-            }
+            },
         });
 
         Game.GameInfo.Device.Queue.WriteTexture(new TextureDestination
@@ -62,5 +62,12 @@ public class DesktopImplementation(GPUSurface surface) : IPlatformImplementation
         {
             Format = texture.GetFormat()
         });
+    }
+
+    public void EndFrame()
+    {
+        surface.Present();
+
+        // GPU.API.SurfacePresent();
     }
 }

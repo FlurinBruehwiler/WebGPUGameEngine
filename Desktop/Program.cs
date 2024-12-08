@@ -15,6 +15,7 @@ public static class Program
 {
     private static GPUSurface _surface;
     private static GPUDevice _device;
+    private static IWindow _window;
 
     static unsafe void onLoad(IWindow window)
     {
@@ -46,7 +47,7 @@ public static class Program
         _surface.Configure(new GPUSurfaceConfiguration
         {
             Device = _device,
-            TextureFormat = GPUTextureFormat.Bgra8Unorm,
+            TextureFormat = GPUTextureFormat.Bgra8UnormSrgb,
             Usage = GPUTextureUsage.RENDER_ATTACHMENT,
             Width = Game.GameInfo.ScreenWidth,
             Height = Game.GameInfo.ScreenHeight,
@@ -62,7 +63,7 @@ public static class Program
         _surface.Configure(new GPUSurfaceConfiguration
         {
             Device = _device,
-            TextureFormat = GPUTextureFormat.Bgra8Unorm,
+            TextureFormat = GPUTextureFormat.Bgra8UnormSrgb,
             Usage = GPUTextureUsage.RENDER_ATTACHMENT,
             Width = size.X,
             Height = size.Y,
@@ -73,6 +74,10 @@ public static class Program
     static void onRender(double delta)
     {
         Game.Frame();
+
+        _window.SwapBuffers();
+
+
     }
 
     public static void Main()
@@ -86,6 +91,8 @@ public static class Program
         // {
         //     Thread.Sleep(100);
         // }
+
+        _window = window;
 
         window.Load += () => onLoad(window);
         window.FramebufferResize += onResize;

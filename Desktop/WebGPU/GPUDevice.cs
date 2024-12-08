@@ -142,7 +142,8 @@ public unsafe class GPUDevice : IGPUDevice
                 Count = 1,
                 AlphaToCoverageEnabled = true,
                 Mask = 0xFFFFFFFF
-            }
+            },
+            Label = (byte*)SilkMarshal.StringToPtr("MyRenderPipeline")
         };
 
         Console.WriteLine(new IntPtr(nativeDescriptor.Layout));
@@ -300,6 +301,8 @@ public unsafe class GPUDevice : IGPUDevice
             DepthOrArrayLayers = (uint)descriptor.Size.DepthOrArrayLayers
         };
 
+        var viewFormat = TextureFormat.Rgba8Unorm;
+
         var textureDescriptor = new Silk.NET.WebGPU.TextureDescriptor
         {
             Format = (TextureFormat)descriptor.Format,
@@ -308,6 +311,8 @@ public unsafe class GPUDevice : IGPUDevice
             SampleCount = 1,
             Dimension = TextureDimension.Dimension2D,
             MipLevelCount = 1,
+            ViewFormats = &viewFormat,
+            ViewFormatCount = 1,
             Label = (byte*)SilkMarshal.StringToPtr("MyTextureDescriptor")
         };
 

@@ -130,8 +130,8 @@ public class Game
             }),
             // DepthStencil = new DepthStencil
             // {
-            //     Format = GPUTextureFormat.Depth24Plus,
-            //     DepthCompare = CompareFunction.Less,
+            //     Format = GPUTextureFormat.Rgba8Unorm,
+            //     DepthCompare = CompareFunction.Always,
             //     DepthWriteEnabled = true
             // }
         };

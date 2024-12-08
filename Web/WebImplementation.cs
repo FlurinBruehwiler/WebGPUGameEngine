@@ -23,6 +23,11 @@ public class WebImplementation(GPUCanvasContext canvasContext) : IPlatformImplem
         return canvasContext.GetCurrentTexture().CreateView();
     }
 
+    public void EndFrame()
+    {
+
+    }
+
     public async Task<Texture> LoadTexture(string name)
     {
         var stream = await LoadStream(name);

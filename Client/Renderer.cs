@@ -156,7 +156,7 @@ public static class Renderer
 
         using var depthTexture = gameInfo.Device.CreateTexture(new TextureDescriptor
         {
-            Format = GPUTextureFormat.Depth24Plus,
+            Format = GPUTextureFormat.Rgba8Unorm, //was depth24plus
             Usage = GPUTextureUsage.RENDER_ATTACHMENT,
             Size = new SizeObject
             {
@@ -178,13 +178,13 @@ public static class Renderer
                     View = gameInfo.PlatformImplementation.CreateTextureView()
                 }
             ],
-            DepthStencilAttachment = new DepthStencilAttachment
-            {
-                View = depthTexture.CreateView(),
-                DepthClearValue = 1.0f,
-                DepthGpuLoadOp = GPULoadOp.Clear,
-                DepthGpuStoreOp = GPUStoreOp.Store
-            }
+            // DepthStencilAttachment = new DepthStencilAttachment
+            // {
+            //     View = depthTexture.CreateView(),
+            //     DepthClearValue = 1.0f,
+            //     DepthGpuLoadOp = GPULoadOp.Clear,
+            //     DepthGpuStoreOp = GPUStoreOp.Store
+            // }
         };
 
         var projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(60 * (MathF.PI / 180),
@@ -200,8 +200,6 @@ public static class Renderer
 
         var uniformBufferSize =
             Math.Max(1, gameInfo.Entities.Count) * uniformStride; //only works as long as each uniform is smaller than 256 bytes
-
-        Console.WriteLine($"Uniform buffer size: {uniformBufferSize}");
 
         using var uniformBuffer = gameInfo.Device.CreateBuffer(new CreateBufferDescriptor
         {
@@ -273,6 +271,7 @@ public static class Renderer
 
         var commandBuffer = commandEncoder.Finish();
         gameInfo.Device.Queue.Submit([commandBuffer]);
+        gameInfo.PlatformImplementation.EndFrame();
     }
 
     private static IGPUBindGroup CreateTextureBindGroup(Model model)
